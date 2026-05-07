@@ -364,6 +364,146 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Inspection (Checkpoint 2) ─────────────────────────────── */
+.insp-overall {
+  background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.insp-overall .ttl { font-size: 11px; font-weight: 800; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+.insp-overall .pct { font-size: 30px; font-weight: 800; line-height: 1; }
+.insp-overall .pct .sym { font-size: 18px; opacity: 0.8; margin-left: 2px; }
+.insp-overall .meta { font-size: 12px; opacity: 0.88; margin-top: 6px; }
+.insp-overall .progress { background: rgba(255,255,255,0.22); margin-top: 10px; height: 6px; border-radius: 3px; overflow: hidden; }
+.insp-overall .progress > div { background: #fff; height: 100%; border-radius: 3px; transition: width 0.25s ease; }
+
+.insp-jump {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding: 4px 0 12px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.insp-jump .jp {
+  flex: 0 0 auto;
+  padding: 7px 11px; border-radius: 18px;
+  font-size: 11px; font-weight: 700;
+  background: var(--cream-warm); color: var(--ash);
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.insp-jump .jp.has-issue { background: var(--rust-light); color: var(--rust); }
+.insp-jump .jp.done { background: var(--green-light); color: var(--green-deep); }
+
+.insp-section {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--line-soft);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.insp-sec-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px;
+  width: 100%;
+  background: #fff;
+  text-align: left;
+}
+.insp-sec-head:active { background: var(--cream-warm); }
+.insp-sec-head .ic { font-size: 20px; flex-shrink: 0; }
+.insp-sec-head .lbl { flex: 1; min-width: 0; }
+.insp-sec-head .lbl .nm { font-size: 14px; font-weight: 800; color: var(--green-deep); line-height: 1.15; }
+.insp-sec-head .lbl .st { font-size: 11px; color: var(--ash); margin-top: 2px; }
+.insp-sec-head .chip {
+  font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 11px;
+  background: var(--cream-warm); color: var(--ash);
+  white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.insp-sec-head .chip.has-issue { background: var(--rust-light); color: var(--rust); }
+.insp-sec-head .chip.done { background: var(--green-light); color: var(--green-deep); }
+.insp-sec-head .caret { font-size: 16px; color: var(--ash-light); transition: transform 0.18s ease; flex-shrink: 0; }
+.insp-section.open .insp-sec-head .caret { transform: rotate(90deg); }
+.insp-sec-body { display: none; padding: 0 14px 14px 14px; }
+.insp-section.open .insp-sec-body { display: block; }
+
+.insp-item {
+  border-top: 1px solid var(--line-soft);
+  padding: 13px 0;
+}
+.insp-item:first-child { border-top: none; padding-top: 4px; }
+.insp-item .it-lbl {
+  font-size: 14px; font-weight: 700; color: var(--soot);
+  margin-bottom: 9px; line-height: 1.3;
+}
+.insp-item .it-help { font-size: 11px; color: var(--ash); font-weight: 500; margin-top: 3px; }
+
+.pcf {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+.pcf button {
+  padding: 10px 4px; border-radius: 9px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.4px;
+  background: var(--cream-warm); color: var(--ash);
+  border: 1.5px solid transparent;
+  text-transform: uppercase;
+  min-height: 40px;
+}
+.pcf button:active { transform: scale(0.97); }
+.pcf button.p[aria-pressed="true"] { background: var(--green-light); color: var(--green-deep); border-color: var(--green-bright); }
+.pcf button.c[aria-pressed="true"] { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+.pcf button.f[aria-pressed="true"] { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+
+.insp-notes {
+  font-size: 16px; padding: 9px 11px; min-height: 44px;
+  resize: vertical;
+  margin-bottom: 9px;
+}
+
+.insp-photo-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.insp-photo-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 9px;
+  background: var(--green-light); color: var(--green-deep);
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+}
+.insp-photo-btn:active { background: var(--green-bright); color: #fff; }
+.insp-thumb-wrap { position: relative; display: inline-block; }
+.insp-thumb {
+  width: 56px; height: 56px; border-radius: 9px;
+  object-fit: cover; background: var(--cream-warm);
+  border: 1.5px solid var(--line);
+  display: block;
+}
+.insp-thumb-x {
+  position: absolute; top: -7px; right: -7px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--rust); color: #fff; font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  border: 2px solid #fff;
+}
+
+.insp-rec {
+  font-size: 11.5px; font-weight: 600;
+  background: var(--cream-warm); color: var(--green-deep);
+  border-left: 3px solid var(--green-bright);
+  border-radius: 6px; padding: 7px 10px;
+  margin-top: 9px;
+  display: none;
+}
+.insp-item.flagged .insp-rec { display: block; background: var(--amber-light); border-left-color: var(--amber); color: #8a4f1a; }
+.insp-item.flagged .insp-rec.fail { background: var(--rust-light); border-left-color: var(--rust); color: var(--rust); }
+
+.insp-summary-card {
+  padding: 12px 14px;
+}
+.insp-summary-card .nm { font-size: 14px; font-weight: 800; color: var(--soot); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insp-summary-card .ad { font-size: 12px; color: var(--ash); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 </style>
 </head>
 <body>
@@ -489,18 +629,32 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     </div>
   </div>
 
-  <!-- ── ASSESSMENT SCREEN (placeholder for Checkpoint 2) ────── -->
+  <!-- ── INSPECTION SCREEN (Checkpoint 2) ──────────────────────── -->
   <div class="screen" id="screenAssessment">
-    <div class="card">
-      <div class="card-title">Inspection — <span id="assessJobName">Assessment</span></div>
-      <div class="alert info"><span class="ic">🚧</span><span><b>Checkpoint 2 coming next.</b><br>The 8-section inspection engine with Pass/Concern/Fail per item, photos, and auto-recommended actions will be in the next build.</span></div>
-      <div class="kv"><div class="k">Customer</div><div class="v" id="assessCust">—</div></div>
-      <div class="kv"><div class="k">Address</div><div class="v" id="assessAddr">—</div></div>
-      <div class="kv"><div class="k">Status</div><div class="v">Draft</div></div>
+    <div class="card insp-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div style="min-width:0; flex:1;">
+          <div class="nm" id="assessCust">—</div>
+          <div class="ad" id="assessAddr">—</div>
+        </div>
+        <span class="badge" id="assessJobName" style="background:var(--cream-warm); color:var(--ash); font-size:10px; padding:3px 8px; border-radius:10px; font-weight:800; letter-spacing:0.4px; text-transform:uppercase; white-space:nowrap;">DRAFT</span>
+      </div>
     </div>
+
+    <div class="insp-overall">
+      <div class="ttl">Inspection Progress</div>
+      <div class="pct"><span id="inspPct">0</span><span class="sym">%</span></div>
+      <div class="meta"><span id="inspDone">0</span> of <span id="inspTotal">0</span> items inspected · <span id="inspIssues">0</span> flagged</div>
+      <div class="progress"><div id="inspBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="insp-jump" id="inspJump"></div>
+
+    <div id="inspSections"></div>
+
     <div class="bottom-bar show">
-      <button class="btn secondary" onclick="goBack()">Back to Intake</button>
-      <button class="btn" onclick="showScreen('screenHome')">Save & Home</button>
+      <button class="btn secondary" onclick="goBack()">← Intake</button>
+      <button class="btn" onclick="continueToQuote()">Continue to Quote →</button>
     </div>
   </div>
 
@@ -1284,9 +1438,12 @@ function goToAssessment() {
   if (!APP.currentJob.property_addr) { showToast('Please enter property address'); document.getElementById('i_addr').focus(); return; }
 
   // Update assessment screen with summary
-  document.getElementById('assessJobName').textContent = APP.currentJob.customer_name;
+  const status = (APP.currentJob.status || 'draft');
+  document.getElementById('assessJobName').textContent = status.replace('_', ' ').toUpperCase();
   document.getElementById('assessCust').textContent = APP.currentJob.customer_name;
   document.getElementById('assessAddr').textContent = [APP.currentJob.property_addr, APP.currentJob.property_city].filter(Boolean).join(', ');
+  ensureInspectionShape(APP.currentJob);
+  renderInspection();
   showScreen('screenAssessment');
 }
 
@@ -1520,6 +1677,445 @@ window.addEventListener('DOMContentLoaded', () => {
     setSplashMsg('Error: ' + e.message);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════
+// INSPECTION ENGINE (Checkpoint 2)
+// 8 sections, each with items. Per item: Pass / Concern / Fail + Notes
+// + Before-photo. Concern/Fail auto-adds a quote line item bound to the
+// recommended pricebook service. Action recommendations sourced from
+// CSFS HIZ Guide, NFPA 1144, IBHS, Wildfire Prepared Home.
+// ════════════════════════════════════════════════════════════════════════
+
+const INSPECTION_CATALOG = [
+  { id:'roof', label:'Roof & Eaves', icon:'🏠', items:[
+    { id:'roof_type',         label:'Roof material & class',                  help:'Class A preferred (asphalt, metal, tile)' },
+    { id:'roof_condition',    label:'Overall roof condition',                 help:'Cracks, missing shingles, exposed underlayment' },
+    { id:'roof_debris',       label:'Roof & gutter debris',                   triggers:'roof_clean',      rec:'Clean roof valleys and gutters; remove pine needles, leaves, and branches.' },
+    { id:'roof_gutterguard',  label:'Metal gutter guards',                    triggers:'roof_gutterguard', rec:'Install metal gutter guards to prevent ember-trapping debris.' },
+    { id:'roof_dripedge',     label:'Metal drip edge at eaves',               triggers:'roof_dripedge',   rec:'Install metal drip edge along eave and rake edges.' },
+    { id:'roof_valley',       label:'Valley flashing',                        triggers:'roof_valley',     rec:'Install or upgrade roof valley to metal flashing.' },
+    { id:'roof_wallflash',    label:'Roof-to-wall flashing',                  triggers:'roof_wallflash',  rec:'Install metal flashing where roof meets wall.' },
+    { id:'roof_birdstop',     label:'Tile / metal roof gaps (bird-stop)',     triggers:'roof_birdstop',   rec:'Seal tile or metal roof openings with bird-stop to block embers.' },
+    { id:'roof_skylight',     label:'Skylights (tempered vs plastic)',        triggers:'roof_skylight',   rec:'Replace plastic skylight with a tempered-glass unit.' },
+  ]},
+  { id:'walls', label:'Walls & Openings', icon:'🧱', items:[
+    { id:'wall_siding',       label:'Siding material & condition',            help:'Wood, fiber cement, stucco; gaps and rot' },
+    { id:'wall_baseflash',    label:'6\" vertical noncombustible base',        triggers:'zone_vert6',     rec:'Install 6\" vertical noncombustible material at the foundation/wall base.' },
+    { id:'wall_dryervent',    label:'Dryer vent (ember-resistant)',           triggers:'vent_dryer',     rec:'Replace dryer vent cover with an ember-resistant model.' },
+    { id:'wall_foundvent',    label:'Foundation / crawl vents',               triggers:'vent_foundation', rec:'Replace foundation/crawl vents with 1/16\" ember-resistant mesh.' },
+    { id:'wall_gablevent',    label:'Gable end vents',                        triggers:'vent_gable',     rec:'Upgrade gable vents to ember-resistant mesh.' },
+    { id:'wall_soffitvent',   label:'Soffit vents',                           triggers:'vent_soffit',    rec:'Replace soffit vents with 1/16\" ember-resistant mesh.' },
+    { id:'wall_othervent',    label:'Other wall vents (misc)',                triggers:'vent_misc',      rec:'Inspect and upgrade remaining wall vents.' },
+    { id:'wall_windows',      label:'Windows (single / dual / tempered)',     help:'Tempered or dual-pane recommended in WUI' },
+    { id:'wall_doors',        label:'Doors & weather seals',                  help:'Solid-core doors; tight gaskets, no gaps' },
+    { id:'wall_struct_retardant', label:'Structural retardant treatment',     triggers:'spray_struct',   rec:'Apply structural fire retardant treatment to combustible siding.' },
+  ]},
+  { id:'decks', label:'Decks & Attachments', icon:'🪵', items:[
+    { id:'deck_material',     label:'Deck material',                          help:'Wood, composite, ipe, metal' },
+    { id:'deck_to_wall_flash',label:'Deck-to-wall metal flashing',            triggers:'deck_flashing',   rec:'Install metal flashing at the deck-to-wall junction (6\" vertical).' },
+    { id:'deck_first_board',  label:'First deck board (metal grate)',         triggers:'deck_metalgrate', rec:'Replace first deck board next to the wall with a metal grate.' },
+    { id:'deck_under_enclose',label:'Under-deck enclosure',                   triggers:'deck_mesh',       rec:'Enclose under-deck with wildfire mesh or Hardie board.' },
+    { id:'deck_wall_cladding',label:'Wall-to-deck Hardie cladding',           triggers:'deck_hardie_band', rec:'Install Hardie cladding at the base of the wall above the deck (6-12\" band).' },
+    { id:'deck_items_below',  label:'Combustibles stored under deck',         help:'Move firewood, propane, brush out from under deck' },
+    { id:'deck_stairs',       label:'Deck stairs & railing',                  help:'Combustible material continuity / ladder fuel' },
+  ]},
+  { id:'zone0', label:'Zone 0 — 0-5 ft (Immediate)', icon:'🪨', items:[
+    { id:'z0_surface',        label:'Noncombustible surface (gravel/stone)',  triggers:'zone_gravel',    rec:'Install noncombustible surface (gravel/stone) within 5 ft of structure.' },
+    { id:'z0_mulch',          label:'Combustible mulch within 0-5 ft',        triggers:'zone_mulch_remove', rec:'Remove combustible mulch within 5 ft of structure.' },
+    { id:'z0_vert6',          label:'6\" vertical noncombustible at foundation', triggers:'zone_vert6',  rec:'Install 6\" vertical noncombustible band at the foundation.' },
+    { id:'z0_fence',          label:'Fence within first 10 ft',               triggers:'zone_fence_nc',  rec:'Replace combustible fence section within 10 ft of structure with noncombustible material.' },
+    { id:'z0_vegetation',     label:'Vegetation in Zone 0',                   help:'Remove all plants from 0-5 ft zone' },
+    { id:'z0_timbers',        label:'Landscape timbers / planters',           help:'Remove or replace combustible edging' },
+  ]},
+  { id:'zone1', label:'Zone 1 — 5-30 ft (Intermediate)', icon:'🌳', items:[
+    { id:'z1_limbing',        label:'Tree limbing (6-10 ft up)',              triggers:'tree_limb',      rec:'Limb trees 6-10 ft above ground; clear ladder fuels.' },
+    { id:'z1_junipers',       label:'Junipers / high-flammability shrubs',    triggers:'tree_remove_std', rec:'Remove junipers and other high-flammability shrubs from Zone 1.' },
+    { id:'z1_pine_needles',   label:'Pine needles & duff layer',              triggers:'debris_haul',    rec:'Rake and remove pine needles and duff layer.' },
+    { id:'z1_shrubs',         label:'Shrub spacing & condition',              triggers:'brush_clear',    rec:'Thin shrubs to maintain horizontal separation; remove dead material.' },
+    { id:'z1_grass',          label:'Grass height (≤6\")',                     help:'Mow to ≤6\" within 30 ft' },
+    { id:'z1_surface_fuels',  label:'Surface fuels & deadfall',               triggers:'debris_haul',    rec:'Remove deadfall and accumulated surface fuels.' },
+  ]},
+  { id:'zone23', label:'Zone 2 & 3 — 30-100+ ft (Extended)', icon:'⛰️', items:[
+    { id:'z23_topography',    label:'Slope / topography / aspect',            help:'Steeper slopes and S/W aspects = higher risk' },
+    { id:'z23_conifer_spacing', label:'Conifer crown spacing',                triggers:'tree_remove_std', rec:'Thin conifers for 10-20 ft crown separation in Zone 2.' },
+    { id:'z23_aspens',        label:'Aspens (fire-resilient)',                help:'Aspens are fire-resistant; preserve where possible' },
+    { id:'z23_oak_islands',   label:'Oak islands / hardwood groups',          help:'Maintain as separated islands' },
+    { id:'z23_low_limbing',   label:'Low limbing in Zone 2/3',                triggers:'tree_limb',      rec:'Limb conifers in Zone 2/3 to prevent ground-to-crown fire.' },
+  ]},
+  { id:'outbuild', label:'Outbuildings & Property', icon:'🚐', items:[
+    { id:'ob_shed',           label:'Sheds / detached structures',            help:'Apply same Zone 0/1 treatment as main structure' },
+    { id:'ob_firewood',       label:'Firewood storage location',              help:'Relocate firewood beyond 30 ft from any structure' },
+    { id:'ob_propane',        label:'Propane tank clearance',                 help:'10 ft of bare mineral soil around tank' },
+    { id:'ob_vehicles',       label:'Vehicles & trailers',                    help:'Park 30+ ft from structures during fire weather' },
+    { id:'ob_address_marker', label:'Reflective address marker',              triggers:'misc_address',   rec:'Install reflective noncombustible address marker visible from main road.' },
+    { id:'ob_driveway',       label:'Driveway access for fire apparatus',     help:'12 ft min width, 14 ft vertical clearance, turnaround' },
+    { id:'ob_wood_fence',     label:'Wood fence retardant treatment',         triggers:'spray_fence',    rec:'Apply fire retardant treatment to wood fencing in defensible space.' },
+  ]},
+  { id:'insurance', label:'Insurance & Emergency Prep', icon:'🚨', items:[
+    { id:'ins_inventory',     label:'Home inventory (photos / video)',        help:'Document contents for insurance claims' },
+    { id:'ins_evac_plan',     label:'Evacuation plan & routes',               help:'Multiple routes, meet-up location, go-bag' },
+    { id:'ins_communication', label:'Family communication plan',              help:'Out-of-area contact, text vs voice' },
+    { id:'ins_pets',          label:'Pet & livestock plan',                   help:'Carriers, large-animal trailers, evac timing' },
+    { id:'ins_codered',       label:'CodeRED / county alerts registered',     help:'jeffco.us/CodeRED, douglas.co.us, etc.' },
+  ]},
+];
+
+// Flat lookup: item_id → { ...item, sectionId, sectionLabel, sectionIcon }
+const INSP_ITEMS_INDEX = (() => {
+  const m = {};
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    m[it.id] = { ...it, sectionId: s.id, sectionLabel: s.label, sectionIcon: s.icon };
+  }));
+  return m;
+})();
+
+function ensureInspectionShape(job) {
+  if (!job.inspection) job.inspection = {};
+  if (!job.inspection.items) job.inspection.items = {};
+  if (!job.inspection.started_at) job.inspection.started_at = new Date().toISOString();
+  if (!job.quote) job.quote = { line_items: [], adders: [] };
+  if (!job.quote.line_items) job.quote.line_items = [];
+  if (!job._inspOpen) job._inspOpen = {};
+}
+
+// ──────────────────────── Render ────────────────────────────────────────
+function renderInspection() {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  renderInspectionSummary();
+  renderInspectionJump();
+  renderInspectionSections();
+}
+
+function inspStats() {
+  const items = APP.currentJob?.inspection?.items || {};
+  let total = 0, done = 0, issues = 0;
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    total++;
+    const state = items[it.id];
+    if (state && state.mark) {
+      done++;
+      if (state.mark === 'concern' || state.mark === 'fail') issues++;
+    }
+  }));
+  return { total, done, issues };
+}
+
+function inspSectionStats(sectionId) {
+  const section = INSPECTION_CATALOG.find(s => s.id === sectionId);
+  if (!section) return { total:0, done:0, issues:0 };
+  const items = APP.currentJob?.inspection?.items || {};
+  let total = section.items.length, done = 0, issues = 0;
+  section.items.forEach(it => {
+    const state = items[it.id];
+    if (state && state.mark) {
+      done++;
+      if (state.mark === 'concern' || state.mark === 'fail') issues++;
+    }
+  });
+  return { total, done, issues };
+}
+
+function renderInspectionSummary() {
+  const { total, done, issues } = inspStats();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('inspPct', pct);
+  set('inspDone', done);
+  set('inspTotal', total);
+  set('inspIssues', issues);
+  const bar = document.getElementById('inspBar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function renderInspectionJump() {
+  const wrap = document.getElementById('inspJump');
+  if (!wrap) return;
+  wrap.innerHTML = INSPECTION_CATALOG.map(s => {
+    const st = inspSectionStats(s.id);
+    let cls = '';
+    if (st.issues > 0) cls = 'has-issue';
+    else if (st.done === st.total && st.total > 0) cls = 'done';
+    const shortLabel = s.label.split(' — ')[0];
+    return `<button class="jp ${cls}" onclick="inspJumpTo('${s.id}')">${s.icon} ${escHtml(shortLabel)}</button>`;
+  }).join('');
+}
+
+function inspJumpTo(sectionId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  // Open this section, close others
+  Object.keys(job._inspOpen).forEach(k => job._inspOpen[k] = false);
+  job._inspOpen[sectionId] = true;
+  renderInspectionSections();
+  setTimeout(() => {
+    const el = document.getElementById('insp-sec-' + sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
+function inspToggleSection(sectionId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  job._inspOpen[sectionId] = !job._inspOpen[sectionId];
+  renderInspectionSections();
+}
+
+function renderInspectionSections() {
+  const wrap = document.getElementById('inspSections');
+  if (!wrap) return;
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  wrap.innerHTML = INSPECTION_CATALOG.map(s => {
+    const st = inspSectionStats(s.id);
+    const open = !!job._inspOpen[s.id];
+    let chipCls = '', chipTxt = `${st.done}/${st.total}`;
+    if (st.issues > 0) { chipCls = 'has-issue'; chipTxt = `${st.issues} flagged`; }
+    else if (st.done === st.total && st.total > 0) { chipCls = 'done'; chipTxt = '✓ Done'; }
+    const subline = st.done + ' of ' + st.total + ' inspected' + (st.issues ? ' · ' + st.issues + ' flagged' : '');
+    return `<section class="insp-section ${open?'open':''}" id="insp-sec-${s.id}">
+      <button type="button" class="insp-sec-head" onclick="inspToggleSection('${s.id}')">
+        <span class="ic">${s.icon}</span>
+        <div class="lbl"><div class="nm">${escHtml(s.label)}</div><div class="st">${escHtml(subline)}</div></div>
+        <span class="chip ${chipCls}">${escHtml(chipTxt)}</span>
+        <span class="caret">›</span>
+      </button>
+      <div class="insp-sec-body">${open ? renderInspectionItems(s) : ''}</div>
+    </section>`;
+  }).join('');
+
+  // Async-bind photo thumbs for any open section
+  Object.keys(job._inspOpen).forEach(sid => {
+    if (job._inspOpen[sid]) {
+      const sec = INSPECTION_CATALOG.find(s => s.id === sid);
+      if (sec) sec.items.forEach(it => bindInspThumb(it.id));
+    }
+  });
+}
+
+function renderInspectionItems(section) {
+  const items = APP.currentJob?.inspection?.items || {};
+  return section.items.map(it => {
+    const state = items[it.id] || {};
+    const mark = state.mark || null;
+    const flagged = (mark === 'concern' || mark === 'fail');
+    const failCls = (mark === 'fail') ? 'fail' : '';
+    const notes = state.notes || '';
+    const hasPhoto = !!state.before_photo_id;
+    return `<div class="insp-item ${flagged?'flagged':''}" id="insp-item-${it.id}">
+      <div class="it-lbl">${escHtml(it.label)}${it.help ? `<div class="it-help">${escHtml(it.help)}</div>` : ''}</div>
+      <div class="pcf">
+        <button type="button" class="p" aria-pressed="${mark==='pass'}"    onclick="inspMark('${it.id}','pass')">Pass</button>
+        <button type="button" class="c" aria-pressed="${mark==='concern'}" onclick="inspMark('${it.id}','concern')">Concern</button>
+        <button type="button" class="f" aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
+      </div>
+      <textarea class="insp-notes" placeholder="Notes (optional)" oninput="inspNote('${it.id}', this.value)">${escHtml(notes)}</textarea>
+      <div class="insp-photo-row">
+        <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add before-photo'}</label>
+        <input id="ph_${it.id}" type="file" accept="image/*" capture="environment" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
+        <span id="thumbWrap_${it.id}"></span>
+      </div>
+      ${it.rec ? `<div class="insp-rec ${failCls}">→ ${escHtml(it.rec)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ──────────────────────── Mark / Notes ──────────────────────────────────
+function inspMark(itemId, mark) {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  const items = job.inspection.items;
+  const cur = items[itemId] || {};
+  // Tap same mark again to clear it
+  cur.mark = (cur.mark === mark) ? null : mark;
+  cur.ts = new Date().toISOString();
+  items[itemId] = cur;
+  syncQuoteFromInspection(job);
+  renderInspection();
+  commitJobChange(job, { immediate: true });
+}
+
+const _noteDebounce = {};
+function inspNote(itemId, text) {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  const items = job.inspection.items;
+  const cur = items[itemId] || {};
+  cur.notes = text;
+  cur.ts = new Date().toISOString();
+  items[itemId] = cur;
+  if (_noteDebounce[itemId]) clearTimeout(_noteDebounce[itemId]);
+  _noteDebounce[itemId] = setTimeout(() => commitJobChange(job), 600);
+}
+
+// ──────────────────────── Photos ────────────────────────────────────────
+async function inspCapturePhoto(itemId, file) {
+  if (!file) return;
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  setSavePill('syncing', 'Saving photo...');
+  try {
+    const blob = await compressImage(file, 1600, 0.78);
+    const photoId = 'pho_' + job.id + '_' + itemId + '_b_' + Date.now();
+    await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'before', job_id: job.id, ts: Date.now() });
+    const items = job.inspection.items;
+    const cur = items[itemId] || {};
+    if (cur.before_photo_id) {
+      try { await idbDelete('photos', cur.before_photo_id); } catch(e){}
+    }
+    cur.before_photo_id = photoId;
+    cur.ts = new Date().toISOString();
+    items[itemId] = cur;
+    commitJobChange(job, { immediate: true });
+    bindInspThumb(itemId);
+    // Re-render the section so the button label flips to "Replace photo"
+    renderInspectionSections();
+    showToast('Photo saved');
+  } catch (e) {
+    err('Photo capture failed:', e);
+    showToast('Photo failed: ' + (e.message || 'unknown'));
+    setSavePill('error', 'Photo error');
+  }
+}
+
+async function inspRemovePhoto(itemId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const items = job.inspection?.items || {};
+  const cur = items[itemId];
+  if (!cur || !cur.before_photo_id) return;
+  try { await idbDelete('photos', cur.before_photo_id); } catch(e){}
+  cur.before_photo_id = null;
+  items[itemId] = cur;
+  commitJobChange(job, { immediate: true });
+  renderInspectionSections();
+  showToast('Photo removed');
+}
+
+async function bindInspThumb(itemId) {
+  const job = APP.currentJob;
+  const wrap = document.getElementById('thumbWrap_' + itemId);
+  if (!wrap || !job) return;
+  const cur = job.inspection?.items?.[itemId];
+  if (!cur || !cur.before_photo_id) { wrap.innerHTML = ''; return; }
+  try {
+    const rec = await idbGet('photos', cur.before_photo_id);
+    if (!rec || !rec.blob) { wrap.innerHTML = ''; return; }
+    const url = URL.createObjectURL(rec.blob);
+    wrap.innerHTML = `<span class="insp-thumb-wrap"><img class="insp-thumb" src="${url}" alt=""><button type="button" class="insp-thumb-x" onclick="inspRemovePhoto('${itemId}')" aria-label="Remove photo">×</button></span>`;
+  } catch(e) {
+    wrap.innerHTML = '';
+  }
+}
+
+function compressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error || new Error('read failed'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('image decode failed'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const r = Math.min(maxDim / width, maxDim / height);
+          width = Math.round(width * r);
+          height = Math.round(height * r);
+        }
+        const c = document.createElement('canvas');
+        c.width = width; c.height = height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        c.toBlob((blob) => {
+          if (blob) resolve(blob); else reject(new Error('encode failed'));
+        }, 'image/jpeg', quality);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ──────────────────────── Auto-quote sync ───────────────────────────────
+// For every Concern/Fail item with a `triggers` pricebook id, ensure a
+// matching line item exists in job.quote.line_items (src='inspection').
+// Removed when item flips back to Pass/null. Custom user-added line items
+// (src='custom') are never touched.
+function syncQuoteFromInspection(job) {
+  if (!job.quote) job.quote = { line_items: [], adders: [] };
+  if (!job.quote.line_items) job.quote.line_items = [];
+  const items = job.inspection?.items || {};
+
+  // Set of inspection_item_ids that should currently have a line
+  const wanted = {};
+  Object.keys(items).forEach(itemId => {
+    const state = items[itemId];
+    if (!state || (state.mark !== 'concern' && state.mark !== 'fail')) return;
+    const meta = INSP_ITEMS_INDEX[itemId];
+    if (!meta || !meta.triggers) return;
+    const pb = APP.pricebook.find(p => p.id === meta.triggers);
+    if (!pb) return;
+    wanted[itemId] = { pb, mark: state.mark, rec: meta.rec || '', label: meta.label };
+  });
+
+  // Map existing inspection-sourced line items by inspection_item_id
+  const existingByItem = {};
+  job.quote.line_items.forEach(li => {
+    if (li.src === 'inspection' && li.inspection_item_id) {
+      existingByItem[li.inspection_item_id] = li;
+    }
+  });
+
+  // Add missing, refresh existing
+  Object.keys(wanted).forEach(itemId => {
+    const w = wanted[itemId];
+    let li = existingByItem[itemId];
+    if (!li) {
+      li = {
+        id: 'qli_' + itemId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        src: 'inspection',
+        inspection_item_id: itemId,
+        pricebook_id: w.pb.id,
+        name: w.pb.name,
+        unit: w.pb.unit,
+        qty: 0,
+        unit_price: w.pb.default_price,
+        override_price: null,
+        recommended_action: w.rec,
+        item_label: w.label,
+        mark: w.mark,
+      };
+      job.quote.line_items.push(li);
+    } else {
+      li.mark = w.mark;
+      li.name = w.pb.name;
+      li.unit = w.pb.unit;
+      li.unit_price = w.pb.default_price;
+      li.recommended_action = w.rec;
+    }
+  });
+
+  // Remove inspection-sourced items that no longer apply
+  job.quote.line_items = job.quote.line_items.filter(li => {
+    if (li.src !== 'inspection') return true;
+    return !!wanted[li.inspection_item_id];
+  });
+}
+
+// ──────────────────────── C2 stub: Continue button ──────────────────────
+function continueToQuote() {
+  // Quote screen lands in Checkpoint 3.
+  const { issues, done, total } = inspStats();
+  showToast(`Inspection saved · ${done}/${total} items · ${issues} flagged · Quote engine in Checkpoint 3`);
+  showScreen('screenHome');
+}
 
 </script>
 </body>
