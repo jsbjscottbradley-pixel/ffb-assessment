@@ -504,6 +504,155 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .insp-summary-card .nm { font-size: 14px; font-weight: 800; color: var(--soot); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .insp-summary-card .ad { font-size: 12px; color: var(--ash); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* 4-button P/C/F/NA grid */
+.pcf.pcf-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.pcf button.na[aria-pressed="true"] { background: var(--cream-warm); color: var(--soot); border-color: var(--ash-light); }
+
+/* 2-button Recommend/Skip toggle */
+.pcf.pcf-2 { grid-template-columns: 1fr 1fr; }
+.pcf button.rec[aria-pressed="true"] { background: var(--green-light); color: var(--green-deep); border-color: var(--green-bright); }
+.pcf button.sk[aria-pressed="true"]  { background: var(--cream-warm); color: var(--ash);   border-color: var(--ash-light); }
+
+/* Flagged block (CWMS rec + Contractor notes + measurement) */
+.insp-flagged-block {
+  background: var(--cream-warm);
+  border-left: 3px solid var(--amber);
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin-bottom: 10px;
+}
+.insp-flagged-block.fail { background: var(--rust-light); border-left-color: var(--rust); }
+.insp-mini-label {
+  display: block;
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--ash); margin: 6px 0 4px 0;
+}
+.insp-mini-label:first-child { margin-top: 0; }
+
+.insp-meas {
+  font-size: 16px; padding: 9px 11px;
+  width: 140px; max-width: 100%;
+  font-weight: 700; color: var(--green-deep);
+  background: #fff;
+}
+
+/* Recommendation-type item: blurb above the toggle */
+.insp-rec-item .insp-rec-blurb {
+  font-size: 12.5px;
+  color: var(--ash);
+  line-height: 1.4;
+  margin: 4px 0 10px 0;
+  padding: 8px 10px;
+  background: var(--green-light);
+  border-radius: 8px;
+}
+
+/* Education-type item: single full-row toggle */
+.insp-edu-item { padding: 0; border-top: 1px solid var(--line-soft); }
+.insp-edu-item:first-child { border-top: none; }
+.insp-edu-toggle {
+  width: 100%; display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 0; text-align: left; background: none;
+}
+.insp-edu-toggle:active { background: var(--cream-warm); }
+.insp-edu-check {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: #fff; border: 2px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: var(--green-bright);
+  flex-shrink: 0;
+}
+.insp-edu-item.discussed .insp-edu-check {
+  background: var(--green-light); border-color: var(--green-bright);
+}
+.insp-edu-text { flex: 1; min-width: 0; }
+.insp-edu-text .nm { font-size: 14px; font-weight: 700; color: var(--soot); line-height: 1.3; display: block; }
+.insp-edu-text .hp { font-size: 11px; color: var(--ash); margin-top: 3px; line-height: 1.3; display: block; }
+
+/* ── Quote screen ──────────────────────────────────────────── */
+.qt-summary {
+  background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+  color: #fff;
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
+}
+.qt-summary .ttl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.85; margin-bottom: 6px; }
+.qt-summary .total { font-size: 28px; font-weight: 800; line-height: 1.05; }
+.qt-summary .total .sym { font-size: 18px; opacity: 0.8; margin-right: 4px; }
+.qt-summary .meta { font-size: 12px; opacity: 0.88; margin-top: 4px; }
+
+.qt-line {
+  background: #fff;
+  border-radius: 12px; border: 1px solid var(--line-soft);
+  padding: 12px; margin-bottom: 10px;
+}
+.qt-line .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.qt-line .nm { font-size: 14px; font-weight: 700; color: var(--soot); line-height: 1.3; flex: 1; min-width: 0; }
+.qt-line .src-tag { font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 9px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
+.qt-line .src-tag.inspection { background: var(--amber-light); color: var(--amber); }
+.qt-line .src-tag.custom     { background: var(--green-light); color: var(--green-deep); }
+.qt-line .rec-blurb { font-size: 11px; color: var(--ash); margin-bottom: 8px; line-height: 1.4; padding-left: 0; }
+.qt-line .grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  margin-bottom: 6px;
+}
+.qt-line .field-mini label { font-size: 9.5px; font-weight: 800; color: var(--ash); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; display: block; }
+.qt-line .field-mini input {
+  width: 100%; font-size: 16px; padding: 8px 10px;
+  font-weight: 700; color: var(--green-deep);
+  text-align: left;
+}
+.qt-line .field-mini .unit-suffix { font-size: 10px; color: var(--ash); margin-top: 2px; display: block; text-align: right; }
+.qt-line .subtotal-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 8px; border-top: 1px solid var(--line-soft); margin-top: 4px;
+}
+.qt-line .subtotal-row .lbl { font-size: 11px; font-weight: 700; color: var(--ash); text-transform: uppercase; letter-spacing: 0.4px; }
+.qt-line .subtotal-row .amt { font-size: 16px; font-weight: 800; color: var(--green-deep); }
+.qt-line .row-actions { margin-top: 6px; display: flex; justify-content: flex-end; gap: 6px; }
+.qt-line .row-x {
+  background: none; color: var(--rust); font-size: 11px; font-weight: 700;
+  padding: 4px 8px; border-radius: 6px;
+}
+.qt-line .row-x:active { background: var(--rust-light); }
+
+.qt-add-row {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.qt-add-row .btn { font-size: 13px; padding: 10px 14px; min-height: 42px; }
+
+.qt-adders { background: #fff; border-radius: 12px; border: 1px solid var(--line-soft); padding: 14px; margin-bottom: 12px; }
+.qt-adders .h { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--green-deep); margin-bottom: 10px; }
+.qt-adder-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.qt-adder-row:first-of-type { border-top: none; padding-top: 0; }
+.qt-adder-row .lbl { flex: 1; font-size: 13px; font-weight: 600; color: var(--soot); min-width: 0; }
+.qt-adder-row input.amt {
+  width: 110px; font-size: 16px; padding: 8px 10px;
+  font-weight: 700; color: var(--green-deep);
+  text-align: right;
+}
+.qt-adder-row .x {
+  background: none; color: var(--ash-light); font-size: 16px; padding: 4px 6px;
+}
+.qt-adder-row .x:active { color: var(--rust); }
+
+.qt-pricebook-modal-list {
+  max-height: 50vh; overflow-y: auto;
+  border: 1px solid var(--line-soft); border-radius: 9px;
+  margin-bottom: 12px;
+}
+.qt-pb-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; border-bottom: 1px solid var(--line-soft);
+  width: 100%; text-align: left; background: #fff;
+}
+.qt-pb-item:last-child { border-bottom: none; }
+.qt-pb-item:active { background: var(--green-light); }
+.qt-pb-item .nm { font-size: 13px; font-weight: 700; color: var(--soot); flex: 1; min-width: 0; }
+.qt-pb-item .pr { font-size: 12px; font-weight: 700; color: var(--green-deep); white-space: nowrap; margin-left: 10px; }
+
 </style>
 </head>
 <body>
@@ -623,6 +772,73 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
       <div class="field"><label>Site Notes</label><textarea id="i_notes" placeholder="Access, hazards, gate code, dogs, special requests..."></textarea></div>
     </div>
 
+    <div class="card">
+      <div class="card-title">Parcel-Level CWMS Assessment</div>
+      <div class="field-row">
+        <div><label>Dist. to Nearest Structure (ft)</label><input type="number" inputmode="numeric" min="0" id="i_dist_neighbor" placeholder="e.g. 75"></div>
+        <div><label>Roof Age (years)</label><input type="number" inputmode="numeric" min="0" id="i_roof_age" placeholder="e.g. 12"></div>
+      </div>
+      <div class="field-row">
+        <div><label>Hydrant Status</label>
+          <select id="i_hydrant">
+            <option value="">—</option>
+            <option>On property</option>
+            <option>Within 300 ft</option>
+            <option>300-1000 ft</option>
+            <option>1000+ ft / None</option>
+          </select>
+        </div>
+        <div><label>Hydrant Distance (ft)</label><input type="number" inputmode="numeric" min="0" id="i_hydrant_dist" placeholder="approx"></div>
+      </div>
+      <div class="field-row three">
+        <div><label>Drive Grade</label>
+          <select id="i_drv_grade">
+            <option value="">—</option>
+            <option>Flat</option>
+            <option>Gentle</option>
+            <option>Steep</option>
+            <option>Very Steep</option>
+          </select>
+        </div>
+        <div><label>Drive Width</label>
+          <select id="i_drv_width">
+            <option value="">—</option>
+            <option>Single (&lt;10 ft)</option>
+            <option>Double (10-12 ft)</option>
+            <option>12+ ft</option>
+          </select>
+        </div>
+        <div><label>Apparatus Turnaround</label>
+          <select id="i_drv_turnaround">
+            <option value="">—</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div><label>Adjoining Wildland Fuel</label>
+          <select id="i_adj_fuel">
+            <option value="">—</option>
+            <option>Grass / meadow</option>
+            <option>Brush / chaparral</option>
+            <option>Timber / conifer</option>
+            <option>Mixed timber + brush</option>
+            <option>Aspen / hardwood</option>
+            <option>Limited / urban edge</option>
+          </select>
+        </div>
+        <div><label>Prior Mitigation</label>
+          <select id="i_prior_mit">
+            <option value="">—</option>
+            <option>None</option>
+            <option>Partial</option>
+            <option>Extensive</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="bottom-bar show">
       <button class="btn secondary" onclick="goBack()">Back</button>
       <button class="btn" onclick="goToAssessment()">Continue to Inspection →</button>
@@ -655,6 +871,56 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     <div class="bottom-bar show">
       <button class="btn secondary" onclick="goBack()">← Intake</button>
       <button class="btn" onclick="continueToQuote()">Continue to Quote →</button>
+    </div>
+  </div>
+
+  <!-- ── QUOTE SCREEN (Checkpoint 3) ──────────────────────────── -->
+  <div class="screen" id="screenQuote">
+    <div class="card insp-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div style="min-width:0; flex:1;">
+          <div class="nm" id="quoteCust">—</div>
+          <div class="ad" id="quoteAddr">—</div>
+        </div>
+        <span class="badge" style="background:var(--green-light); color:var(--green-deep); font-size:10px; padding:3px 8px; border-radius:10px; font-weight:800; letter-spacing:0.4px; text-transform:uppercase; white-space:nowrap;">QUOTE</span>
+      </div>
+    </div>
+
+    <div class="qt-summary">
+      <div class="ttl">Estimated Total</div>
+      <div class="total"><span class="sym">$</span><span id="qtTotal">0.00</span></div>
+      <div class="meta"><span id="qtLineCount">0</span> line items · <span id="qtAdderCount">0</span> adders</div>
+    </div>
+
+    <div class="qt-add-row">
+      <button class="btn secondary small" onclick="qtOpenPricebookModal()">+ Add Service from Pricebook</button>
+      <button class="btn ghost small" onclick="qtAddCustomLine()">+ Custom</button>
+    </div>
+
+    <div id="qtLines"></div>
+
+    <div class="qt-adders">
+      <div class="h">Adders &amp; Surcharges</div>
+      <div id="qtAdders"></div>
+      <div class="spacer" style="height:8px;"></div>
+      <button class="btn ghost small" onclick="qtAddCustomAdder()">+ Add Custom Adder</button>
+    </div>
+
+    <div class="bottom-bar show">
+      <button class="btn secondary" onclick="goBack()">← Inspection</button>
+      <button class="btn" onclick="qtSaveAndHome()">Save Quote</button>
+    </div>
+  </div>
+
+  <!-- ── PRICEBOOK PICKER MODAL (Quote screen) ────────────────── -->
+  <div class="modal-bg" id="qtPbModal">
+    <div class="modal">
+      <div class="modal-title">Add Service from Pricebook</div>
+      <div class="filter-row" style="margin-bottom:10px;">
+        <input type="search" placeholder="Search services..." id="qtPbSearch" oninput="qtRenderPbModal()">
+      </div>
+      <div class="qt-pricebook-modal-list" id="qtPbList"></div>
+      <button class="btn secondary" onclick="qtClosePbModal()">Cancel</button>
     </div>
   </div>
 
@@ -1223,6 +1489,7 @@ function showScreen(id, push = true) {
     screenHome:       { t: 'Foothills Fire Block', s: 'Wildfire Mitigation Assessments' },
     screenIntake:     { t: 'New Assessment',       s: 'Step 1 of 4 — Customer & Property' },
     screenAssessment: { t: 'Inspection',           s: 'Step 2 of 4 — Property Walk-Around' },
+    screenQuote:      { t: 'Quote',                s: 'Step 3 of 4 — Estimate & Adders' },
     screenSettings:   { t: 'Settings',             s: 'Pricing, company info, sync' },
   };
   const tt = titles[id];
@@ -1378,6 +1645,17 @@ function loadIntakeForm() {
   setVal('i_water', j.water_source);
   setVal('i_notes', j.notes);
 
+  // Parcel-level CWMS fields
+  setVal('i_dist_neighbor', j.dist_neighbor);
+  setVal('i_roof_age',      j.roof_age);
+  setVal('i_hydrant',       j.hydrant);
+  setVal('i_hydrant_dist',  j.hydrant_dist);
+  setVal('i_drv_grade',     j.drv_grade);
+  setVal('i_drv_width',     j.drv_width);
+  setVal('i_drv_turnaround',j.drv_turnaround);
+  setVal('i_adj_fuel',      j.adj_fuel);
+  setVal('i_prior_mit',     j.prior_mit);
+
   // Surrounding features
   ['openspace', 'canyon', 'saddle', 'ridge', 'forested'].forEach(f => {
     const el = document.getElementById('surr_' + f);
@@ -1420,6 +1698,17 @@ function saveIntakeFromForm() {
   j.slope_dir       = getVal('i_slopedir');
   j.water_source    = getVal('i_water');
   j.notes           = getVal('i_notes');
+
+  // Parcel-level CWMS fields
+  j.dist_neighbor   = getVal('i_dist_neighbor');
+  j.roof_age        = getVal('i_roof_age');
+  j.hydrant         = getVal('i_hydrant');
+  j.hydrant_dist    = getVal('i_hydrant_dist');
+  j.drv_grade       = getVal('i_drv_grade');
+  j.drv_width       = getVal('i_drv_width');
+  j.drv_turnaround  = getVal('i_drv_turnaround');
+  j.adj_fuel        = getVal('i_adj_fuel');
+  j.prior_mit       = getVal('i_prior_mit');
 
   j.surrounding = {};
   ['openspace', 'canyon', 'saddle', 'ridge', 'forested'].forEach(f => {
@@ -1686,77 +1975,113 @@ window.addEventListener('DOMContentLoaded', () => {
 // CSFS HIZ Guide, NFPA 1144, IBHS, Wildfire Prepared Home.
 // ════════════════════════════════════════════════════════════════════════
 
+// Item types:
+//   'assessment'     — Pass / Concern / Fail / N/A. Default for physical items.
+//   'recommendation' — Recommend / Skip. For optional add-on services.
+//   'education'      — single "Discussed with homeowner" toggle. For homeowner prep.
+//
+// Optional fields:
+//   triggers:  pricebook id this item adds to the quote when flagged
+//   unit:      'sqft'|'lf'|'each'|'hr'|'load'|'flat' — drives measurement prompt
+//   rec:       default CWMS recommendation text (auto-populated on first flag)
+//   help:      gray helper text under the item label
 const INSPECTION_CATALOG = [
+
+  // ─── Roof & Eaves ────────────────────────────────────────────
   { id:'roof', label:'Roof & Eaves', icon:'🏠', items:[
-    { id:'roof_type',         label:'Roof material & class',                  help:'Class A preferred (asphalt, metal, tile)' },
-    { id:'roof_condition',    label:'Overall roof condition',                 help:'Cracks, missing shingles, exposed underlayment' },
-    { id:'roof_debris',       label:'Roof & gutter debris',                   triggers:'roof_clean',      rec:'Clean roof valleys and gutters; remove pine needles, leaves, and branches.' },
-    { id:'roof_gutterguard',  label:'Metal gutter guards',                    triggers:'roof_gutterguard', rec:'Install metal gutter guards to prevent ember-trapping debris.' },
-    { id:'roof_dripedge',     label:'Metal drip edge at eaves',               triggers:'roof_dripedge',   rec:'Install metal drip edge along eave and rake edges.' },
-    { id:'roof_valley',       label:'Valley flashing',                        triggers:'roof_valley',     rec:'Install or upgrade roof valley to metal flashing.' },
-    { id:'roof_wallflash',    label:'Roof-to-wall flashing',                  triggers:'roof_wallflash',  rec:'Install metal flashing where roof meets wall.' },
-    { id:'roof_birdstop',     label:'Tile / metal roof gaps (bird-stop)',     triggers:'roof_birdstop',   rec:'Seal tile or metal roof openings with bird-stop to block embers.' },
-    { id:'roof_skylight',     label:'Skylights (tempered vs plastic)',        triggers:'roof_skylight',   rec:'Replace plastic skylight with a tempered-glass unit.' },
+    { id:'roof_type',         label:'Roof material & class',                  type:'assessment', help:'Class A preferred (asphalt, metal, tile)', rec:'Note current roof class. Recommend Class A roofing on next replacement cycle.' },
+    { id:'roof_condition',    label:'Overall roof condition',                 type:'assessment', help:'Cracks, missing shingles, exposed underlayment', rec:'Repair or replace damaged roofing. Schedule professional roof inspection.' },
+    { id:'roof_debris',       label:'Roof & gutter debris',                   type:'assessment', triggers:'roof_clean', unit:'flat', rec:'Clean roof valleys and gutters; remove pine needles, leaves, and branches.' },
+    { id:'roof_overhang',     label:'Branches overhanging the roof',          type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb back any branches overhanging the roof; min 10 ft horizontal clearance from the structure.' },
+    { id:'roof_gutterguard',  label:'Metal gutter guards',                    type:'assessment', triggers:'roof_gutterguard', unit:'lf', rec:'Install metal gutter guards to prevent ember-trapping debris accumulation.' },
+    { id:'roof_dripedge',     label:'Metal drip edge at eaves',               type:'assessment', triggers:'roof_dripedge', unit:'lf', rec:'Install metal drip edge along eave and rake edges.' },
+    { id:'roof_valley',       label:'Valley flashing',                        type:'assessment', triggers:'roof_valley', unit:'lf', rec:'Install or upgrade roof valley to metal flashing.' },
+    { id:'roof_wallflash',    label:'Roof-to-wall flashing',                  type:'assessment', triggers:'roof_wallflash', unit:'lf', rec:'Install metal flashing where roof meets wall.' },
+    { id:'roof_birdstop',     label:'Tile/metal roof gaps (bird-stop)',       type:'assessment', triggers:'roof_birdstop', unit:'lf', rec:'Seal tile or metal roof openings with bird-stop to block embers.' },
+    { id:'roof_skylight',     label:'Skylights (tempered vs plastic)',        type:'assessment', triggers:'roof_skylight', unit:'each', rec:'Replace plastic skylight with a tempered-glass unit.' },
   ]},
+
+  // ─── Walls & Openings ───────────────────────────────────────
   { id:'walls', label:'Walls & Openings', icon:'🧱', items:[
-    { id:'wall_siding',       label:'Siding material & condition',            help:'Wood, fiber cement, stucco; gaps and rot' },
-    { id:'wall_baseflash',    label:'6\" vertical noncombustible base',        triggers:'zone_vert6',     rec:'Install 6\" vertical noncombustible material at the foundation/wall base.' },
-    { id:'wall_dryervent',    label:'Dryer vent (ember-resistant)',           triggers:'vent_dryer',     rec:'Replace dryer vent cover with an ember-resistant model.' },
-    { id:'wall_foundvent',    label:'Foundation / crawl vents',               triggers:'vent_foundation', rec:'Replace foundation/crawl vents with 1/16\" ember-resistant mesh.' },
-    { id:'wall_gablevent',    label:'Gable end vents',                        triggers:'vent_gable',     rec:'Upgrade gable vents to ember-resistant mesh.' },
-    { id:'wall_soffitvent',   label:'Soffit vents',                           triggers:'vent_soffit',    rec:'Replace soffit vents with 1/16\" ember-resistant mesh.' },
-    { id:'wall_othervent',    label:'Other wall vents (misc)',                triggers:'vent_misc',      rec:'Inspect and upgrade remaining wall vents.' },
-    { id:'wall_windows',      label:'Windows (single / dual / tempered)',     help:'Tempered or dual-pane recommended in WUI' },
-    { id:'wall_doors',        label:'Doors & weather seals',                  help:'Solid-core doors; tight gaskets, no gaps' },
-    { id:'wall_struct_retardant', label:'Structural retardant treatment',     triggers:'spray_struct',   rec:'Apply structural fire retardant treatment to combustible siding.' },
+    { id:'wall_siding',       label:'Siding material & condition',            type:'assessment', help:'Wood, fiber cement, stucco; gaps and rot', rec:'Repair gaps and damaged siding. Recommend fiber cement or noncombustible cladding on next replacement.' },
+    { id:'wall_baseflash',    label:'6" vertical noncombustible base',        type:'assessment', triggers:'zone_vert6', unit:'lf', rec:'Install 6 inch vertical noncombustible material at the foundation/wall base.' },
+    { id:'wall_dryervent',    label:'Dryer vent (ember-resistant)',           type:'assessment', triggers:'vent_dryer', unit:'each', rec:'Replace dryer vent cover with an ember-resistant model.' },
+    { id:'wall_foundvent',    label:'Foundation/crawl vents',                 type:'assessment', triggers:'vent_foundation', unit:'each', rec:'Replace foundation/crawl vents with 1/16 inch ember-resistant mesh.' },
+    { id:'wall_gablevent',    label:'Gable end vents',                        type:'assessment', triggers:'vent_gable', unit:'each', rec:'Upgrade gable vents to ember-resistant mesh.' },
+    { id:'wall_soffitvent',   label:'Soffit vents',                           type:'assessment', triggers:'vent_soffit', unit:'each', rec:'Replace soffit vents with 1/16 inch ember-resistant mesh.' },
+    { id:'wall_othervent',    label:'Other wall vents (misc)',                type:'assessment', triggers:'vent_misc', unit:'each', rec:'Inspect and upgrade remaining wall vents to ember-resistant mesh.' },
+    { id:'wall_windows',      label:'Windows (single/dual/tempered)',         type:'assessment', help:'Tempered or dual-pane recommended in WUI', rec:'Recommend tempered or dual-pane windows on next replacement; close gaps in frames.' },
+    { id:'wall_doors',        label:'Doors & weather seals',                  type:'assessment', help:'Solid-core doors; tight gaskets, no gaps', rec:'Replace damaged weather seals; recommend solid-core doors on next replacement.' },
   ]},
+
+  // ─── Decks & Attachments ────────────────────────────────────
   { id:'decks', label:'Decks & Attachments', icon:'🪵', items:[
-    { id:'deck_material',     label:'Deck material',                          help:'Wood, composite, ipe, metal' },
-    { id:'deck_to_wall_flash',label:'Deck-to-wall metal flashing',            triggers:'deck_flashing',   rec:'Install metal flashing at the deck-to-wall junction (6\" vertical).' },
-    { id:'deck_first_board',  label:'First deck board (metal grate)',         triggers:'deck_metalgrate', rec:'Replace first deck board next to the wall with a metal grate.' },
-    { id:'deck_under_enclose',label:'Under-deck enclosure',                   triggers:'deck_mesh',       rec:'Enclose under-deck with wildfire mesh or Hardie board.' },
-    { id:'deck_wall_cladding',label:'Wall-to-deck Hardie cladding',           triggers:'deck_hardie_band', rec:'Install Hardie cladding at the base of the wall above the deck (6-12\" band).' },
-    { id:'deck_items_below',  label:'Combustibles stored under deck',         help:'Move firewood, propane, brush out from under deck' },
-    { id:'deck_stairs',       label:'Deck stairs & railing',                  help:'Combustible material continuity / ladder fuel' },
+    { id:'deck_material',     label:'Deck material & footprint',              type:'assessment', help:'Note material (wood/composite/ipe/metal) AND approx total sqft', rec:'Document current deck material and footprint. Recommend noncombustible decking on next replacement.' },
+    { id:'deck_to_wall_flash',label:'Deck-to-wall metal flashing',            type:'assessment', triggers:'deck_flashing', unit:'lf', rec:'Install metal flashing at the deck-to-wall junction (6 inch vertical).' },
+    { id:'deck_under_enclose',label:'Under-deck enclosure',                   type:'assessment', triggers:'deck_mesh', unit:'sqft', rec:'Enclose under-deck with wildfire mesh or Hardie board to block ember intrusion.' },
+    { id:'deck_wall_cladding',label:'Wall-to-deck Hardie cladding',           type:'assessment', triggers:'deck_hardie_band', unit:'sqft', rec:'Install Hardie cladding at the base of the wall above the deck (6-12 inch band).' },
+    { id:'deck_items_below',  label:'Combustibles stored under deck',         type:'assessment', help:'Move firewood, propane, brush out from under deck', rec:'Relocate firewood, propane, and combustible storage out from under the deck.' },
+    { id:'deck_stairs',       label:'Deck stairs & railing',                  type:'assessment', help:'Combustible material continuity / ladder fuel', rec:'Address combustible material continuity at stairs/railing; consider noncombustible upgrade.' },
+    { id:'deck_ladder_fuels', label:'Ladder fuels under or against deck',     type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Clear ladder fuels (small shrubs, debris, accumulated needles) under and immediately adjacent to the deck.' },
   ]},
+
+  // ─── Zone 0 (0-5 ft Immediate) ──────────────────────────────
   { id:'zone0', label:'Zone 0 — 0-5 ft (Immediate)', icon:'🪨', items:[
-    { id:'z0_surface',        label:'Noncombustible surface (gravel/stone)',  triggers:'zone_gravel',    rec:'Install noncombustible surface (gravel/stone) within 5 ft of structure.' },
-    { id:'z0_mulch',          label:'Combustible mulch within 0-5 ft',        triggers:'zone_mulch_remove', rec:'Remove combustible mulch within 5 ft of structure.' },
-    { id:'z0_vert6',          label:'6\" vertical noncombustible at foundation', triggers:'zone_vert6',  rec:'Install 6\" vertical noncombustible band at the foundation.' },
-    { id:'z0_fence',          label:'Fence within first 10 ft',               triggers:'zone_fence_nc',  rec:'Replace combustible fence section within 10 ft of structure with noncombustible material.' },
-    { id:'z0_vegetation',     label:'Vegetation in Zone 0',                   help:'Remove all plants from 0-5 ft zone' },
-    { id:'z0_timbers',        label:'Landscape timbers / planters',           help:'Remove or replace combustible edging' },
+    { id:'z0_combustibles',   label:'Combustible material within 0-5 ft',     type:'assessment', triggers:'zone_mulch_remove', unit:'sqft', help:'Mulch, plants, ground covers — anything that can burn within 5 ft of structure', rec:'Remove all combustible material (mulch, plants, debris) within 5 ft of structure.' },
+    { id:'z0_gravel',         label:'Noncombustible surface install needed',  type:'assessment', triggers:'zone_gravel', unit:'sqft', help:'Bare ground or grass within 5 ft that should be replaced with gravel/stone', rec:'Install noncombustible ground surface (gravel/stone) within 5 ft of structure.' },
+    { id:'z0_vert6',          label:'6" vertical noncombustible at foundation', type:'assessment', triggers:'zone_vert6', unit:'lf', rec:'Install 6 inch vertical noncombustible band at the foundation.' },
+    { id:'z0_junipers',       label:'Junipers within 0-5 ft (highly flammable)', type:'assessment', triggers:'tree_remove_std', unit:'each', help:'Junipers in the immediate zone are the single most dangerous landscape plant', rec:'Remove junipers within 0-5 ft of structure — they are extremely flammable and a primary ignition point during ember storms.' },
+    { id:'z0_trees_close',    label:'Trees within 10 ft of structure',        type:'assessment', triggers:'tree_remove_std', unit:'each', rec:'Remove trees within 10 ft of structure, OR limb up and ensure crown is well clear of the structure.' },
+    { id:'z0_overhang',       label:'Branches overhanging the structure',     type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb back any branches overhanging the structure; min 10 ft horizontal clearance.' },
+    { id:'z0_ladder_fuels',   label:'Ladder fuels in Zone 0',                 type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Remove ladder fuels (small woody shrubs, dead branches, accumulated needle debris) from the immediate zone.' },
+    { id:'z0_fence',          label:'Fence within 10 ft of structure',        type:'assessment', triggers:'zone_fence_nc', unit:'lf', help:'Note material (wood/vinyl/metal/masonry) AND height. Wood fence within 10 ft acts as a wick.', rec:'Replace combustible fence section within 10 ft of structure with noncombustible material (steel mesh, masonry, hardiboard panel).' },
   ]},
+
+  // ─── Zone 1 (5-30 ft Intermediate) ──────────────────────────
   { id:'zone1', label:'Zone 1 — 5-30 ft (Intermediate)', icon:'🌳', items:[
-    { id:'z1_limbing',        label:'Tree limbing (6-10 ft up)',              triggers:'tree_limb',      rec:'Limb trees 6-10 ft above ground; clear ladder fuels.' },
-    { id:'z1_junipers',       label:'Junipers / high-flammability shrubs',    triggers:'tree_remove_std', rec:'Remove junipers and other high-flammability shrubs from Zone 1.' },
-    { id:'z1_pine_needles',   label:'Pine needles & duff layer',              triggers:'debris_haul',    rec:'Rake and remove pine needles and duff layer.' },
-    { id:'z1_shrubs',         label:'Shrub spacing & condition',              triggers:'brush_clear',    rec:'Thin shrubs to maintain horizontal separation; remove dead material.' },
-    { id:'z1_grass',          label:'Grass height (≤6\")',                     help:'Mow to ≤6\" within 30 ft' },
-    { id:'z1_surface_fuels',  label:'Surface fuels & deadfall',               triggers:'debris_haul',    rec:'Remove deadfall and accumulated surface fuels.' },
+    { id:'z1_limbing',        label:'Tree limbing in Zone 1',                 type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb trees up 0-10 ft from ground, OR up to 1/3 of tree height for smaller trees. Removes ladder fuels.' },
+    { id:'z1_pine_needles',   label:'Pine needles & duff layer',              type:'assessment', triggers:'debris_haul', unit:'load', rec:'Rake and remove pine needles and duff layer in Zone 1.' },
+    { id:'z1_shrubs',         label:'Shrub spacing & condition',              type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Thin shrubs to maintain horizontal separation; remove dead material.' },
+    { id:'z1_grass',          label:'Grass height (≤6 inches)',               type:'assessment', help:'Mow to ≤6 inches within 30 ft', rec:'Mow grass to ≤6 inches within Zone 1; maintain through fire season.' },
+    { id:'z1_surface_fuels',  label:'Surface fuels & deadfall',               type:'assessment', triggers:'debris_haul', unit:'load', rec:'Remove deadfall and accumulated surface fuels.' },
+    { id:'z1_ladder_fuels',   label:'Ladder fuels in Zone 1',                 type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Remove ladder fuels — clear vegetation under tree canopies and between shrub layers.' },
   ]},
+
+  // ─── Zone 2 & 3 (30-100+ ft Extended) ───────────────────────
   { id:'zone23', label:'Zone 2 & 3 — 30-100+ ft (Extended)', icon:'⛰️', items:[
-    { id:'z23_topography',    label:'Slope / topography / aspect',            help:'Steeper slopes and S/W aspects = higher risk' },
-    { id:'z23_conifer_spacing', label:'Conifer crown spacing',                triggers:'tree_remove_std', rec:'Thin conifers for 10-20 ft crown separation in Zone 2.' },
-    { id:'z23_aspens',        label:'Aspens (fire-resilient)',                help:'Aspens are fire-resistant; preserve where possible' },
-    { id:'z23_oak_islands',   label:'Oak islands / hardwood groups',          help:'Maintain as separated islands' },
-    { id:'z23_low_limbing',   label:'Low limbing in Zone 2/3',                triggers:'tree_limb',      rec:'Limb conifers in Zone 2/3 to prevent ground-to-crown fire.' },
+    { id:'z23_topography',    label:'Slope / topography / aspect',            type:'assessment', help:'Steeper slopes and S/W aspects = higher risk', rec:'Document slope and aspect — drives Zone 2 spacing requirements and crown separation targets.' },
+    { id:'z23_conifer_spacing', label:'Conifer crown spacing',                type:'assessment', triggers:'tree_remove_std', unit:'each', rec:'Thin conifers for 10-20 ft crown separation in Zone 2.' },
+    { id:'z23_aspens',        label:'Aspens (fire-resilient)',                type:'assessment', help:'Aspens are fire-resistant; preserve where possible', rec:'Preserve aspen stands — they are fire-resilient and act as natural fuel breaks.' },
+    { id:'z23_oak_islands',   label:'Oak islands / hardwood groups',          type:'assessment', help:'Maintain as separated islands', rec:'Maintain oak/hardwood groups as separated islands; thin understory between groups.' },
+    { id:'z23_low_limbing',   label:'Low limbing in Zone 2/3',                type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb conifers in Zone 2/3 up 0-10 ft, or up to 1/3 of tree height for smaller trees.' },
+    { id:'z23_ladder_fuels',  label:'Ladder fuels in Zone 2/3',               type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Reduce ladder fuels — small understory trees, brush, branches that bridge ground fire to canopy.' },
   ]},
+
+  // ─── Outbuildings & Property ────────────────────────────────
   { id:'outbuild', label:'Outbuildings & Property', icon:'🚐', items:[
-    { id:'ob_shed',           label:'Sheds / detached structures',            help:'Apply same Zone 0/1 treatment as main structure' },
-    { id:'ob_firewood',       label:'Firewood storage location',              help:'Relocate firewood beyond 30 ft from any structure' },
-    { id:'ob_propane',        label:'Propane tank clearance',                 help:'10 ft of bare mineral soil around tank' },
-    { id:'ob_vehicles',       label:'Vehicles & trailers',                    help:'Park 30+ ft from structures during fire weather' },
-    { id:'ob_address_marker', label:'Reflective address marker',              triggers:'misc_address',   rec:'Install reflective noncombustible address marker visible from main road.' },
-    { id:'ob_driveway',       label:'Driveway access for fire apparatus',     help:'12 ft min width, 14 ft vertical clearance, turnaround' },
-    { id:'ob_wood_fence',     label:'Wood fence retardant treatment',         triggers:'spray_fence',    rec:'Apply fire retardant treatment to wood fencing in defensible space.' },
+    { id:'ob_shed',           label:'Sheds / detached structures',            type:'assessment', help:'Apply same Zone 0/1 treatment as main structure', rec:'Apply same Zone 0/1 mitigation around any detached structure (shed, barn, well house).' },
+    { id:'ob_firewood',       label:'Firewood storage location',              type:'assessment', help:'Relocate firewood beyond 30 ft from any structure', rec:'Relocate firewood beyond 30 ft from any structure during fire season.' },
+    { id:'ob_propane',        label:'Propane tank clearance',                 type:'assessment', help:'10 ft of bare mineral soil around tank', rec:'Maintain 10 ft of bare mineral soil around propane tank.' },
+    { id:'ob_vehicles',       label:'Vehicles & trailers',                    type:'assessment', help:'Park 30+ ft from structures during fire weather', rec:'Park vehicles 30+ ft from structures during red-flag fire weather.' },
+    { id:'ob_address_marker', label:'Reflective address marker',              type:'assessment', triggers:'misc_address', unit:'each', rec:'Install reflective noncombustible address marker visible from main road for fire apparatus.' },
+    { id:'ob_driveway',       label:'Driveway access for fire apparatus',     type:'assessment', help:'12 ft min width, 14 ft vertical clearance, turnaround at end', rec:'Address driveway clearances: 12 ft horizontal, 14 ft vertical, turnaround at end. Limb back encroaching trees.' },
   ]},
+
+  // ─── Treatment Recommendations (sprays + retardants) ────────
+  { id:'treatments', label:'Treatment Recommendations', icon:'💧', items:[
+    { id:'tr_veg_spray',      label:'Vegetation fire retardant treatment',    type:'recommendation', triggers:'spray_veg', unit:'sqft', rec:'Apply vegetation fire retardant to grass, brush, and ground vegetation in defensible space. Lasts through one fire season.' },
+    { id:'tr_struct_spray',   label:'Structural fire retardant treatment',    type:'recommendation', triggers:'spray_struct', unit:'sqft', rec:'Apply structural fire retardant to combustible siding, deck surfaces, and exposed exterior wood.' },
+    { id:'tr_combo_spray',    label:'Combined fire retardant system',         type:'recommendation', triggers:'spray_combo', unit:'sqft', rec:'Combined system: structural retardant on the building envelope + vegetation retardant on adjacent fuels. Best protection for high-risk parcels.' },
+    { id:'tr_fence_spray',    label:'Wood fence retardant treatment',         type:'recommendation', triggers:'spray_fence', unit:'lf', rec:'Apply fire retardant to wood fence sections — fences act as wicks during ember storms.' },
+  ]},
+
+  // ─── Insurance & Emergency Prep (homeowner education) ──────
   { id:'insurance', label:'Insurance & Emergency Prep', icon:'🚨', items:[
-    { id:'ins_inventory',     label:'Home inventory (photos / video)',        help:'Document contents for insurance claims' },
-    { id:'ins_evac_plan',     label:'Evacuation plan & routes',               help:'Multiple routes, meet-up location, go-bag' },
-    { id:'ins_communication', label:'Family communication plan',              help:'Out-of-area contact, text vs voice' },
-    { id:'ins_pets',          label:'Pet & livestock plan',                   help:'Carriers, large-animal trailers, evac timing' },
-    { id:'ins_codered',       label:'CodeRED / county alerts registered',     help:'jeffco.us/CodeRED, douglas.co.us, etc.' },
+    { id:'ins_inventory',     label:'Home inventory (photos / video)',        type:'education', help:'Document contents room-by-room for insurance claims' },
+    { id:'ins_evac_plan',     label:'Evacuation plan & routes',               type:'education', help:'Multiple routes, meet-up location, go-bag prepared' },
+    { id:'ins_communication', label:'Family communication plan',              type:'education', help:'Out-of-area contact, text vs voice during outage' },
+    { id:'ins_pets',          label:'Pet & livestock plan',                   type:'education', help:'Carriers, large-animal trailers, evac timing' },
+    { id:'ins_codered',       label:'CodeRED / county alerts registered',     type:'education', help:'jeffco.us/CodeRED, douglas.co.us, etc.' },
   ]},
 ];
 
@@ -1775,7 +2100,42 @@ function ensureInspectionShape(job) {
   if (!job.inspection.started_at) job.inspection.started_at = new Date().toISOString();
   if (!job.quote) job.quote = { line_items: [], adders: [] };
   if (!job.quote.line_items) job.quote.line_items = [];
+  if (!job.quote.adders) job.quote.adders = defaultAdders();
   if (!job._inspOpen) job._inspOpen = {};
+
+  // Migrate old single-notes field → contractor_notes; auto-populate cwms_rec on flagged items.
+  Object.entries(job.inspection.items).forEach(([itemId, state]) => {
+    if (state.notes && !state.contractor_notes) {
+      state.contractor_notes = state.notes;
+      delete state.notes;
+    }
+    const flagged = state.mark === 'concern' || state.mark === 'fail' || state.mark === 'recommend';
+    if (flagged && !state.cwms_rec) {
+      const meta = INSP_ITEMS_INDEX[itemId];
+      if (meta && meta.rec) state.cwms_rec = meta.rec;
+    }
+  });
+}
+
+function defaultAdders() {
+  return [
+    { id:'add_drive',    label:'Drive Time / Mileage Surcharge', amount: 0 },
+    { id:'add_equip',    label:'Equipment Mobilization',         amount: 0 },
+    { id:'add_disposal', label:'Disposal / Dump Fee',            amount: 0 },
+    { id:'add_minimum',  label:'Crew Minimum Surcharge',         amount: 0 },
+  ];
+}
+
+function inspIsDone(item, state) {
+  if (!state) return false;
+  if (item.type === 'education') return !!state.discussed;
+  return !!state.mark;
+}
+function inspIsFlagged(item, state) {
+  if (!state) return false;
+  if (item.type === 'education') return false;
+  if (item.type === 'recommendation') return state.mark === 'recommend';
+  return state.mark === 'concern' || state.mark === 'fail';
 }
 
 // ──────────────────────── Render ────────────────────────────────────────
@@ -1794,10 +2154,8 @@ function inspStats() {
   INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
     total++;
     const state = items[it.id];
-    if (state && state.mark) {
-      done++;
-      if (state.mark === 'concern' || state.mark === 'fail') issues++;
-    }
+    if (inspIsDone(it, state)) done++;
+    if (inspIsFlagged(it, state)) issues++;
   }));
   return { total, done, issues };
 }
@@ -1809,10 +2167,8 @@ function inspSectionStats(sectionId) {
   let total = section.items.length, done = 0, issues = 0;
   section.items.forEach(it => {
     const state = items[it.id];
-    if (state && state.mark) {
-      done++;
-      if (state.mark === 'concern' || state.mark === 'fail') issues++;
-    }
+    if (inspIsDone(it, state)) done++;
+    if (inspIsFlagged(it, state)) issues++;
   });
   return { total, done, issues };
 }
@@ -1901,30 +2257,93 @@ function renderInspectionItems(section) {
   const items = APP.currentJob?.inspection?.items || {};
   return section.items.map(it => {
     const state = items[it.id] || {};
-    const mark = state.mark || null;
-    const flagged = (mark === 'concern' || mark === 'fail');
-    const failCls = (mark === 'fail') ? 'fail' : '';
-    const notes = state.notes || '';
-    const hasPhoto = !!state.before_photo_id;
-    return `<div class="insp-item ${flagged?'flagged':''}" id="insp-item-${it.id}">
-      <div class="it-lbl">${escHtml(it.label)}${it.help ? `<div class="it-help">${escHtml(it.help)}</div>` : ''}</div>
-      <div class="pcf">
-        <button type="button" class="p" aria-pressed="${mark==='pass'}"    onclick="inspMark('${it.id}','pass')">Pass</button>
-        <button type="button" class="c" aria-pressed="${mark==='concern'}" onclick="inspMark('${it.id}','concern')">Concern</button>
-        <button type="button" class="f" aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
-      </div>
-      <textarea class="insp-notes" placeholder="Notes (optional)" oninput="inspNote('${it.id}', this.value)">${escHtml(notes)}</textarea>
-      <div class="insp-photo-row">
-        <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add before-photo'}</label>
-        <input id="ph_${it.id}" type="file" accept="image/*" capture="environment" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
-        <span id="thumbWrap_${it.id}"></span>
-      </div>
-      ${it.rec ? `<div class="insp-rec ${failCls}">→ ${escHtml(it.rec)}</div>` : ''}
-    </div>`;
+    const t = it.type || 'assessment';
+    if (t === 'education')      return renderEduItem(it, state);
+    if (t === 'recommendation') return renderRecItem(it, state);
+    return renderAssessItem(it, state);
   }).join('');
 }
 
-// ──────────────────────── Mark / Notes ──────────────────────────────────
+function renderAssessItem(it, state) {
+  const mark = state.mark || null;
+  const flagged = (mark === 'concern' || mark === 'fail');
+  const failCls = (mark === 'fail') ? 'fail' : '';
+  const cwmsRec = (state.cwms_rec != null && state.cwms_rec !== '') ? state.cwms_rec : (it.rec || '');
+  const cn = state.contractor_notes || '';
+  const meas = (state.measurement != null) ? state.measurement : '';
+  const hasPhoto = !!state.before_photo_id;
+  const showFlaggedBlock = flagged;
+  return `<div class="insp-item ${flagged?'flagged':''}" id="insp-item-${it.id}">
+    <div class="it-lbl">${escHtml(it.label)}${it.help ? `<div class="it-help">${escHtml(it.help)}</div>` : ''}</div>
+    <div class="pcf pcf-4">
+      <button type="button" class="p"  aria-pressed="${mark==='pass'}"    onclick="inspMark('${it.id}','pass')">Pass</button>
+      <button type="button" class="c"  aria-pressed="${mark==='concern'}" onclick="inspMark('${it.id}','concern')">Concern</button>
+      <button type="button" class="f"  aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
+      <button type="button" class="na" aria-pressed="${mark==='na'}"      onclick="inspMark('${it.id}','na')">N/A</button>
+    </div>
+    ${showFlaggedBlock ? `
+      <div class="insp-flagged-block ${failCls}">
+        <label class="insp-mini-label">CWMS Recommendation</label>
+        <textarea class="insp-notes" placeholder="(auto-populates when flagged)" oninput="inspCwmsRec('${it.id}', this.value)">${escHtml(cwmsRec)}</textarea>
+        <label class="insp-mini-label">Contractor Notes</label>
+        <textarea class="insp-notes" placeholder="Job-specific notes for the crew" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
+        ${it.unit ? `
+          <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
+          <input class="insp-meas" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+        ` : ''}
+      </div>` : ''}
+    <div class="insp-photo-row">
+      <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add photo'}</label>
+      <input id="ph_${it.id}" type="file" accept="image/*" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
+      <span id="thumbWrap_${it.id}"></span>
+    </div>
+  </div>`;
+}
+
+function renderRecItem(it, state) {
+  const mark = state.mark || null;
+  const recd = (mark === 'recommend');
+  const cn = state.contractor_notes || '';
+  const meas = (state.measurement != null) ? state.measurement : '';
+  const hasPhoto = !!state.before_photo_id;
+  return `<div class="insp-item ${recd?'flagged':''} insp-rec-item" id="insp-item-${it.id}">
+    <div class="it-lbl">${escHtml(it.label)}</div>
+    ${it.rec ? `<div class="insp-rec-blurb">${escHtml(it.rec)}</div>` : ''}
+    <div class="pcf pcf-2">
+      <button type="button" class="rec" aria-pressed="${mark==='recommend'}" onclick="inspMark('${it.id}','recommend')">+ Recommend</button>
+      <button type="button" class="sk"  aria-pressed="${mark==='skip'}"      onclick="inspMark('${it.id}','skip')">Skip</button>
+    </div>
+    ${recd ? `
+      <div class="insp-flagged-block">
+        <label class="insp-mini-label">Contractor Notes</label>
+        <textarea class="insp-notes" placeholder="Specifics for this property" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
+        ${it.unit ? `
+          <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
+          <input class="insp-meas" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+        ` : ''}
+      </div>` : ''}
+    <div class="insp-photo-row">
+      <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add photo'}</label>
+      <input id="ph_${it.id}" type="file" accept="image/*" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
+      <span id="thumbWrap_${it.id}"></span>
+    </div>
+  </div>`;
+}
+
+function renderEduItem(it, state) {
+  const discussed = !!state.discussed;
+  return `<div class="insp-item insp-edu-item ${discussed?'discussed':''}" id="insp-item-${it.id}">
+    <button type="button" class="insp-edu-toggle" aria-pressed="${discussed}" onclick="inspToggleEdu('${it.id}')">
+      <span class="insp-edu-check">${discussed ? '✓' : ''}</span>
+      <span class="insp-edu-text">
+        <span class="nm">${escHtml(it.label)}</span>
+        ${it.help ? `<span class="hp">${escHtml(it.help)}</span>` : ''}
+      </span>
+    </button>
+  </div>`;
+}
+
+// ──────────────────────── Mark / Notes / Measurements ──────────────────
 function inspMark(itemId, mark) {
   const job = APP.currentJob;
   if (!job) return;
@@ -1933,6 +2352,12 @@ function inspMark(itemId, mark) {
   const cur = items[itemId] || {};
   // Tap same mark again to clear it
   cur.mark = (cur.mark === mark) ? null : mark;
+  // Auto-populate CWMS Rec on first flag (concern/fail/recommend)
+  const isFlagged = cur.mark === 'concern' || cur.mark === 'fail' || cur.mark === 'recommend';
+  if (isFlagged && !cur.cwms_rec) {
+    const meta = INSP_ITEMS_INDEX[itemId];
+    if (meta && meta.rec) cur.cwms_rec = meta.rec;
+  }
   cur.ts = new Date().toISOString();
   items[itemId] = cur;
   syncQuoteFromInspection(job);
@@ -1940,18 +2365,39 @@ function inspMark(itemId, mark) {
   commitJobChange(job, { immediate: true });
 }
 
-const _noteDebounce = {};
-function inspNote(itemId, text) {
+function inspToggleEdu(itemId) {
   const job = APP.currentJob;
   if (!job) return;
   ensureInspectionShape(job);
   const items = job.inspection.items;
   const cur = items[itemId] || {};
-  cur.notes = text;
+  cur.discussed = !cur.discussed;
   cur.ts = new Date().toISOString();
   items[itemId] = cur;
-  if (_noteDebounce[itemId]) clearTimeout(_noteDebounce[itemId]);
-  _noteDebounce[itemId] = setTimeout(() => commitJobChange(job), 600);
+  renderInspection();
+  commitJobChange(job, { immediate: true });
+}
+
+const _textDebounce = {};
+function _saveTextField(itemId, field, text, doSyncQuote) {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  const items = job.inspection.items;
+  const cur = items[itemId] || {};
+  cur[field] = text;
+  cur.ts = new Date().toISOString();
+  items[itemId] = cur;
+  if (doSyncQuote) syncQuoteFromInspection(job);
+  if (_textDebounce[itemId + ':' + field]) clearTimeout(_textDebounce[itemId + ':' + field]);
+  _textDebounce[itemId + ':' + field] = setTimeout(() => commitJobChange(job), 500);
+}
+
+function inspCwmsRec(itemId, text)        { _saveTextField(itemId, 'cwms_rec',         text, false); }
+function inspContractorNote(itemId, text) { _saveTextField(itemId, 'contractor_notes', text, false); }
+function inspMeasurement(itemId, value) {
+  const num = (value === '' || value == null) ? null : (parseFloat(value) || 0);
+  _saveTextField(itemId, 'measurement', num, true);
 }
 
 // ──────────────────────── Photos ────────────────────────────────────────
@@ -2053,16 +2499,28 @@ function syncQuoteFromInspection(job) {
   if (!job.quote.line_items) job.quote.line_items = [];
   const items = job.inspection?.items || {};
 
-  // Set of inspection_item_ids that should currently have a line
+  // Find all inspection items that should have a corresponding quote line.
+  // Trigger marks: concern/fail (assessment) or recommend (recommendation type).
   const wanted = {};
   Object.keys(items).forEach(itemId => {
     const state = items[itemId];
-    if (!state || (state.mark !== 'concern' && state.mark !== 'fail')) return;
+    if (!state) return;
     const meta = INSP_ITEMS_INDEX[itemId];
-    if (!meta || !meta.triggers) return;
+    if (!meta) return;
+    let isFlagged = false;
+    if (meta.type === 'recommendation') isFlagged = state.mark === 'recommend';
+    else                                 isFlagged = state.mark === 'concern' || state.mark === 'fail';
+    if (!isFlagged) return;
+    if (!meta.triggers) return;
     const pb = APP.pricebook.find(p => p.id === meta.triggers);
     if (!pb) return;
-    wanted[itemId] = { pb, mark: state.mark, rec: meta.rec || '', label: meta.label };
+    wanted[itemId] = {
+      pb,
+      mark: state.mark,
+      rec: state.cwms_rec || meta.rec || '',
+      label: meta.label,
+      measurement: state.measurement,
+    };
   });
 
   // Map existing inspection-sourced line items by inspection_item_id
@@ -2085,9 +2543,10 @@ function syncQuoteFromInspection(job) {
         pricebook_id: w.pb.id,
         name: w.pb.name,
         unit: w.pb.unit,
-        qty: 0,
+        qty: (w.measurement != null) ? w.measurement : 0,
         unit_price: w.pb.default_price,
-        override_price: null,
+        override_price: null,   // user-overridden per-job price
+        qty_edited: false,      // flips true once user edits qty in quote screen
         recommended_action: w.rec,
         item_label: w.label,
         mark: w.mark,
@@ -2097,8 +2556,13 @@ function syncQuoteFromInspection(job) {
       li.mark = w.mark;
       li.name = w.pb.name;
       li.unit = w.pb.unit;
-      li.unit_price = w.pb.default_price;
       li.recommended_action = w.rec;
+      // Refresh master price (override_price stays untouched by design)
+      li.unit_price = w.pb.default_price;
+      // Pull qty from measurement only if user hasn't manually edited it in the quote
+      if (!li.qty_edited && w.measurement != null) {
+        li.qty = w.measurement;
+      }
     }
   });
 
@@ -2107,13 +2571,325 @@ function syncQuoteFromInspection(job) {
     if (li.src !== 'inspection') return true;
     return !!wanted[li.inspection_item_id];
   });
+
+  // Keep job.total in sync so home-screen stats reflect the running quote
+  let total = 0;
+  job.quote.line_items.forEach(li => {
+    const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+    total += (+li.qty || 0) * eff;
+  });
+  (job.quote.adders || []).forEach(a => total += (+a.amount || 0));
+  job.total = total;
 }
 
-// ──────────────────────── C2 stub: Continue button ──────────────────────
+// ──────────────────────── Inspection → Quote routing ───────────────────
 function continueToQuote() {
-  // Quote screen lands in Checkpoint 3.
-  const { issues, done, total } = inspStats();
-  showToast(`Inspection saved · ${done}/${total} items · ${issues} flagged · Quote engine in Checkpoint 3`);
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  syncQuoteFromInspection(job);
+  commitJobChange(job, { immediate: true });
+  document.getElementById('quoteCust').textContent = job.customer_name || '';
+  document.getElementById('quoteAddr').textContent = [job.property_addr, job.property_city].filter(Boolean).join(', ');
+  renderQuote();
+  showScreen('screenQuote');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// QUOTE ENGINE (Checkpoint 3)
+// Quote screen: renders job.quote.line_items + job.quote.adders, lets the
+// user override qty/price per line, add custom lines from the pricebook
+// (or freetext), and add adders. Total updates live.
+// ════════════════════════════════════════════════════════════════════════
+
+function renderQuote() {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  renderQuoteLines();
+  renderQuoteAdders();
+  renderQuoteSummary();
+}
+
+function qtEffectivePrice(li) {
+  return (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+}
+
+function qtLineSubtotal(li) {
+  return (+li.qty || 0) * qtEffectivePrice(li);
+}
+
+function qtComputeTotal() {
+  const job = APP.currentJob;
+  if (!job || !job.quote) return 0;
+  let total = 0;
+  (job.quote.line_items || []).forEach(li => total += qtLineSubtotal(li));
+  (job.quote.adders || []).forEach(a => total += (+a.amount || 0));
+  return total;
+}
+
+function fmtMoney(n) {
+  const x = Number(n) || 0;
+  return x.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderQuoteSummary() {
+  const job = APP.currentJob;
+  const total = qtComputeTotal();
+  document.getElementById('qtTotal').textContent = fmtMoney(total);
+  document.getElementById('qtLineCount').textContent = (job?.quote?.line_items || []).length;
+  document.getElementById('qtAdderCount').textContent = (job?.quote?.adders || []).filter(a => +a.amount > 0).length;
+  // Persist running total on the job (used by home-screen stats / etc.)
+  if (job) job.total = total;
+}
+
+function renderQuoteLines() {
+  const wrap = document.getElementById('qtLines');
+  if (!wrap) return;
+  const job = APP.currentJob;
+  const lines = (job?.quote?.line_items) || [];
+  if (!lines.length) {
+    wrap.innerHTML = `<div class="empty"><div class="ic">📋</div><div class="ttl">No line items yet</div><div class="sub">Mark items as Concern or Fail in the inspection, or add services from the pricebook.</div></div>`;
+    return;
+  }
+  wrap.innerHTML = lines.map(li => {
+    const eff = qtEffectivePrice(li);
+    const sub = qtLineSubtotal(li);
+    const overrideVal = (li.override_price != null && li.override_price !== '') ? li.override_price : '';
+    const srcLabel = li.src === 'custom' ? 'Custom' : 'From Inspection';
+    const srcClass = li.src === 'custom' ? 'custom' : 'inspection';
+    return `<div class="qt-line" id="qtline-${li.id}">
+      <div class="head">
+        <div class="nm">${escHtml(li.name || '')}</div>
+        <span class="src-tag ${srcClass}">${srcLabel}</span>
+      </div>
+      ${li.recommended_action ? `<div class="rec-blurb">${escHtml(li.recommended_action)}</div>` : ''}
+      <div class="grid">
+        <div class="field-mini">
+          <label>Qty (${escHtml(li.unit || '')})</label>
+          <input type="number" inputmode="decimal" step="any" min="0" value="${escHtml(String(li.qty || 0))}" oninput="qtUpdateQty('${li.id}', this.value)">
+        </div>
+        <div class="field-mini">
+          <label>Master Price</label>
+          <input type="number" inputmode="decimal" step="any" min="0" value="${escHtml(String(li.unit_price || 0))}" disabled style="background:var(--cream-warm); color:var(--ash);">
+        </div>
+        <div class="field-mini">
+          <label>Override (this job)</label>
+          <input type="number" inputmode="decimal" step="any" min="0" placeholder="—" value="${escHtml(String(overrideVal))}" oninput="qtUpdatePrice('${li.id}', this.value)">
+        </div>
+      </div>
+      <div class="subtotal-row">
+        <div class="lbl">Subtotal · ${(+li.qty || 0)} × $${fmtMoney(eff)}</div>
+        <div class="amt">$${fmtMoney(sub)}</div>
+      </div>
+      <div class="row-actions">
+        <button type="button" class="row-x" onclick="qtRemoveLine('${li.id}')">✕ Remove line</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderQuoteAdders() {
+  const wrap = document.getElementById('qtAdders');
+  if (!wrap) return;
+  const job = APP.currentJob;
+  const adders = (job?.quote?.adders) || [];
+  if (!adders.length) {
+    wrap.innerHTML = '<div class="muted" style="font-size:12px;">No adders. Use the button below to add one.</div>';
+    return;
+  }
+  wrap.innerHTML = adders.map(a => {
+    const isCustom = a.id && a.id.startsWith('add_custom_');
+    return `<div class="qt-adder-row">
+      <div class="lbl">${escHtml(a.label || 'Adder')}</div>
+      <input type="number" class="amt" inputmode="decimal" step="any" min="0" placeholder="0" value="${escHtml(String(a.amount || 0))}" oninput="qtAdderUpdate('${a.id}','amount', this.value)">
+      ${isCustom ? `<button type="button" class="x" onclick="qtRemoveAdder('${a.id}')" aria-label="Remove">✕</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+const _qtTextDebounce = {};
+function _qtCommit(job) {
+  if (_qtTextDebounce._timer) clearTimeout(_qtTextDebounce._timer);
+  _qtTextDebounce._timer = setTimeout(() => commitJobChange(job), 400);
+}
+
+function qtUpdateQty(lineId, value) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const li = (job.quote.line_items || []).find(x => x.id === lineId);
+  if (!li) return;
+  li.qty = (value === '' || value == null) ? 0 : (parseFloat(value) || 0);
+  li.qty_edited = true;  // protects from auto-overwrite by inspection sync
+  // Update only the subtotal + total — full re-render is cheap but loses focus
+  const elSub = document.querySelector(`#qtline-${lineId} .subtotal-row .amt`);
+  const elLbl = document.querySelector(`#qtline-${lineId} .subtotal-row .lbl`);
+  if (elSub) elSub.textContent = '$' + fmtMoney(qtLineSubtotal(li));
+  if (elLbl) elLbl.textContent = `Subtotal · ${(+li.qty || 0)} × $${fmtMoney(qtEffectivePrice(li))}`;
+  renderQuoteSummary();
+  _qtCommit(job);
+}
+
+function qtUpdatePrice(lineId, value) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const li = (job.quote.line_items || []).find(x => x.id === lineId);
+  if (!li) return;
+  li.override_price = (value === '' || value == null) ? null : (parseFloat(value) || 0);
+  const elSub = document.querySelector(`#qtline-${lineId} .subtotal-row .amt`);
+  const elLbl = document.querySelector(`#qtline-${lineId} .subtotal-row .lbl`);
+  if (elSub) elSub.textContent = '$' + fmtMoney(qtLineSubtotal(li));
+  if (elLbl) elLbl.textContent = `Subtotal · ${(+li.qty || 0)} × $${fmtMoney(qtEffectivePrice(li))}`;
+  renderQuoteSummary();
+  _qtCommit(job);
+}
+
+function qtRemoveLine(lineId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const li = (job.quote.line_items || []).find(x => x.id === lineId);
+  if (!li) return;
+  // If from inspection, also clear the inspection mark so it doesn't auto-re-add
+  if (li.src === 'inspection' && li.inspection_item_id) {
+    const state = job.inspection?.items?.[li.inspection_item_id];
+    if (state) {
+      // Don't nuke the mark — user might still want it flagged. Just remove the line.
+      // The next syncQuoteFromInspection call WOULD re-add it, so we suppress by setting a flag.
+      // Simpler: just remove and accept that re-flag re-adds. User shouldn't be removing
+      // inspection lines without unflagging anyway. Show a hint.
+    }
+  }
+  job.quote.line_items = (job.quote.line_items || []).filter(x => x.id !== lineId);
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+  if (li.src === 'inspection') {
+    showToast('Line removed. Tap the inspection mark to clear it from the quote permanently.');
+  } else {
+    showToast('Line removed');
+  }
+}
+
+// ─── Add custom freetext line ──────────────────────────────────────────
+function qtAddCustomLine() {
+  const job = APP.currentJob;
+  if (!job) return;
+  const name = prompt('Service / line item name:');
+  if (!name || !name.trim()) return;
+  const unit = (prompt('Unit (sqft, lf, each, hr, load, flat):', 'each') || 'each').trim().toLowerCase();
+  const price = parseFloat(prompt('Unit price ($):', '0')) || 0;
+  const qty   = parseFloat(prompt('Quantity:', '1')) || 1;
+  const li = {
+    id: 'qli_custom_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    src: 'custom',
+    name: name.trim(),
+    unit,
+    qty,
+    unit_price: price,
+    override_price: null,
+    qty_edited: true,
+    recommended_action: '',
+  };
+  if (!job.quote.line_items) job.quote.line_items = [];
+  job.quote.line_items.push(li);
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+  showToast('Custom line added');
+}
+
+// ─── Pricebook picker modal ────────────────────────────────────────────
+function qtOpenPricebookModal() {
+  const m = document.getElementById('qtPbModal');
+  const s = document.getElementById('qtPbSearch');
+  if (s) s.value = '';
+  qtRenderPbModal();
+  if (m) m.classList.add('show');
+}
+function qtClosePbModal() {
+  const m = document.getElementById('qtPbModal');
+  if (m) m.classList.remove('show');
+}
+function qtRenderPbModal() {
+  const list = document.getElementById('qtPbList');
+  if (!list) return;
+  const search = (document.getElementById('qtPbSearch')?.value || '').toLowerCase().trim();
+  const items = (APP.pricebook || [])
+    .filter(p => p.active !== false)
+    .filter(p => !search || (p.name || '').toLowerCase().includes(search) || (p.category || '').toLowerCase().includes(search))
+    .sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+  if (!items.length) {
+    list.innerHTML = '<div class="muted" style="padding:14px; text-align:center;">No matches.</div>';
+    return;
+  }
+  list.innerHTML = items.map(p => `<button type="button" class="qt-pb-item" onclick="qtAddPbLine('${escHtml(p.id)}')">
+    <span class="nm">${escHtml(p.name)}</span>
+    <span class="pr">$${fmtMoney(p.default_price)}/${escHtml(p.unit)}</span>
+  </button>`).join('');
+}
+function qtAddPbLine(pricebookId) {
+  const job = APP.currentJob;
+  const pb = (APP.pricebook || []).find(p => p.id === pricebookId);
+  if (!job || !pb) return;
+  const li = {
+    id: 'qli_pb_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    src: 'custom',
+    pricebook_id: pb.id,
+    name: pb.name,
+    unit: pb.unit,
+    qty: 0,
+    unit_price: pb.default_price,
+    override_price: null,
+    qty_edited: true,
+    recommended_action: '',
+  };
+  if (!job.quote.line_items) job.quote.line_items = [];
+  job.quote.line_items.push(li);
+  qtClosePbModal();
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+  showToast(pb.name + ' added');
+}
+
+// ─── Adders ────────────────────────────────────────────────────────────
+function qtAdderUpdate(adderId, key, value) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const a = (job.quote.adders || []).find(x => x.id === adderId);
+  if (!a) return;
+  a[key] = (key === 'amount') ? ((value === '' || value == null) ? 0 : (parseFloat(value) || 0)) : value;
+  renderQuoteSummary();
+  _qtCommit(job);
+}
+function qtRemoveAdder(adderId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  job.quote.adders = (job.quote.adders || []).filter(x => x.id !== adderId);
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+}
+function qtAddCustomAdder() {
+  const job = APP.currentJob;
+  if (!job) return;
+  const label = prompt('Adder label (e.g. "Permit fee"):');
+  if (!label || !label.trim()) return;
+  const amount = parseFloat(prompt('Amount ($):', '0')) || 0;
+  if (!job.quote.adders) job.quote.adders = defaultAdders();
+  job.quote.adders.push({ id: 'add_custom_' + Date.now(), label: label.trim(), amount });
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+}
+
+// ─── Save & Home ───────────────────────────────────────────────────────
+function qtSaveAndHome() {
+  const job = APP.currentJob;
+  if (!job) return;
+  // Ensure status reflects that quote has been worked
+  if (job.status === 'draft' && (job.quote?.line_items || []).length > 0) {
+    job.status = 'quoted';
+  }
+  job.total = qtComputeTotal();
+  commitJobChange(job, { immediate: true });
+  showToast('Quote saved · $' + fmtMoney(job.total));
+  renderHome();
   showScreen('screenHome');
 }
 
