@@ -3472,6 +3472,18 @@ function renderReport() {
   }));
 }
 
+// Helper: convert IDB photo blob to a data URL.
+// iOS Safari can drop blob: URLs during the print → PDF pipeline,
+// so for anything that goes into a PDF we use data URLs (base64).
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error || new Error('read failed'));
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function bindReportInspPhoto(itemId) {
   const slot = document.getElementById('rptPhoto-' + itemId);
   if (!slot) return;
@@ -3481,7 +3493,7 @@ async function bindReportInspPhoto(itemId) {
   try {
     const rec = await idbGet('photos', cur.before_photo_id);
     if (!rec || !rec.blob) return;
-    const url = URL.createObjectURL(rec.blob);
+    const url = await blobToDataURL(rec.blob);
     slot.innerHTML = `<img class="report-photo" src="${url}" alt="Inspection photo">`;
   } catch(e) {}
 }
@@ -4125,7 +4137,8 @@ async function bindCompReportPhotos(itemId) {
     try {
       const rec = await idbGet('photos', photoId);
       if (!rec || !rec.blob) return;
-      const url = URL.createObjectURL(rec.blob);
+      // Data URL (not blob URL) so iOS Safari includes it in the printed PDF
+      const url = await blobToDataURL(rec.blob);
       cell.innerHTML = `<div class="lbl">${label}</div><img src="${url}" alt="">`;
     } catch(e) {}
   };
