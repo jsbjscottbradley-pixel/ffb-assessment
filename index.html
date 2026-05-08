@@ -1012,15 +1012,17 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   }
   /* Hide app chrome */
   .topbar, .bottom-bar, #toast, .save-pill, .modal-bg, #splash,
-  .report-actions, .screen:not(#screenReport) { display: none !important; }
-  /* Make every screen container fully fluid in print */
-  .screen {
+  .report-actions { display: none !important; }
+  /* Hide ALL screens, then show only the currently-active one. This way
+     printing from screenReport prints the customer report; printing from
+     screenCompletionReport prints the before/after completion report. */
+  .screen { display: none !important;
     padding: 0 !important; max-width: none !important;
     min-height: 0 !important; height: auto !important;
     overflow: visible !important;
     margin: 0 !important;
   }
-  #screenReport { display: block !important; }
+  .screen.active { display: block !important; }
   .report-content {
     border: none !important; box-shadow: none !important;
     background: #fff !important; border-radius: 0 !important;
@@ -1029,11 +1031,16 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     height: auto !important;
   }
   .report-h1, .report-h2 { color: #1F4D2E !important; }
-  /* Both legacy and modern page-break properties for cross-browser support */
+  /* Keep the H2 with at least the first item beneath it */
   .report-h2 { page-break-after: avoid; break-after: avoid; }
-  .report-section, .report-item, .report-quote-row, .report-ember-card, .report-disclosure {
+  /* Only avoid breaking inside SMALL atomic blocks. Do NOT apply to
+     .report-section — long sections must be allowed to span pages or
+     they push to the next page and leave the previous page mostly empty. */
+  .report-item, .report-quote-row, .report-ember-card, .report-disclosure, .report-cert-strip {
     page-break-inside: avoid; break-inside: avoid;
   }
+  /* Reduce orphan/widow lines so paragraphs don't split awkwardly */
+  .report-content p { orphans: 3; widows: 3; }
   @page { size: letter; margin: 0.5in; }
 }
 
@@ -1378,8 +1385,9 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   <!-- ── COMPLETION REPORT SCREEN (Before/After PDF) ─────────── -->
   <div class="screen" id="screenCompletionReport">
     <div class="report-actions">
-      <button class="btn secondary" onclick="goBack()">← Completion</button>
-      <button class="btn" onclick="reportPrint()">🖨 Save as PDF / Email</button>
+      <button class="btn secondary small" onclick="goBack()">← Back</button>
+      <button class="btn small" onclick="reportPrint()">🖨 Save / Email</button>
+      <button class="btn warn small" onclick="cmpMarkJobDone()">✓ Mark Done</button>
     </div>
     <div class="report-content" id="completionReportContent"></div>
   </div>
@@ -2991,6 +2999,25 @@ function compressImage(file, maxDim, quality) {
 function syncQuoteFromInspection(job) {
   if (!job.quote) job.quote = { line_items: [], adders: [] };
   if (!job.quote.line_items) job.quote.line_items = [];
+
+  // ── Migration: dedupe legacy per-item inspection lines ─────────────
+  // The old schema (pre-aggregation) created one quote line per
+  // inspection_item_id. The new schema keys lines by pricebook_id. Old
+  // jobs may have multiple inspection-sourced lines that share the same
+  // pricebook_id — drop the duplicates so we end up with at most one per
+  // pricebook id. Also drop any legacy line that has no pricebook_id at
+  // all (those are corrupt under the new schema).
+  {
+    const seen = new Set();
+    job.quote.line_items = job.quote.line_items.filter(li => {
+      if (li.src !== 'inspection') return true;
+      if (!li.pricebook_id) return false;
+      if (seen.has(li.pricebook_id)) return false;
+      seen.add(li.pricebook_id);
+      return true;
+    });
+  }
+
   const items = job.inspection?.items || {};
 
   // Group flagged items by pricebook_id
@@ -4010,6 +4037,21 @@ function cmpToggleDone(itemId) {
   items[itemId] = cur;
   commitJobChange(job, { immediate: true });
   renderCompletion();
+}
+
+// Mark the entire job done — final action after generating the completion
+// report. Flips status to 'complete', timestamps it, returns to home.
+function cmpMarkJobDone() {
+  const job = APP.currentJob;
+  if (!job) return;
+  job.status = 'complete';
+  if (!job.completion) job.completion = {};
+  job.completion.completed_at = job.completion.completed_at || new Date().toISOString();
+  job.completion.marked_done_at = new Date().toISOString();
+  commitJobChange(job, { immediate: true });
+  showToast('Job marked complete · saved to dashboard');
+  renderHome();
+  showScreen('screenHome');
 }
 
 // ─── Completion report ─────────────────────────────────────────────────
