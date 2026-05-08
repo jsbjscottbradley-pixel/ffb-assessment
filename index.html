@@ -8,6 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FFB Assess">
 <meta name="theme-color" content="#1F4D2E">
+<!-- Cache control: force fresh fetch on each load so deploys land immediately -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Foothills Fire Block — Assessment</title>
 
 <style>
@@ -664,11 +668,69 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   color: var(--soot);
 }
 .report-content .logo-wrap {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 16px; margin-bottom: 10px;
 }
-.report-content .logo-wrap img { width: 44px; height: 44px; border-radius: 8px; padding: 4px; background: var(--green-light); object-fit: contain; }
-.report-h1 { font-size: 20px; font-weight: 800; color: var(--green-deep); letter-spacing: -0.2px; line-height: 1.15; }
-.report-subtitle { font-size: 12px; color: var(--ash); font-weight: 600; }
+.report-content .logo-wrap img {
+  width: 78px; height: 78px;
+  border-radius: 12px; padding: 6px;
+  background: var(--green-light);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.report-h1 { font-size: 26px; font-weight: 800; color: var(--green-deep); letter-spacing: -0.3px; line-height: 1.1; }
+.report-subtitle { font-size: 13px; color: var(--ash); font-weight: 600; margin-top: 3px; }
+.report-tagline { font-size: 11px; color: var(--green-bright); font-weight: 700; margin-top: 4px; letter-spacing: 0.4px; text-transform: uppercase; }
+
+/* Certification badge strip (CWMS · NFPA 1144 · HIZ) */
+.report-cert-strip {
+  display: flex; gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  margin: 10px 0 14px 0;
+  page-break-inside: avoid;
+}
+.report-cert-badge {
+  flex: 1;
+  text-align: center;
+  padding: 8px 6px;
+  border: 1.5px solid var(--green-deep);
+  border-radius: 8px;
+  background: #fff;
+}
+.report-cert-badge .cert-icon {
+  font-size: 18px; line-height: 1; margin-bottom: 4px;
+  color: var(--rust);
+}
+.report-cert-badge .cert-title {
+  font-size: 9.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--green-deep);
+  line-height: 1.2;
+}
+.report-cert-badge .cert-sub {
+  font-size: 8.5px; color: var(--ash); font-weight: 600;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+/* Category subtotal row in the estimate */
+.report-cat-h {
+  font-size: 11px; font-weight: 800; color: var(--green-deep);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 8px 0 4px 0;
+  margin-top: 8px;
+  border-top: 1px solid var(--green-bright);
+}
+.report-cat-h:first-of-type { margin-top: 0; border-top: none; }
+.report-cat-subtotal {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 5px 0 8px 0;
+  font-size: 11.5px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.report-cat-subtotal .lbl { color: var(--ash); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.report-cat-subtotal .amt { font-weight: 800; color: var(--green-deep); font-size: 13px; }
 .report-meta {
   font-size: 11.5px; color: var(--soot);
   display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
@@ -690,14 +752,15 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 }
 .report-section .sec-h .stat { font-size: 10.5px; font-weight: 700; color: var(--ash); white-space: nowrap; }
 .report-item {
-  display: grid; grid-template-columns: 22px 1fr; gap: 8px;
+  display: grid; grid-template-columns: 28px 1fr; gap: 10px;
   padding: 5px 0;
   page-break-inside: avoid;
 }
 .report-item .ic {
-  font-weight: 800; text-align: center; font-size: 11px;
-  border-radius: 4px; padding: 1px 0; line-height: 1.6;
+  font-weight: 800; text-align: center; font-size: 16px;
+  border-radius: 5px; padding: 2px 0; line-height: 1.4;
   align-self: start;
+  width: 28px; height: 26px;
 }
 .report-item .ic.pass    { background: var(--green-light); color: var(--green-deep); }
 .report-item .ic.concern { background: var(--amber-light); color: var(--amber); }
@@ -772,20 +835,45 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   border-top: 1px solid var(--line);
 }
 
-/* Print — letter, professional layout, hide app chrome */
+/* Print — letter, multi-page safe, hide app chrome */
 @media print {
-  body { background: #fff !important; padding: 0 !important; margin: 0 !important; min-height: 0 !important; }
+  /* Strip ALL height/overflow constraints from parent containers — these
+     were collapsing the print into a single viewport height. */
+  html, body {
+    background: #fff !important;
+    padding: 0 !important; margin: 0 !important;
+    min-height: 0 !important; height: auto !important;
+    overflow: visible !important;
+  }
+  .app {
+    display: block !important;
+    min-height: 0 !important; height: auto !important;
+    overflow: visible !important;
+  }
+  /* Hide app chrome */
   .topbar, .bottom-bar, #toast, .save-pill, .modal-bg, #splash,
   .report-actions, .screen:not(#screenReport) { display: none !important; }
-  #screenReport { display: block !important; padding: 0 !important; max-width: none !important; margin: 0 !important; }
+  /* Make every screen container fully fluid in print */
+  .screen {
+    padding: 0 !important; max-width: none !important;
+    min-height: 0 !important; height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+  #screenReport { display: block !important; }
   .report-content {
     border: none !important; box-shadow: none !important;
     background: #fff !important; border-radius: 0 !important;
     padding: 0 !important; margin: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
   }
   .report-h1, .report-h2 { color: #1F4D2E !important; }
-  .report-h2 { page-break-after: avoid; }
-  .report-section, .report-item, .report-quote-row, .report-ember-card, .report-disclosure { page-break-inside: avoid; }
+  /* Both legacy and modern page-break properties for cross-browser support */
+  .report-h2 { page-break-after: avoid; break-after: avoid; }
+  .report-section, .report-item, .report-quote-row, .report-ember-card, .report-disclosure {
+    page-break-inside: avoid; break-inside: avoid;
+  }
   @page { size: letter; margin: 0.5in; }
 }
 
@@ -926,7 +1014,17 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     <div class="card">
       <div class="card-title">Parcel-Level CWMS Assessment</div>
       <div class="field-row">
-        <div><label>Dist. to Nearest Structure (ft)</label><input type="number" inputmode="numeric" min="0" id="i_dist_neighbor" placeholder="e.g. 75"></div>
+        <div><label>Dist. to Nearest Structure</label>
+          <select id="i_dist_neighbor">
+            <option value="">—</option>
+            <option>5-10 ft</option>
+            <option>10-15 ft</option>
+            <option>15-20 ft</option>
+            <option>20-25 ft</option>
+            <option>25-30 ft</option>
+            <option>30+ ft</option>
+          </select>
+        </div>
         <div><label>Roof Age (years)</label><input type="number" inputmode="numeric" min="0" id="i_roof_age" placeholder="e.g. 12"></div>
       </div>
       <div class="field-row">
@@ -1930,7 +2028,7 @@ function goToAssessment() {
 function loadSettingsForm() {
   const s = APP.settings || {};
   setVal('s_inspector', s.inspector || 'Scott Bradley CWMS');
-  setVal('s_phone', s.phone);
+  setVal('s_phone', s.phone || '720-432-4665');
   setVal('s_email', s.email);
   setVal('s_website', s.website || 'foothillsfireblock.com');
 }
@@ -3163,10 +3261,28 @@ function renderReport() {
 
 function renderReportHeader() {
   return `<div class="logo-wrap">
-    <img src="${window.LOGO_DATA || ''}" alt="FFB">
+    <img src="${window.LOGO_DATA || ''}" alt="Foothills Fire Block">
     <div>
       <div class="report-h1">Foothills Fire Block</div>
-      <div class="report-subtitle">Wildfire Mitigation Property Assessment & Estimate</div>
+      <div class="report-subtitle">Wildfire Mitigation Property Assessment &amp; Estimate</div>
+      <div class="report-tagline">Certified · Trained · Trusted</div>
+    </div>
+  </div>
+  <div class="report-cert-strip">
+    <div class="report-cert-badge">
+      <div class="cert-icon">🔥</div>
+      <div class="cert-title">CWMS Certified</div>
+      <div class="cert-sub">Certified Wildfire<br>Mitigation Specialist</div>
+    </div>
+    <div class="report-cert-badge">
+      <div class="cert-icon">📋</div>
+      <div class="cert-title">NFPA 1144</div>
+      <div class="cert-sub">Standard for Reducing<br>Structure Ignition Hazards</div>
+    </div>
+    <div class="report-cert-badge">
+      <div class="cert-icon">🏠</div>
+      <div class="cert-title">HIZ Certified</div>
+      <div class="cert-sub">Home Ignition<br>Zone Assessment</div>
     </div>
   </div>`;
 }
@@ -3190,7 +3306,7 @@ function renderReportParcel(job) {
     ['Property Type',                  job.property_type],
     ['Stories',                        job.stories],
     ['Slope',                          job.slope ? `${job.slope}${job.slope_dir ? ' · ' + job.slope_dir : ''}` : null],
-    ['Distance to Nearest Structure',  job.dist_neighbor ? `${job.dist_neighbor} ft` : null],
+    ['Distance to Nearest Structure',  job.dist_neighbor || null],
     ['Hydrant',                        job.hydrant ? `${job.hydrant}${job.hydrant_dist ? ' (~' + job.hydrant_dist + ' ft)' : ''}` : null],
     ['Driveway',                       [job.drv_grade, job.drv_width, job.drv_turnaround ? 'Turnaround: ' + job.drv_turnaround : null].filter(Boolean).join(' · ')],
     ['Adjoining Wildland Fuel',        job.adj_fuel],
@@ -3240,11 +3356,12 @@ function renderReportRiskSummary(job) {
 
 function renderReportInspItem(item, state) {
   const mark = state.mark;
+  // Single-character symbols — no width-cutoff issue
   const icMap = {
-    pass:    { cls:'pass',    txt:'PASS' },
-    concern: { cls:'concern', txt:'CONC' },
-    fail:    { cls:'fail',    txt:'FAIL' },
-    na:      { cls:'na',      txt:'N/A' },
+    pass:    { cls:'pass',    txt:'✓' },  // ✓
+    concern: { cls:'concern', txt:'!' },
+    fail:    { cls:'fail',    txt:'✗' },  // ✗
+    na:      { cls:'na',      txt:'–' },  // –
   };
   const ic = icMap[mark] || { cls:'', txt:'·' };
   const isFlagged = mark === 'concern' || mark === 'fail';
@@ -3290,39 +3407,82 @@ function renderReportRecommended(job) {
     </div>`;
 }
 
+// Estimate: skip $0 lines, group surviving lines by pricebook category,
+// show per-category subtotal, then adders, then grand total.
 function renderReportEstimate(job) {
-  const lines = job.quote?.line_items || [];
+  const allLines = job.quote?.line_items || [];
+  // Filter out lines with no quantity / $0 subtotal — Scott doesn't want
+  // unentered items polluting the customer's estimate
+  const lines = allLines.filter(li => {
+    const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+    const sub = (+li.qty || 0) * eff;
+    return sub > 0;
+  });
   const adders = (job.quote?.adders || []).filter(a => +a.amount > 0);
-  const total = job.total || 0;
+
+  // Recompute total from the surviving lines so it matches what's shown
+  let total = 0;
+  lines.forEach(li => {
+    const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+    total += (+li.qty || 0) * eff;
+  });
+  adders.forEach(a => total += (+a.amount || 0));
 
   if (!lines.length && !adders.length) {
     return `<div class="report-h2">Estimate</div>
       <div class="report-section">
-        <div style="font-size:12px; color:var(--ash); padding:10px 0;">No line items in this estimate.</div>
+        <div style="font-size:12px; color:var(--ash); padding:10px 0;">No priced items yet — add measurements in the inspection or pricing in the quote.</div>
       </div>`;
   }
 
-  const linesHtml = lines.map(li => {
-    const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
-    const sub = (+li.qty || 0) * eff;
-    return `<div class="report-quote-row">
-      <div>
-        <div class="nm">${escHtml(li.name || '')}</div>
-        <div class="det">${(+li.qty || 0)} ${escHtml(li.unit || '')} × $${fmtMoney(eff)}/${escHtml(li.unit || '')}</div>
-      </div>
-      <div class="amt">$${fmtMoney(sub)}</div>
-    </div>`;
+  // Group lines by pricebook category (or "custom" for freetext lines)
+  const catLabels = {
+    spray: 'Fire Retardant Treatments',
+    vent:  'Vent Replacements',
+    deck:  'Deck & Wall Hardening',
+    zone:  'Zone 0 Work',
+    tree:  'Tree Work',
+    roof:  'Roof Work',
+    misc:  'Miscellaneous',
+    custom:'Additional Services',
+  };
+  const catOrder = ['spray','vent','roof','deck','zone','tree','misc','custom'];
+  const byCat = {};
+  lines.forEach(li => {
+    const pb = APP.pricebook.find(p => p.id === li.pricebook_id);
+    const cat = li.src === 'custom' && !li.pricebook_id ? 'custom' : (pb?.category || 'misc');
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push(li);
+  });
+
+  const catsHtml = catOrder.filter(c => byCat[c]).map(cat => {
+    const catLines = byCat[cat];
+    let catTotal = 0;
+    const linesHtml = catLines.map(li => {
+      const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+      const sub = (+li.qty || 0) * eff;
+      catTotal += sub;
+      return `<div class="report-quote-row">
+        <div>
+          <div class="nm">${escHtml(li.name || '')}</div>
+          <div class="det">${(+li.qty || 0)} ${escHtml(li.unit || '')} × $${fmtMoney(eff)}/${escHtml(li.unit || '')}</div>
+        </div>
+        <div class="amt">$${fmtMoney(sub)}</div>
+      </div>`;
+    }).join('');
+    const showCatSubtotal = catLines.length > 1;
+    return `<div class="report-cat-h">${escHtml(catLabels[cat] || cat)}</div>
+      ${linesHtml}
+      ${showCatSubtotal ? `<div class="report-cat-subtotal"><div class="lbl">${escHtml(catLabels[cat] || cat)} Subtotal</div><div class="amt">$${fmtMoney(catTotal)}</div></div>` : ''}`;
   }).join('');
 
   const addersHtml = adders.length ? `
-    <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line-soft);">
-      <div style="font-size:10.5px; font-weight:800; color:var(--ash); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px;">Adders &amp; Surcharges</div>
-      ${adders.map(a => `<div class="report-adder-row"><div class="nm">${escHtml(a.label)}</div><div class="amt">$${fmtMoney(a.amount)}</div></div>`).join('')}
-    </div>` : '';
+    <div class="report-cat-h">Adders &amp; Surcharges</div>
+    ${adders.map(a => `<div class="report-adder-row"><div class="nm">${escHtml(a.label)}</div><div class="amt">$${fmtMoney(a.amount)}</div></div>`).join('')}` : '';
 
   return `<div class="report-h2">Estimate</div>
     <div class="report-section">
-      ${linesHtml}
+      ${catsHtml}
       ${addersHtml}
       <div class="report-total">
         <div class="lbl">Estimate Total</div>
@@ -3359,12 +3519,16 @@ function renderReportReminders() {
 }
 
 function renderReportDisclosure(inspector, settings) {
+  const phone   = settings.phone   || '720-432-4665';
+  const email   = settings.email   || '';
+  const website = settings.website || 'foothillsfireblock.com';
+  const contact = ['Foothills Fire Block', phone, email, website].filter(Boolean).join(' · ');
   return `<div class="report-h2">About Your Inspector / Disclosure</div>
     <div class="report-disclosure">
-      <p><strong>Inspector:</strong> ${escHtml(inspector || 'Foothills Fire Block CWMS')}</p>
+      <p><strong>Inspector:</strong> ${escHtml(inspector || 'Scott Bradley CWMS')}</p>
       <p style="margin-top:6px;">This Wildfire Risk Assessment was conducted by a <strong>Certified Wildfire Mitigation Specialist (CWMS)</strong> based on a visual inspection of the property on the date noted above. Recommendations align with guidance from the Colorado State Forest Service Home Ignition Zone Guide, NFPA 1144, the Insurance Institute for Business &amp; Home Safety (IBHS), and the Wildfire Prepared Home program.</p>
       <p style="margin-top:6px;">Pricing shown is an estimate based on conditions observed at time of inspection. Final pricing may vary with site conditions encountered during the work. This document does not constitute a guarantee against wildfire loss; it is intended to materially reduce risk through proven mitigation practices.</p>
-      <p style="margin-top:6px;">Foothills Fire Block · ${escHtml(settings.phone || '')}${settings.phone ? ' · ' : ''}${escHtml(settings.email || '')}${settings.email ? ' · ' : ''}${escHtml(settings.website || 'foothillsfireblock.com')}</p>
+      <p style="margin-top:6px;">${escHtml(contact)}</p>
     </div>`;
 }
 
