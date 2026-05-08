@@ -651,6 +651,154 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 }
 .qt-adder-row .x:active { color: var(--rust); }
 
+/* ── Completion screen (Checkpoint 4) ────────────────────── */
+.cmp-item {
+  background: #fff;
+  border-radius: 12px; border: 1px solid var(--line-soft);
+  padding: 13px;
+  margin-bottom: 10px;
+}
+.cmp-item.done { border-color: var(--green-bright); border-width: 2px; background: #FAFFF7; }
+.cmp-item .head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+}
+.cmp-item .nm { font-size: 14px; font-weight: 700; color: var(--soot); flex: 1; min-width: 0; line-height: 1.3; }
+.cmp-item .nm .sub { font-size: 11px; color: var(--ash); font-weight: 500; margin-top: 3px; }
+.cmp-item .src-tag { font-size: 9.5px; font-weight: 800; padding: 3px 8px; border-radius: 9px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
+.cmp-item .src-tag.concern { background: var(--amber-light); color: var(--amber); }
+.cmp-item .src-tag.fail    { background: var(--rust-light); color: var(--rust); }
+.cmp-item .src-tag.recommend { background: var(--green-light); color: var(--green-deep); }
+
+.cmp-photos {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 10px;
+}
+.cmp-photo-cell {
+  border: 1.5px dashed var(--line);
+  border-radius: 9px;
+  padding: 10px 8px;
+  text-align: center;
+  background: var(--paper);
+}
+.cmp-photo-cell.has-photo { border-style: solid; padding: 0; background: #fff; }
+.cmp-photo-cell .lbl {
+  font-size: 9.5px; font-weight: 800; color: var(--ash);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+.cmp-photo-cell.has-photo .lbl {
+  position: absolute;
+  background: rgba(255,255,255,0.92);
+  padding: 3px 7px; border-radius: 6px;
+  margin: 6px;
+  z-index: 2;
+}
+.cmp-photo-cell .photo-wrap { position: relative; }
+.cmp-photo-cell img {
+  width: 100%; height: 100px; object-fit: cover;
+  border-radius: 9px; display: block;
+}
+.cmp-photo-cell .empty {
+  font-size: 11px; color: var(--ash); padding: 18px 4px;
+}
+.cmp-photo-cell.add-action { cursor: pointer; }
+.cmp-photo-cell.add-action:active { background: var(--green-light); }
+.cmp-photo-cell .add-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: var(--green-deep);
+}
+.cmp-photo-cell .replace-x {
+  position: absolute; top: 6px; right: 6px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--rust); color: #fff; font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff; line-height: 1;
+  z-index: 3;
+}
+
+.cmp-notes {
+  font-size: 16px; padding: 9px 11px; min-height: 40px;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.cmp-done-toggle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  background: none; width: 100%; text-align: left;
+  border-top: 1px solid var(--line-soft);
+}
+.cmp-done-check {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: #fff; border: 2px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: var(--green-bright);
+  flex-shrink: 0;
+}
+.cmp-item.done .cmp-done-check {
+  background: var(--green-light); border-color: var(--green-bright);
+}
+.cmp-done-toggle .lbl { font-size: 13px; font-weight: 700; color: var(--soot); }
+
+.cmp-section-h {
+  font-size: 11px; font-weight: 800; color: var(--ash);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin: 14px 0 8px 4px;
+}
+
+/* ── Completion report Before/After grid (in PDF) ─────────── */
+.report-cmp-item {
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 12px;
+}
+.report-cmp-item .nm {
+  font-size: 13px; font-weight: 800; color: var(--green-deep);
+  margin-bottom: 4px;
+}
+.report-cmp-item .sub {
+  font-size: 11px; color: var(--ash); font-weight: 600;
+  margin-bottom: 8px;
+}
+.report-cmp-item .pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 6px;
+}
+.report-cmp-item .pair .cell {
+  text-align: center;
+}
+.report-cmp-item .pair .cell .lbl {
+  font-size: 10px; font-weight: 800; color: var(--ash);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+.report-cmp-item .pair .cell img {
+  width: 100%; max-height: 220px; object-fit: cover;
+  border: 1px solid var(--line); border-radius: 6px;
+  display: block;
+}
+.report-cmp-item .pair .cell.empty-cell {
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 30px 10px;
+  font-size: 11px; color: var(--ash);
+}
+.report-cmp-item .work-rec {
+  font-size: 11.5px; color: #444; line-height: 1.4;
+  background: var(--green-light);
+  border-left: 3px solid var(--green-bright);
+  padding: 7px 10px; border-radius: 4px;
+  margin-top: 6px;
+}
+.report-cmp-item .work-notes {
+  font-size: 11.5px; color: var(--soot); line-height: 1.4;
+  margin-top: 6px;
+  font-style: italic;
+}
+
 /* ── Customer-facing Report (print to PDF) ───────────────── */
 .report-actions {
   display: flex; gap: 10px; margin-bottom: 12px;
@@ -772,6 +920,18 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .report-item .rec  { font-size: 11px; color: #444; line-height: 1.4; margin-top: 2px; }
 .report-item .cn   { font-size: 10.5px; color: var(--ash); margin-top: 2px; line-height: 1.35; font-style: italic; }
 .report-item .meas { font-size: 10.5px; color: var(--green-deep); font-weight: 700; margin-top: 2px; }
+.report-item .photo-slot {
+  margin-top: 8px;
+}
+.report-item .report-photo {
+  max-width: 320px;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: block;
+}
 .report-quote-row {
   display: grid; grid-template-columns: 1fr 100px;
   padding: 6px 0;
@@ -1156,8 +1316,9 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     </div>
 
     <div class="bottom-bar show">
-      <button class="btn secondary" onclick="goBack()">← Inspection</button>
-      <button class="btn" onclick="qtGenerateReport()">Generate Report →</button>
+      <button class="btn secondary small" onclick="goBack()">← Insp</button>
+      <button class="btn small" onclick="qtGenerateReport()">Customer Report</button>
+      <button class="btn warn small" onclick="qtMarkComplete()">Mark Complete →</button>
     </div>
   </div>
 
@@ -1180,6 +1341,47 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
       <button class="btn" onclick="reportPrint()">🖨 Save as PDF / Email</button>
     </div>
     <div class="report-content" id="reportContent"></div>
+  </div>
+
+  <!-- ── COMPLETION WORKFLOW SCREEN (Checkpoint 4) ──────────── -->
+  <div class="screen" id="screenCompletion">
+    <div class="card insp-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div style="min-width:0; flex:1;">
+          <div class="nm" id="compCust">—</div>
+          <div class="ad" id="compAddr">—</div>
+        </div>
+        <span class="badge" style="background:var(--amber-light); color:var(--amber); font-size:10px; padding:3px 8px; border-radius:10px; font-weight:800; letter-spacing:0.4px; text-transform:uppercase; white-space:nowrap;">WORK COMPLETION</span>
+      </div>
+    </div>
+
+    <div class="insp-overall" style="background:linear-gradient(135deg,var(--amber),#C5621F);">
+      <div class="ttl">Completion Progress</div>
+      <div class="pct"><span id="compDone">0</span> of <span id="compTotal">0</span></div>
+      <div class="meta">items addressed · <span id="compRemaining">0</span> remaining</div>
+      <div class="progress"><div id="compBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="alert info" style="margin-bottom:12px;">
+      <span class="ic">📷</span>
+      <span><b>For each item below,</b> add an after-photo and (optional) notes about the work performed. Items marked complete will appear on the customer's completion report with before/after photo pairs.</span>
+    </div>
+
+    <div id="compItems"></div>
+
+    <div class="bottom-bar show">
+      <button class="btn secondary" onclick="goBack()">← Quote</button>
+      <button class="btn" onclick="cmpGenerateReport()">Generate Completion Report →</button>
+    </div>
+  </div>
+
+  <!-- ── COMPLETION REPORT SCREEN (Before/After PDF) ─────────── -->
+  <div class="screen" id="screenCompletionReport">
+    <div class="report-actions">
+      <button class="btn secondary" onclick="goBack()">← Completion</button>
+      <button class="btn" onclick="reportPrint()">🖨 Save as PDF / Email</button>
+    </div>
+    <div class="report-content" id="completionReportContent"></div>
   </div>
 
   <!-- ── SETTINGS SCREEN ──────────────────────────────────── -->
@@ -1775,7 +1977,9 @@ function showScreen(id, push = true) {
     screenIntake:     { t: 'New Assessment',       s: 'Step 1 of 4 — Customer & Property' },
     screenAssessment: { t: 'Inspection',           s: 'Step 2 of 4 — Property Walk-Around' },
     screenQuote:      { t: 'Quote',                s: 'Step 3 of 4 — Estimate & Adders' },
-    screenReport:     { t: 'Customer Report',      s: 'Step 4 of 4 — Save as PDF / Email' },
+    screenReport:     { t: 'Customer Report',      s: 'For approval — Save as PDF / Email' },
+    screenCompletion: { t: 'Mark Work Complete',   s: 'Step 4 — After-photos & completion notes' },
+    screenCompletionReport: { t: 'Completion Report', s: 'Before/After — Save as PDF / Email' },
     screenSettings:   { t: 'Settings',             s: 'Pricing, company info, sync' },
   };
   const tt = titles[id];
@@ -3257,6 +3461,29 @@ function renderReport() {
     renderReportDisclosure(inspector, settings),
     renderReportFooter(settings),
   ].join('');
+
+  // Async-bind every inspection item photo into the report after the HTML
+  // is in the DOM. Photo blobs live in IndexedDB; we read each one and
+  // create an object URL for the <img> tag.
+  const items = job.inspection?.items || {};
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    const state = items[it.id];
+    if (state && state.before_photo_id) bindReportInspPhoto(it.id);
+  }));
+}
+
+async function bindReportInspPhoto(itemId) {
+  const slot = document.getElementById('rptPhoto-' + itemId);
+  if (!slot) return;
+  const job = APP.currentJob;
+  const cur = job?.inspection?.items?.[itemId];
+  if (!cur || !cur.before_photo_id) return;
+  try {
+    const rec = await idbGet('photos', cur.before_photo_id);
+    if (!rec || !rec.blob) return;
+    const url = URL.createObjectURL(rec.blob);
+    slot.innerHTML = `<img class="report-photo" src="${url}" alt="Inspection photo">`;
+  } catch(e) {}
 }
 
 function renderReportHeader() {
@@ -3358,22 +3585,27 @@ function renderReportInspItem(item, state) {
   const mark = state.mark;
   // Single-character symbols — no width-cutoff issue
   const icMap = {
-    pass:    { cls:'pass',    txt:'✓' },  // ✓
+    pass:    { cls:'pass',    txt:'✓' },
     concern: { cls:'concern', txt:'!' },
-    fail:    { cls:'fail',    txt:'✗' },  // ✗
-    na:      { cls:'na',      txt:'–' },  // –
+    fail:    { cls:'fail',    txt:'✗' },
+    na:      { cls:'na',      txt:'–' },
   };
   const ic = icMap[mark] || { cls:'', txt:'·' };
   const isFlagged = mark === 'concern' || mark === 'fail';
   const cwmsRec = state.cwms_rec || (isFlagged ? (item.rec || '') : '');
   const meas = (state.measurement != null && state.measurement !== '') ? `${state.measurement} ${item.unit || ''}` : '';
+  const cn = state.contractor_notes || '';
+  // Photo slot is a placeholder; bindReportInspPhoto fills it async after render
+  const hasPhoto = !!state.before_photo_id;
 
   return `<div class="report-item">
     <div class="ic ${ic.cls}">${ic.txt}</div>
     <div class="body">
       <div class="nm">${escHtml(item.label)}</div>
       ${isFlagged && cwmsRec ? `<div class="rec">${escHtml(cwmsRec)}</div>` : ''}
+      ${cn ? `<div class="cn">Inspector notes: ${escHtml(cn)}</div>` : ''}
       ${meas ? `<div class="meas">Measurement: ${escHtml(meas)}</div>` : ''}
+      ${hasPhoto ? `<div class="photo-slot" id="rptPhoto-${item.id}"></div>` : ''}
     </div>
   </div>`;
 }
@@ -3396,11 +3628,15 @@ function renderReportRecommended(job) {
     <div class="report-section">
       ${recommended.map(it => {
         const state = items[it.id];
+        const hasPhoto = !!state.before_photo_id;
+        const cn = state.contractor_notes || '';
         return `<div class="report-item">
           <div class="ic recommend">+</div>
           <div class="body">
             <div class="nm">${escHtml(it.label)}</div>
             <div class="rec">${escHtml(state.cwms_rec || it.rec || '')}</div>
+            ${cn ? `<div class="cn">Inspector notes: ${escHtml(cn)}</div>` : ''}
+            ${hasPhoto ? `<div class="photo-slot" id="rptPhoto-${it.id}"></div>` : ''}
           </div>
         </div>`;
       }).join('')}
@@ -3537,6 +3773,371 @@ function renderReportFooter(settings) {
   const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
   return `<div class="report-footer">
     Foothills Fire Block · ${escHtml(website)} · Report generated ${escHtml(date)}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// COMPLETION WORKFLOW (Checkpoint 4)
+// After work is performed, Scott returns to the job and walks through every
+// flagged item, captures an after-photo, marks it done. Generates a
+// before/after completion report for the customer.
+// ════════════════════════════════════════════════════════════════════════
+
+// Returns flat list of {item, state, sectionLabel, sectionIcon, mark} for
+// every inspection item that was flagged (Concern/Fail/Recommend).
+function cmpFlaggedItems() {
+  const job = APP.currentJob;
+  if (!job) return [];
+  const items = job.inspection?.items || {};
+  const out = [];
+  INSPECTION_CATALOG.forEach(s => {
+    s.items.forEach(it => {
+      const state = items[it.id];
+      if (!state) return;
+      const isFlagged =
+        (it.type === 'recommendation' && state.mark === 'recommend') ||
+        (it.type !== 'recommendation' && (state.mark === 'concern' || state.mark === 'fail'));
+      if (isFlagged) out.push({ item: it, state, sectionLabel: s.label, sectionIcon: s.icon });
+    });
+  });
+  return out;
+}
+
+function cmpStats() {
+  const flagged = cmpFlaggedItems();
+  const total = flagged.length;
+  const done = flagged.filter(f => f.state.completed === true).length;
+  const remaining = total - done;
+  return { total, done, remaining };
+}
+
+function qtMarkComplete() {
+  const job = APP.currentJob;
+  if (!job) return;
+  ensureInspectionShape(job);
+  if (!job.completion) job.completion = {};
+  if (!job.completion.started_at) job.completion.started_at = new Date().toISOString();
+  if (job.status === 'draft' || job.status === 'quoted') job.status = 'in_progress';
+  commitJobChange(job, { immediate: true });
+  document.getElementById('compCust').textContent = job.customer_name || '';
+  document.getElementById('compAddr').textContent = [job.property_addr, job.property_city].filter(Boolean).join(', ');
+  renderCompletion();
+  showScreen('screenCompletion');
+}
+
+function renderCompletion() {
+  const job = APP.currentJob;
+  if (!job) return;
+  renderCompletionSummary();
+  renderCompletionItems();
+}
+
+function renderCompletionSummary() {
+  const { total, done, remaining } = cmpStats();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setText('compDone', done);
+  setText('compTotal', total);
+  setText('compRemaining', remaining);
+  const bar = document.getElementById('compBar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function renderCompletionItems() {
+  const wrap = document.getElementById('compItems');
+  if (!wrap) return;
+  const flagged = cmpFlaggedItems();
+  if (!flagged.length) {
+    wrap.innerHTML = `<div class="empty"><div class="ic">✓</div><div class="ttl">No flagged items</div><div class="sub">Mark items as Concern, Fail, or Recommend in the inspection first.</div></div>`;
+    return;
+  }
+  // Group by section for display
+  const bySection = {};
+  flagged.forEach(f => {
+    if (!bySection[f.sectionLabel]) bySection[f.sectionLabel] = { icon: f.sectionIcon, items: [] };
+    bySection[f.sectionLabel].items.push(f);
+  });
+  wrap.innerHTML = Object.keys(bySection).map(secLabel => {
+    const sec = bySection[secLabel];
+    return `<div class="cmp-section-h">${sec.icon} ${escHtml(secLabel)}</div>
+      ${sec.items.map(f => cmpRenderItem(f.item, f.state, f.mark)).join('')}`;
+  }).join('');
+  // Bind thumbs for both before and after photos asynchronously
+  flagged.forEach(f => {
+    cmpBindBeforeThumb(f.item.id);
+    cmpBindAfterThumb(f.item.id);
+  });
+}
+
+function cmpRenderItem(item, state) {
+  const mark = state.mark;
+  let tag = '', tagCls = '';
+  if (mark === 'concern')   { tag = 'Concern';     tagCls = 'concern'; }
+  else if (mark === 'fail') { tag = 'Fail';        tagCls = 'fail'; }
+  else if (mark === 'recommend') { tag = 'Recommended'; tagCls = 'recommend'; }
+  const completed = !!state.completed;
+  const notes = state.completion_notes || '';
+  return `<div class="cmp-item ${completed ? 'done' : ''}" id="cmp-item-${item.id}">
+    <div class="head">
+      <div class="nm">
+        ${escHtml(item.label)}
+        ${state.cwms_rec ? `<div class="sub">${escHtml(state.cwms_rec)}</div>` : ''}
+      </div>
+      <span class="src-tag ${tagCls}">${escHtml(tag)}</span>
+    </div>
+
+    <div class="cmp-photos">
+      <div class="cmp-photo-cell ${state.before_photo_id ? 'has-photo' : ''}" id="cmpBefore_${item.id}">
+        <div class="lbl">Before</div>
+        ${state.before_photo_id ? '' : '<div class="empty">(none from inspection)</div>'}
+      </div>
+      <div class="cmp-photo-cell ${state.after_photo_id ? 'has-photo' : 'add-action'}" id="cmpAfter_${item.id}">
+        <div class="lbl">After</div>
+        ${state.after_photo_id ? '' : `<div class="empty">
+          <label class="add-btn" for="aph_${item.id}">📷 Add After Photo</label>
+        </div>`}
+      </div>
+    </div>
+    <input id="aph_${item.id}" type="file" accept="image/*" style="display:none;" onchange="cmpCaptureAfterPhoto('${item.id}', this.files[0]); this.value='';">
+
+    <textarea class="cmp-notes" placeholder="Work performed / details (optional)" oninput="cmpCompletionNote('${item.id}', this.value)">${escHtml(notes)}</textarea>
+
+    <button type="button" class="cmp-done-toggle" onclick="cmpToggleDone('${item.id}')">
+      <span class="cmp-done-check">${completed ? '✓' : ''}</span>
+      <span class="lbl">${completed ? 'Marked complete — tap to undo' : 'Mark this item complete'}</span>
+    </button>
+  </div>`;
+}
+
+async function cmpBindBeforeThumb(itemId) {
+  const wrap = document.getElementById('cmpBefore_' + itemId);
+  if (!wrap) return;
+  const job = APP.currentJob;
+  const cur = job?.inspection?.items?.[itemId];
+  if (!cur || !cur.before_photo_id) return;
+  try {
+    const rec = await idbGet('photos', cur.before_photo_id);
+    if (!rec || !rec.blob) return;
+    const url = URL.createObjectURL(rec.blob);
+    wrap.innerHTML = `<div class="lbl">Before</div><div class="photo-wrap"><img src="${url}" alt=""></div>`;
+  } catch(e) {}
+}
+
+async function cmpBindAfterThumb(itemId) {
+  const wrap = document.getElementById('cmpAfter_' + itemId);
+  if (!wrap) return;
+  const job = APP.currentJob;
+  const cur = job?.inspection?.items?.[itemId];
+  if (!cur || !cur.after_photo_id) return;
+  try {
+    const rec = await idbGet('photos', cur.after_photo_id);
+    if (!rec || !rec.blob) return;
+    const url = URL.createObjectURL(rec.blob);
+    wrap.innerHTML = `<div class="lbl">After</div><div class="photo-wrap"><img src="${url}" alt=""><button type="button" class="replace-x" onclick="cmpRemoveAfterPhoto('${itemId}')" aria-label="Remove">×</button></div>`;
+  } catch(e) {}
+}
+
+async function cmpCaptureAfterPhoto(itemId, file) {
+  if (!file) return;
+  const job = APP.currentJob;
+  if (!job) return;
+  setSavePill('syncing', 'Saving photo...');
+  try {
+    const blob = await compressImage(file, 1600, 0.78);
+    const photoId = 'pho_' + job.id + '_' + itemId + '_a_' + Date.now();
+    await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'after', job_id: job.id, ts: Date.now() });
+    const items = job.inspection.items;
+    const cur = items[itemId] || {};
+    if (cur.after_photo_id) {
+      try { await idbDelete('photos', cur.after_photo_id); } catch(e){}
+    }
+    cur.after_photo_id = photoId;
+    cur.ts = new Date().toISOString();
+    items[itemId] = cur;
+    commitJobChange(job, { immediate: true });
+    renderCompletionItems();
+    showToast('After photo saved');
+  } catch (e) {
+    err('After photo capture failed:', e);
+    showToast('Photo failed: ' + (e.message || 'unknown'));
+    setSavePill('error', 'Photo error');
+  }
+}
+
+async function cmpRemoveAfterPhoto(itemId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const cur = job.inspection?.items?.[itemId];
+  if (!cur || !cur.after_photo_id) return;
+  try { await idbDelete('photos', cur.after_photo_id); } catch(e){}
+  cur.after_photo_id = null;
+  commitJobChange(job, { immediate: true });
+  renderCompletionItems();
+  showToast('After photo removed');
+}
+
+function cmpCompletionNote(itemId, text) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const items = job.inspection.items;
+  const cur = items[itemId] || {};
+  cur.completion_notes = text;
+  cur.ts = new Date().toISOString();
+  items[itemId] = cur;
+  if (_textDebounce['cn:' + itemId]) clearTimeout(_textDebounce['cn:' + itemId]);
+  _textDebounce['cn:' + itemId] = setTimeout(() => commitJobChange(job), 500);
+}
+
+function cmpToggleDone(itemId) {
+  const job = APP.currentJob;
+  if (!job) return;
+  const items = job.inspection.items;
+  const cur = items[itemId] || {};
+  cur.completed = !cur.completed;
+  cur.completed_ts = cur.completed ? new Date().toISOString() : null;
+  items[itemId] = cur;
+  commitJobChange(job, { immediate: true });
+  renderCompletion();
+}
+
+// ─── Completion report ─────────────────────────────────────────────────
+function cmpGenerateReport() {
+  const job = APP.currentJob;
+  if (!job) return;
+  const { done, total } = cmpStats();
+  if (done === 0) {
+    showToast('Mark at least one item complete first');
+    return;
+  }
+  if (!job.completion) job.completion = {};
+  job.completion.completed_at = new Date().toISOString();
+  job.completion.total_completed = done;
+  // If all flagged items are done, flip status to complete
+  if (done === total) job.status = 'complete';
+  commitJobChange(job, { immediate: true });
+  renderCompletionReport();
+  showScreen('screenCompletionReport');
+}
+
+function renderCompletionReport() {
+  const job = APP.currentJob;
+  if (!job) return;
+  const wrap = document.getElementById('completionReportContent');
+  if (!wrap) return;
+  const settings = APP.settings || {};
+  const inspector = settings.inspector || 'Scott Bradley CWMS';
+
+  wrap.innerHTML = [
+    renderReportHeader(),
+    renderCompReportMeta(job),
+    renderCompReportSummary(job),
+    renderCompReportItems(job),
+    renderReportEmberThreat(),
+    renderReportDisclosure(inspector, settings),
+    renderCompReportFooter(settings),
+  ].join('');
+
+  // Bind images asynchronously after innerHTML lands
+  cmpFlaggedItems()
+    .filter(f => f.state.completed)
+    .forEach(f => bindCompReportPhotos(f.item.id));
+}
+
+function renderCompReportMeta(job) {
+  const inspDate = job.inspection_date || (job.created_at || '').slice(0, 10);
+  const completedAt = (job.completion?.completed_at || new Date().toISOString()).slice(0, 10);
+  const propAddr = [job.property_addr, job.property_city, job.property_zip].filter(Boolean).join(', ');
+  return `<div class="report-meta">
+    <div><span class="k">Customer</span><br>${escHtml(job.customer_name || '—')}</div>
+    <div><span class="k">Inspection Date</span><br>${escHtml(inspDate || '—')}</div>
+    <div><span class="k">Work Completed</span><br>${escHtml(completedAt)}</div>
+    <div><span class="k">Property</span><br>${escHtml(propAddr || '—')}</div>
+  </div>`;
+}
+
+function renderCompReportSummary(job) {
+  const stats = cmpStats();
+  return `<div class="report-h2">Completion Summary</div>
+    <div class="report-section">
+      <p style="font-size:13px; line-height:1.5; color:var(--soot); margin-bottom:8px;">
+        Wildfire mitigation work has been performed at the above property. The following sections document the work completed, with before-and-after photographs of each addressed risk item.
+      </p>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <div style="flex:1; background:var(--green-light); padding:10px; border-radius:8px; text-align:center;">
+          <div style="font-size:24px; font-weight:800; color:var(--green-deep); line-height:1;">${stats.done}</div>
+          <div style="font-size:10px; font-weight:700; color:var(--green-deep); text-transform:uppercase; letter-spacing:0.4px; margin-top:2px;">Items Completed</div>
+        </div>
+        <div style="flex:1; background:var(--cream-warm); padding:10px; border-radius:8px; text-align:center;">
+          <div style="font-size:24px; font-weight:800; color:var(--ash); line-height:1;">${stats.total}</div>
+          <div style="font-size:10px; font-weight:700; color:var(--ash); text-transform:uppercase; letter-spacing:0.4px; margin-top:2px;">Total Risks Identified</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderCompReportItems(job) {
+  const flagged = cmpFlaggedItems().filter(f => f.state.completed);
+  if (!flagged.length) {
+    return `<div class="report-h2">Completed Work</div>
+      <div class="report-section"><div style="font-size:12px; color:var(--ash);">No items marked complete yet.</div></div>`;
+  }
+  // Group by section
+  const bySection = {};
+  flagged.forEach(f => {
+    if (!bySection[f.sectionLabel]) bySection[f.sectionLabel] = { icon: f.sectionIcon, items: [] };
+    bySection[f.sectionLabel].items.push(f);
+  });
+  const html = Object.keys(bySection).map(secLabel => {
+    const sec = bySection[secLabel];
+    return `<div class="report-h2">${sec.icon} ${escHtml(secLabel)}</div>
+      <div class="report-section">
+        ${sec.items.map(f => renderCompReportItem(f.item, f.state)).join('')}
+      </div>`;
+  }).join('');
+  return html;
+}
+
+function renderCompReportItem(item, state) {
+  return `<div class="report-cmp-item" id="cmpRpt-${item.id}">
+    <div class="nm">${escHtml(item.label)}</div>
+    ${state.cwms_rec ? `<div class="sub">Recommendation: ${escHtml(state.cwms_rec)}</div>` : ''}
+    <div class="pair">
+      <div class="cell" id="cmpRptBefore-${item.id}">
+        <div class="lbl">Before</div>
+        <div class="empty-cell">No photo on file</div>
+      </div>
+      <div class="cell" id="cmpRptAfter-${item.id}">
+        <div class="lbl">After</div>
+        <div class="empty-cell">No photo on file</div>
+      </div>
+    </div>
+    ${state.completion_notes ? `<div class="work-notes">Work performed: ${escHtml(state.completion_notes)}</div>` : ''}
+  </div>`;
+}
+
+async function bindCompReportPhotos(itemId) {
+  const job = APP.currentJob;
+  const cur = job?.inspection?.items?.[itemId];
+  if (!cur) return;
+  const setCell = async (cellId, photoId, label) => {
+    const cell = document.getElementById(cellId);
+    if (!cell || !photoId) return;
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) return;
+      const url = URL.createObjectURL(rec.blob);
+      cell.innerHTML = `<div class="lbl">${label}</div><img src="${url}" alt="">`;
+    } catch(e) {}
+  };
+  await setCell('cmpRptBefore-' + itemId, cur.before_photo_id, 'Before');
+  await setCell('cmpRptAfter-'  + itemId, cur.after_photo_id,  'After');
+}
+
+function renderCompReportFooter(settings) {
+  const website = settings.website || 'foothillsfireblock.com';
+  const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  return `<div class="report-footer">
+    Foothills Fire Block · ${escHtml(website)} · Completion report generated ${escHtml(date)}
   </div>`;
 }
 
