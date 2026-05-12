@@ -1087,14 +1087,18 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   .report-h1, .report-h2 { color: #1F4D2E !important; }
   /* Keep the H2 with at least the first item beneath it */
   .report-h2 { page-break-after: avoid; break-after: avoid; }
-  /* Only avoid breaking inside SMALL atomic blocks. Do NOT apply to
-     .report-section — long sections must be allowed to span pages or
-     they push to the next page and leave the previous page mostly empty. */
-  .report-item, .report-quote-row, .report-ember-card, .report-disclosure, .report-cert-strip {
+  /* Only avoid breaking inside SMALL atomic blocks (individual items, rows,
+     cert strip). DO NOT add .report-section, .report-ember-card, or
+     .report-disclosure — those are big enough that iOS Safari's print
+     engine silently drops them when it can't fit them on a single page.
+     Letting them flow across pages preserves the content. */
+  .report-item, .report-quote-row, .report-cert-strip {
     page-break-inside: avoid; break-inside: avoid;
   }
   /* Reduce orphan/widow lines so paragraphs don't split awkwardly */
   .report-content p { orphans: 3; widows: 3; }
+  .report-ember-card li { page-break-inside: avoid; break-inside: avoid; }
+  .report-reminder-list li { page-break-inside: avoid; break-inside: avoid; }
   @page { size: letter; margin: 0.5in; }
 }
 
