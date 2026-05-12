@@ -920,16 +920,70 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .report-item .rec  { font-size: 11px; color: #444; line-height: 1.4; margin-top: 2px; }
 .report-item .cn   { font-size: 10.5px; color: var(--ash); margin-top: 2px; line-height: 1.35; font-style: italic; }
 .report-item .meas { font-size: 10.5px; color: var(--green-deep); font-weight: 700; margin-top: 2px; }
-.report-item .photo-slot {
+.report-item .photo-slot,
+.report-item .photo-grid {
   margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+  max-width: 480px;
 }
 .report-item .report-photo {
-  max-width: 320px;
   width: 100%;
-  max-height: 180px;
+  max-height: 140px;
   object-fit: cover;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 5px;
+  display: block;
+}
+/* Single-photo case: stretch a bit larger */
+.report-item .photo-grid:has(.report-photo:only-child) .report-photo,
+.report-item .photo-slot:has(.report-photo:only-child) .report-photo {
+  max-height: 180px;
+}
+
+/* Inspection screen — multi-photo strip below the item */
+.photo-strip {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+/* Completion screen photo cells — multi-thumb grid */
+.cmp-photo-cell .photo-multi {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 4px;
+  padding: 4px;
+}
+.cmp-photo-cell .photo-multi img,
+.cmp-photo-cell .cmp-thumb-multi {
+  width: 100%; height: 70px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  display: block;
+}
+.cmp-photo-cell .cmp-thumb-wrap {
+  position: relative; display: block;
+}
+.cmp-photo-cell .cmp-thumb-wrap .replace-x {
+  top: -4px; right: -4px;
+  width: 18px; height: 18px; font-size: 11px;
+}
+
+/* Completion REPORT (PDF) — Before/After multi-photo blocks */
+.report-cmp-item .cmp-rpt-multi {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 4px;
+  margin-top: 4px;
+}
+.report-cmp-item .cmp-rpt-multi img {
+  width: 100%; max-height: 130px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 4px;
   display: block;
 }
 .report-quote-row {
@@ -1192,7 +1246,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
             <option>30+ ft</option>
           </select>
         </div>
-        <div><label>Roof Age (years)</label><input type="number" inputmode="numeric" min="0" id="i_roof_age" placeholder="e.g. 12"></div>
+        <div><label>Roof Age</label><input type="text" inputmode="decimal" id="i_roof_age" placeholder="e.g. 12, 12+, unknown"></div>
       </div>
       <div class="field-row">
         <div><label>Hydrant Status</label>
@@ -1204,7 +1258,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
             <option>1000+ ft / None</option>
           </select>
         </div>
-        <div><label>Hydrant Distance (ft)</label><input type="number" inputmode="numeric" min="0" id="i_hydrant_dist" placeholder="approx"></div>
+        <div><label>Hydrant Distance</label><input type="text" inputmode="decimal" id="i_hydrant_dist" placeholder="e.g. 250 ft, ~500"></div>
       </div>
       <div class="field-row three">
         <div><label>Drive Grade</label>
@@ -2601,11 +2655,23 @@ function ensureInspectionShape(job) {
   if (!job.quote.adders) job.quote.adders = defaultAdders();
   if (!job._inspOpen) job._inspOpen = {};
 
-  // Migrate old single-notes field → contractor_notes; auto-populate cwms_rec on flagged items.
+  // Migrations on existing items:
+  //   notes → contractor_notes (legacy single notes field)
+  //   before_photo_id (string) → before_photo_ids ([string])  — multi-photo
+  //   after_photo_id  (string) → after_photo_ids  ([string])
+  // Plus auto-populate cwms_rec on flagged items if empty.
   Object.entries(job.inspection.items).forEach(([itemId, state]) => {
     if (state.notes && !state.contractor_notes) {
       state.contractor_notes = state.notes;
       delete state.notes;
+    }
+    if (state.before_photo_id && !state.before_photo_ids) {
+      state.before_photo_ids = [state.before_photo_id];
+      delete state.before_photo_id;
+    }
+    if (state.after_photo_id && !state.after_photo_ids) {
+      state.after_photo_ids = [state.after_photo_id];
+      delete state.after_photo_id;
     }
     const flagged = state.mark === 'concern' || state.mark === 'fail' || state.mark === 'recommend';
     if (flagged && !state.cwms_rec) {
@@ -2614,6 +2680,22 @@ function ensureInspectionShape(job) {
     }
   });
 }
+
+// Helpers for multi-photo arrays. Always return an array (never undefined)
+// so consumers can iterate safely.
+function inspBeforePhotoIds(state) {
+  if (!state) return [];
+  if (Array.isArray(state.before_photo_ids)) return state.before_photo_ids;
+  if (state.before_photo_id) return [state.before_photo_id]; // pre-migration fallback
+  return [];
+}
+function inspAfterPhotoIds(state) {
+  if (!state) return [];
+  if (Array.isArray(state.after_photo_ids)) return state.after_photo_ids;
+  if (state.after_photo_id) return [state.after_photo_id];
+  return [];
+}
+const MAX_PHOTOS_PER_ITEM = 5;
 
 function defaultAdders() {
   return [
@@ -2742,11 +2824,11 @@ function renderInspectionSections() {
     </section>`;
   }).join('');
 
-  // Async-bind photo thumbs for any open section
+  // Async-bind photo thumbnail strips for any open section
   Object.keys(job._inspOpen).forEach(sid => {
     if (job._inspOpen[sid]) {
       const sec = INSPECTION_CATALOG.find(s => s.id === sid);
-      if (sec) sec.items.forEach(it => bindInspThumb(it.id));
+      if (sec) sec.items.forEach(it => bindInspPhotoStrip(it.id));
     }
   });
 }
@@ -2766,11 +2848,17 @@ function renderAssessItem(it, state) {
   const mark = state.mark || null;
   const flagged = (mark === 'concern' || mark === 'fail');
   const failCls = (mark === 'fail') ? 'fail' : '';
-  const cwmsRec = (state.cwms_rec != null && state.cwms_rec !== '') ? state.cwms_rec : (it.rec || '');
+  const cwmsRec = (state.cwms_rec != null && state.cwms_rec !== '') ? state.cwms_rec : (flagged ? (it.rec || '') : '');
   const cn = state.contractor_notes || '';
   const meas = (state.measurement != null) ? state.measurement : '';
-  const hasPhoto = !!state.before_photo_id;
-  const showFlaggedBlock = flagged;
+  const photoCount = inspBeforePhotoIds(state).length;
+  // Show CWMS Rec + Contractor Notes anytime there's a mark except N/A — so
+  // Scott can write notes explaining a Pass too.
+  const showNotesBlock = mark === 'pass' || mark === 'concern' || mark === 'fail';
+  // Measurement field only on flagged items with a unit (still need qty
+  // for the auto-quote line). Pass items don't generate quote lines.
+  const showMeasurement = flagged && !!it.unit;
+  const canAddPhoto = photoCount < MAX_PHOTOS_PER_ITEM;
   return `<div class="insp-item ${flagged?'flagged':''}" id="insp-item-${it.id}">
     <div class="it-lbl">${escHtml(it.label)}${it.help ? `<div class="it-help">${escHtml(it.help)}</div>` : ''}</div>
     <div class="pcf pcf-4">
@@ -2779,21 +2867,23 @@ function renderAssessItem(it, state) {
       <button type="button" class="f"  aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
       <button type="button" class="na" aria-pressed="${mark==='na'}"      onclick="inspMark('${it.id}','na')">N/A</button>
     </div>
-    ${showFlaggedBlock ? `
+    ${showNotesBlock ? `
       <div class="insp-flagged-block ${failCls}">
         <label class="insp-mini-label">CWMS Recommendation</label>
-        <textarea class="insp-notes" placeholder="(auto-populates when flagged)" oninput="inspCwmsRec('${it.id}', this.value)">${escHtml(cwmsRec)}</textarea>
+        <textarea class="insp-notes" placeholder="${flagged ? '(auto-populates when flagged)' : 'Why this is meeting standard / any caveats'}" oninput="inspCwmsRec('${it.id}', this.value)">${escHtml(cwmsRec)}</textarea>
         <label class="insp-mini-label">Contractor Notes</label>
         <textarea class="insp-notes" placeholder="Job-specific notes for the crew" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
-        ${it.unit ? `
+        ${showMeasurement ? `
           <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
-          <input class="insp-meas" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+          <input class="insp-meas" type="text" inputmode="decimal" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
         ` : ''}
       </div>` : ''}
     <div class="insp-photo-row">
-      <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add photo'}</label>
-      <input id="ph_${it.id}" type="file" accept="image/*" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
-      <span id="thumbWrap_${it.id}"></span>
+      ${canAddPhoto
+        ? `<label class="insp-photo-btn" for="ph_${it.id}">📷 Add photo (${photoCount}/${MAX_PHOTOS_PER_ITEM})</label>`
+        : `<span class="insp-photo-btn" style="opacity:0.6;">📷 ${photoCount}/${MAX_PHOTOS_PER_ITEM} photos</span>`}
+      <input id="ph_${it.id}" type="file" accept="image/*" multiple style="display:none;" onchange="inspCapturePhotos('${it.id}', this.files); this.value='';">
+      <span id="photoStrip_${it.id}" class="photo-strip"></span>
     </div>
   </div>`;
 }
@@ -2803,7 +2893,8 @@ function renderRecItem(it, state) {
   const recd = (mark === 'recommend');
   const cn = state.contractor_notes || '';
   const meas = (state.measurement != null) ? state.measurement : '';
-  const hasPhoto = !!state.before_photo_id;
+  const photoCount = inspBeforePhotoIds(state).length;
+  const canAddPhoto = photoCount < MAX_PHOTOS_PER_ITEM;
   return `<div class="insp-item ${recd?'flagged':''} insp-rec-item" id="insp-item-${it.id}">
     <div class="it-lbl">${escHtml(it.label)}</div>
     ${it.rec ? `<div class="insp-rec-blurb">${escHtml(it.rec)}</div>` : ''}
@@ -2817,13 +2908,15 @@ function renderRecItem(it, state) {
         <textarea class="insp-notes" placeholder="Specifics for this property" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
         ${it.unit ? `
           <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
-          <input class="insp-meas" type="number" inputmode="decimal" step="any" min="0" placeholder="0" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+          <input class="insp-meas" type="text" inputmode="decimal" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
         ` : ''}
       </div>` : ''}
     <div class="insp-photo-row">
-      <label class="insp-photo-btn" for="ph_${it.id}">📷 ${hasPhoto ? 'Replace photo' : 'Add photo'}</label>
-      <input id="ph_${it.id}" type="file" accept="image/*" style="display:none;" onchange="inspCapturePhoto('${it.id}', this.files[0]); this.value='';">
-      <span id="thumbWrap_${it.id}"></span>
+      ${canAddPhoto
+        ? `<label class="insp-photo-btn" for="ph_${it.id}">📷 Add photo (${photoCount}/${MAX_PHOTOS_PER_ITEM})</label>`
+        : `<span class="insp-photo-btn" style="opacity:0.6;">📷 ${photoCount}/${MAX_PHOTOS_PER_ITEM} photos</span>`}
+      <input id="ph_${it.id}" type="file" accept="image/*" multiple style="display:none;" onchange="inspCapturePhotos('${it.id}', this.files); this.value='';">
+      <span id="photoStrip_${it.id}" class="photo-strip"></span>
     </div>
   </div>`;
 }
@@ -2893,35 +2986,42 @@ function _saveTextField(itemId, field, text, doSyncQuote) {
 
 function inspCwmsRec(itemId, text)        { _saveTextField(itemId, 'cwms_rec',         text, false); }
 function inspContractorNote(itemId, text) { _saveTextField(itemId, 'contractor_notes', text, false); }
+// Measurement now accepts text ("30+ ft", "~100", "25 sqft"). We store the
+// raw string and parseFloat it at quote-sync time so the quote qty still works.
 function inspMeasurement(itemId, value) {
-  const num = (value === '' || value == null) ? null : (parseFloat(value) || 0);
-  _saveTextField(itemId, 'measurement', num, true);
+  _saveTextField(itemId, 'measurement', value, true);
 }
 
-// ──────────────────────── Photos ────────────────────────────────────────
-async function inspCapturePhoto(itemId, file) {
-  if (!file) return;
+// ──────────────────────── Photos (multi, up to 5) ───────────────────────
+async function inspCapturePhotos(itemId, files) {
+  if (!files || !files.length) return;
   const job = APP.currentJob;
   if (!job) return;
   ensureInspectionShape(job);
-  setSavePill('syncing', 'Saving photo...');
+  const cur = job.inspection.items[itemId] || {};
+  const currentIds = inspBeforePhotoIds(cur);
+  const remainingSlots = MAX_PHOTOS_PER_ITEM - currentIds.length;
+  if (remainingSlots <= 0) { showToast('Already at ' + MAX_PHOTOS_PER_ITEM + ' photos'); return; }
+  const toProcess = Array.from(files).slice(0, remainingSlots);
+  if (toProcess.length < files.length) {
+    showToast(`Only ${remainingSlots} slot(s) left — keeping first ${toProcess.length}`);
+  }
+  setSavePill('syncing', 'Saving photo' + (toProcess.length>1?'s':'') + '...');
   try {
-    const blob = await compressImage(file, 1600, 0.78);
-    const photoId = 'pho_' + job.id + '_' + itemId + '_b_' + Date.now();
-    await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'before', job_id: job.id, ts: Date.now() });
-    const items = job.inspection.items;
-    const cur = items[itemId] || {};
-    if (cur.before_photo_id) {
-      try { await idbDelete('photos', cur.before_photo_id); } catch(e){}
+    if (!cur.before_photo_ids) cur.before_photo_ids = [];
+    for (let i = 0; i < toProcess.length; i++) {
+      const file = toProcess[i];
+      // 1280px / 0.65 quality — ~100-150KB per photo, keeps emailed PDF size manageable
+      const blob = await compressImage(file, 1280, 0.65);
+      const photoId = 'pho_' + job.id + '_' + itemId + '_b_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,5);
+      await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'before', job_id: job.id, ts: Date.now() });
+      cur.before_photo_ids.push(photoId);
     }
-    cur.before_photo_id = photoId;
     cur.ts = new Date().toISOString();
-    items[itemId] = cur;
+    job.inspection.items[itemId] = cur;
     commitJobChange(job, { immediate: true });
-    bindInspThumb(itemId);
-    // Re-render the section so the button label flips to "Replace photo"
     renderInspectionSections();
-    showToast('Photo saved');
+    showToast(`${toProcess.length} photo${toProcess.length>1?'s':''} saved`);
   } catch (e) {
     err('Photo capture failed:', e);
     showToast('Photo failed: ' + (e.message || 'unknown'));
@@ -2929,34 +3029,39 @@ async function inspCapturePhoto(itemId, file) {
   }
 }
 
-async function inspRemovePhoto(itemId) {
+async function inspRemovePhoto(itemId, photoId) {
   const job = APP.currentJob;
   if (!job) return;
-  const items = job.inspection?.items || {};
-  const cur = items[itemId];
-  if (!cur || !cur.before_photo_id) return;
-  try { await idbDelete('photos', cur.before_photo_id); } catch(e){}
-  cur.before_photo_id = null;
-  items[itemId] = cur;
+  const cur = job.inspection?.items?.[itemId];
+  if (!cur) return;
+  if (Array.isArray(cur.before_photo_ids)) {
+    cur.before_photo_ids = cur.before_photo_ids.filter(id => id !== photoId);
+  }
+  try { await idbDelete('photos', photoId); } catch(e){}
+  cur.ts = new Date().toISOString();
   commitJobChange(job, { immediate: true });
   renderInspectionSections();
   showToast('Photo removed');
 }
 
-async function bindInspThumb(itemId) {
+async function bindInspPhotoStrip(itemId) {
   const job = APP.currentJob;
-  const wrap = document.getElementById('thumbWrap_' + itemId);
-  if (!wrap || !job) return;
+  const strip = document.getElementById('photoStrip_' + itemId);
+  if (!strip || !job) return;
   const cur = job.inspection?.items?.[itemId];
-  if (!cur || !cur.before_photo_id) { wrap.innerHTML = ''; return; }
-  try {
-    const rec = await idbGet('photos', cur.before_photo_id);
-    if (!rec || !rec.blob) { wrap.innerHTML = ''; return; }
-    const url = URL.createObjectURL(rec.blob);
-    wrap.innerHTML = `<span class="insp-thumb-wrap"><img class="insp-thumb" src="${url}" alt=""><button type="button" class="insp-thumb-x" onclick="inspRemovePhoto('${itemId}')" aria-label="Remove photo">×</button></span>`;
-  } catch(e) {
-    wrap.innerHTML = '';
+  if (!cur) { strip.innerHTML = ''; return; }
+  const ids = inspBeforePhotoIds(cur);
+  if (!ids.length) { strip.innerHTML = ''; return; }
+  const parts = [];
+  for (const photoId of ids) {
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) continue;
+      const url = URL.createObjectURL(rec.blob);
+      parts.push(`<span class="insp-thumb-wrap"><img class="insp-thumb" src="${url}" alt=""><button type="button" class="insp-thumb-x" onclick="inspRemovePhoto('${itemId}','${photoId}')" aria-label="Remove photo">×</button></span>`);
+    } catch(e) {}
   }
+  strip.innerHTML = parts.join('');
 }
 
 function compressImage(file, maxDim, quality) {
@@ -3054,7 +3159,10 @@ function syncQuoteFromInspection(job) {
   // Insert / refresh
   Object.keys(groups).forEach(pbId => {
     const g = groups[pbId];
-    const totalMeasurement = g.contributors.reduce((sum, c) => sum + (+c.measurement || 0), 0);
+    // measurement is now a free-text string ("30+ ft", "~100", "25 sqft").
+    // parseFloat extracts the leading number — "30+ ft" → 30, "~100" → NaN,
+    // "25 sqft" → 25. NaN falls through to 0 in the `|| 0` fallback.
+    const totalMeasurement = g.contributors.reduce((sum, c) => sum + (parseFloat(c.measurement) || 0), 0);
     // Dedupe + join recommendations across contributors
     const recParts = [...new Set(g.contributors.map(c => c.cwms_rec).filter(Boolean))];
     const recCombined = recParts.join(' · ');
@@ -3489,13 +3597,12 @@ function renderReport() {
     renderReportFooter(settings),
   ].join('');
 
-  // Async-bind every inspection item photo into the report after the HTML
-  // is in the DOM. Photo blobs live in IndexedDB; we read each one and
-  // create an object URL for the <img> tag.
+  // Async-bind every inspection item photo (may be multiple) into the
+  // report after the HTML is in the DOM. Photo blobs live in IndexedDB.
   const items = job.inspection?.items || {};
   INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
     const state = items[it.id];
-    if (state && state.before_photo_id) bindReportInspPhoto(it.id);
+    if (state && inspBeforePhotoIds(state).length > 0) bindReportInspPhoto(it.id);
   }));
 }
 
@@ -3516,13 +3623,20 @@ async function bindReportInspPhoto(itemId) {
   if (!slot) return;
   const job = APP.currentJob;
   const cur = job?.inspection?.items?.[itemId];
-  if (!cur || !cur.before_photo_id) return;
-  try {
-    const rec = await idbGet('photos', cur.before_photo_id);
-    if (!rec || !rec.blob) return;
-    const url = await blobToDataURL(rec.blob);
-    slot.innerHTML = `<img class="report-photo" src="${url}" alt="Inspection photo">`;
-  } catch(e) {}
+  if (!cur) return;
+  const ids = inspBeforePhotoIds(cur);
+  if (!ids.length) return;
+  const parts = [];
+  for (const photoId of ids) {
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) continue;
+      // data URL (not blob) so the photo survives iOS Safari print → PDF
+      const url = await blobToDataURL(rec.blob);
+      parts.push(`<img class="report-photo" src="${url}" alt="Inspection photo">`);
+    } catch(e) {}
+  }
+  slot.innerHTML = parts.join('');
 }
 
 function renderReportHeader() {
@@ -3573,11 +3687,11 @@ function renderReportParcel(job) {
     ['Stories',                        job.stories],
     ['Slope',                          job.slope ? `${job.slope}${job.slope_dir ? ' · ' + job.slope_dir : ''}` : null],
     ['Distance to Nearest Structure',  job.dist_neighbor || null],
-    ['Hydrant',                        job.hydrant ? `${job.hydrant}${job.hydrant_dist ? ' (~' + job.hydrant_dist + ' ft)' : ''}` : null],
+    ['Hydrant',                        job.hydrant ? `${job.hydrant}${job.hydrant_dist ? ' (~' + job.hydrant_dist + ')' : ''}` : null],
     ['Driveway',                       [job.drv_grade, job.drv_width, job.drv_turnaround ? 'Turnaround: ' + job.drv_turnaround : null].filter(Boolean).join(' · ')],
     ['Adjoining Wildland Fuel',        job.adj_fuel],
     ['Prior Mitigation Work',          job.prior_mit],
-    ['Roof Age',                       job.roof_age ? `${job.roof_age} years` : null],
+    ['Roof Age',                       job.roof_age || null],
     ['Water Source',                   job.water_source],
     ['Surrounding Features',           surrounding],
   ].filter(([,v]) => v != null && v !== '');
@@ -3622,7 +3736,6 @@ function renderReportRiskSummary(job) {
 
 function renderReportInspItem(item, state) {
   const mark = state.mark;
-  // Single-character symbols — no width-cutoff issue
   const icMap = {
     pass:    { cls:'pass',    txt:'✓' },
     concern: { cls:'concern', txt:'!' },
@@ -3631,20 +3744,20 @@ function renderReportInspItem(item, state) {
   };
   const ic = icMap[mark] || { cls:'', txt:'·' };
   const isFlagged = mark === 'concern' || mark === 'fail';
+  // Show CWMS rec text for any item that has it set (Pass items can have it too now).
   const cwmsRec = state.cwms_rec || (isFlagged ? (item.rec || '') : '');
   const meas = (state.measurement != null && state.measurement !== '') ? `${state.measurement} ${item.unit || ''}` : '';
   const cn = state.contractor_notes || '';
-  // Photo slot is a placeholder; bindReportInspPhoto fills it async after render
-  const hasPhoto = !!state.before_photo_id;
+  const photoIds = inspBeforePhotoIds(state);
 
   return `<div class="report-item">
     <div class="ic ${ic.cls}">${ic.txt}</div>
     <div class="body">
       <div class="nm">${escHtml(item.label)}</div>
-      ${isFlagged && cwmsRec ? `<div class="rec">${escHtml(cwmsRec)}</div>` : ''}
+      ${cwmsRec ? `<div class="rec">${escHtml(cwmsRec)}</div>` : ''}
       ${cn ? `<div class="cn">Inspector notes: ${escHtml(cn)}</div>` : ''}
       ${meas ? `<div class="meas">Measurement: ${escHtml(meas)}</div>` : ''}
-      ${hasPhoto ? `<div class="photo-slot" id="rptPhoto-${item.id}"></div>` : ''}
+      ${photoIds.length ? `<div class="photo-grid" id="rptPhoto-${item.id}"></div>` : ''}
     </div>
   </div>`;
 }
@@ -3667,7 +3780,7 @@ function renderReportRecommended(job) {
     <div class="report-section">
       ${recommended.map(it => {
         const state = items[it.id];
-        const hasPhoto = !!state.before_photo_id;
+        const photoIds = inspBeforePhotoIds(state);
         const cn = state.contractor_notes || '';
         return `<div class="report-item">
           <div class="ic recommend">+</div>
@@ -3675,7 +3788,7 @@ function renderReportRecommended(job) {
             <div class="nm">${escHtml(it.label)}</div>
             <div class="rec">${escHtml(state.cwms_rec || it.rec || '')}</div>
             ${cn ? `<div class="cn">Inspector notes: ${escHtml(cn)}</div>` : ''}
-            ${hasPhoto ? `<div class="photo-slot" id="rptPhoto-${it.id}"></div>` : ''}
+            ${photoIds.length ? `<div class="photo-grid" id="rptPhoto-${it.id}"></div>` : ''}
           </div>
         </div>`;
       }).join('')}
@@ -3916,6 +4029,9 @@ function cmpRenderItem(item, state) {
   else if (mark === 'recommend') { tag = 'Recommended'; tagCls = 'recommend'; }
   const completed = !!state.completed;
   const notes = state.completion_notes || '';
+  const beforeIds = inspBeforePhotoIds(state);
+  const afterIds  = inspAfterPhotoIds(state);
+  const canAddAfter = afterIds.length < MAX_PHOTOS_PER_ITEM;
   return `<div class="cmp-item ${completed ? 'done' : ''}" id="cmp-item-${item.id}">
     <div class="head">
       <div class="nm">
@@ -3926,18 +4042,18 @@ function cmpRenderItem(item, state) {
     </div>
 
     <div class="cmp-photos">
-      <div class="cmp-photo-cell ${state.before_photo_id ? 'has-photo' : ''}" id="cmpBefore_${item.id}">
-        <div class="lbl">Before</div>
-        ${state.before_photo_id ? '' : '<div class="empty">(none from inspection)</div>'}
+      <div class="cmp-photo-cell ${beforeIds.length ? 'has-photo' : ''}" id="cmpBefore_${item.id}">
+        <div class="lbl">Before (${beforeIds.length})</div>
+        ${beforeIds.length ? '' : '<div class="empty">(none from inspection)</div>'}
       </div>
-      <div class="cmp-photo-cell ${state.after_photo_id ? 'has-photo' : 'add-action'}" id="cmpAfter_${item.id}">
-        <div class="lbl">After</div>
-        ${state.after_photo_id ? '' : `<div class="empty">
+      <div class="cmp-photo-cell ${afterIds.length ? 'has-photo' : 'add-action'}" id="cmpAfter_${item.id}">
+        <div class="lbl">After (${afterIds.length}/${MAX_PHOTOS_PER_ITEM})</div>
+        ${!afterIds.length ? `<div class="empty">
           <label class="add-btn" for="aph_${item.id}">📷 Add After Photo</label>
-        </div>`}
+        </div>` : (canAddAfter ? `<button type="button" class="add-btn" onclick="document.getElementById('aph_${item.id}').click()" style="margin:6px;">+ Add another</button>` : '')}
       </div>
     </div>
-    <input id="aph_${item.id}" type="file" accept="image/*" style="display:none;" onchange="cmpCaptureAfterPhoto('${item.id}', this.files[0]); this.value='';">
+    <input id="aph_${item.id}" type="file" accept="image/*" multiple style="display:none;" onchange="cmpCaptureAfterPhotos('${item.id}', this.files); this.value='';">
 
     <textarea class="cmp-notes" placeholder="Work performed / details (optional)" oninput="cmpCompletionNote('${item.id}', this.value)">${escHtml(notes)}</textarea>
 
@@ -3953,13 +4069,20 @@ async function cmpBindBeforeThumb(itemId) {
   if (!wrap) return;
   const job = APP.currentJob;
   const cur = job?.inspection?.items?.[itemId];
-  if (!cur || !cur.before_photo_id) return;
-  try {
-    const rec = await idbGet('photos', cur.before_photo_id);
-    if (!rec || !rec.blob) return;
-    const url = URL.createObjectURL(rec.blob);
-    wrap.innerHTML = `<div class="lbl">Before</div><div class="photo-wrap"><img src="${url}" alt=""></div>`;
-  } catch(e) {}
+  if (!cur) return;
+  const ids = inspBeforePhotoIds(cur);
+  if (!ids.length) return;
+  const parts = [`<div class="lbl">Before (${ids.length})</div><div class="photo-multi">`];
+  for (const photoId of ids) {
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) continue;
+      const url = URL.createObjectURL(rec.blob);
+      parts.push(`<img src="${url}" alt="" class="cmp-thumb-multi">`);
+    } catch(e) {}
+  }
+  parts.push('</div>');
+  wrap.innerHTML = parts.join('');
 }
 
 async function cmpBindAfterThumb(itemId) {
@@ -3967,35 +4090,50 @@ async function cmpBindAfterThumb(itemId) {
   if (!wrap) return;
   const job = APP.currentJob;
   const cur = job?.inspection?.items?.[itemId];
-  if (!cur || !cur.after_photo_id) return;
-  try {
-    const rec = await idbGet('photos', cur.after_photo_id);
-    if (!rec || !rec.blob) return;
-    const url = URL.createObjectURL(rec.blob);
-    wrap.innerHTML = `<div class="lbl">After</div><div class="photo-wrap"><img src="${url}" alt=""><button type="button" class="replace-x" onclick="cmpRemoveAfterPhoto('${itemId}')" aria-label="Remove">×</button></div>`;
-  } catch(e) {}
+  if (!cur) return;
+  const ids = inspAfterPhotoIds(cur);
+  if (!ids.length) return;
+  const canAddMore = ids.length < MAX_PHOTOS_PER_ITEM;
+  const parts = [`<div class="lbl">After (${ids.length}/${MAX_PHOTOS_PER_ITEM})</div><div class="photo-multi">`];
+  for (const photoId of ids) {
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) continue;
+      const url = URL.createObjectURL(rec.blob);
+      parts.push(`<span class="cmp-thumb-wrap"><img src="${url}" alt="" class="cmp-thumb-multi"><button type="button" class="replace-x" onclick="cmpRemoveAfterPhoto('${itemId}','${photoId}')" aria-label="Remove">×</button></span>`);
+    } catch(e) {}
+  }
+  parts.push('</div>');
+  if (canAddMore) {
+    parts.push(`<button type="button" class="add-btn" onclick="document.getElementById('aph_${itemId}').click()" style="margin-top:6px;">+ Add another</button>`);
+  }
+  wrap.innerHTML = parts.join('');
 }
 
-async function cmpCaptureAfterPhoto(itemId, file) {
-  if (!file) return;
+async function cmpCaptureAfterPhotos(itemId, files) {
+  if (!files || !files.length) return;
   const job = APP.currentJob;
   if (!job) return;
-  setSavePill('syncing', 'Saving photo...');
+  const cur = job.inspection.items[itemId] || {};
+  const existing = inspAfterPhotoIds(cur);
+  const remaining = MAX_PHOTOS_PER_ITEM - existing.length;
+  if (remaining <= 0) { showToast('Already at ' + MAX_PHOTOS_PER_ITEM + ' photos'); return; }
+  const toProcess = Array.from(files).slice(0, remaining);
+  setSavePill('syncing', 'Saving photo' + (toProcess.length>1?'s':'') + '...');
   try {
-    const blob = await compressImage(file, 1600, 0.78);
-    const photoId = 'pho_' + job.id + '_' + itemId + '_a_' + Date.now();
-    await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'after', job_id: job.id, ts: Date.now() });
-    const items = job.inspection.items;
-    const cur = items[itemId] || {};
-    if (cur.after_photo_id) {
-      try { await idbDelete('photos', cur.after_photo_id); } catch(e){}
+    if (!cur.after_photo_ids) cur.after_photo_ids = [];
+    for (let i = 0; i < toProcess.length; i++) {
+      const file = toProcess[i];
+      const blob = await compressImage(file, 1280, 0.65);
+      const photoId = 'pho_' + job.id + '_' + itemId + '_a_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,5);
+      await idbPut('photos', { photo_id: photoId, blob, item_id: itemId, kind: 'after', job_id: job.id, ts: Date.now() });
+      cur.after_photo_ids.push(photoId);
     }
-    cur.after_photo_id = photoId;
     cur.ts = new Date().toISOString();
-    items[itemId] = cur;
+    job.inspection.items[itemId] = cur;
     commitJobChange(job, { immediate: true });
     renderCompletionItems();
-    showToast('After photo saved');
+    showToast(`${toProcess.length} after-photo${toProcess.length>1?'s':''} saved`);
   } catch (e) {
     err('After photo capture failed:', e);
     showToast('Photo failed: ' + (e.message || 'unknown'));
@@ -4003,13 +4141,16 @@ async function cmpCaptureAfterPhoto(itemId, file) {
   }
 }
 
-async function cmpRemoveAfterPhoto(itemId) {
+async function cmpRemoveAfterPhoto(itemId, photoId) {
   const job = APP.currentJob;
   if (!job) return;
   const cur = job.inspection?.items?.[itemId];
-  if (!cur || !cur.after_photo_id) return;
-  try { await idbDelete('photos', cur.after_photo_id); } catch(e){}
-  cur.after_photo_id = null;
+  if (!cur) return;
+  if (Array.isArray(cur.after_photo_ids)) {
+    cur.after_photo_ids = cur.after_photo_ids.filter(id => id !== photoId);
+  }
+  try { await idbDelete('photos', photoId); } catch(e){}
+  cur.ts = new Date().toISOString();
   commitJobChange(job, { immediate: true });
   renderCompletionItems();
   showToast('After photo removed');
@@ -4152,17 +4293,19 @@ function renderCompReportItems(job) {
 }
 
 function renderCompReportItem(item, state) {
+  const beforeCount = inspBeforePhotoIds(state).length;
+  const afterCount  = inspAfterPhotoIds(state).length;
   return `<div class="report-cmp-item" id="cmpRpt-${item.id}">
     <div class="nm">${escHtml(item.label)}</div>
     ${state.cwms_rec ? `<div class="sub">Recommendation: ${escHtml(state.cwms_rec)}</div>` : ''}
     <div class="pair">
       <div class="cell" id="cmpRptBefore-${item.id}">
-        <div class="lbl">Before</div>
-        <div class="empty-cell">No photo on file</div>
+        <div class="lbl">Before${beforeCount ? ` (${beforeCount})` : ''}</div>
+        ${beforeCount ? '' : '<div class="empty-cell">No photo on file</div>'}
       </div>
       <div class="cell" id="cmpRptAfter-${item.id}">
-        <div class="lbl">After</div>
-        <div class="empty-cell">No photo on file</div>
+        <div class="lbl">After${afterCount ? ` (${afterCount})` : ''}</div>
+        ${afterCount ? '' : '<div class="empty-cell">No photo on file</div>'}
       </div>
     </div>
     ${state.completion_notes ? `<div class="work-notes">Work performed: ${escHtml(state.completion_notes)}</div>` : ''}
@@ -4173,19 +4316,24 @@ async function bindCompReportPhotos(itemId) {
   const job = APP.currentJob;
   const cur = job?.inspection?.items?.[itemId];
   if (!cur) return;
-  const setCell = async (cellId, photoId, label) => {
+  const fillCell = async (cellId, ids, label) => {
     const cell = document.getElementById(cellId);
-    if (!cell || !photoId) return;
-    try {
-      const rec = await idbGet('photos', photoId);
-      if (!rec || !rec.blob) return;
-      // Data URL (not blob URL) so iOS Safari includes it in the printed PDF
-      const url = await blobToDataURL(rec.blob);
-      cell.innerHTML = `<div class="lbl">${label}</div><img src="${url}" alt="">`;
-    } catch(e) {}
+    if (!cell || !ids.length) return;
+    const parts = [`<div class="lbl">${label}${ids.length>1 ? ` (${ids.length})` : ''}</div><div class="cmp-rpt-multi">`];
+    for (const photoId of ids) {
+      try {
+        const rec = await idbGet('photos', photoId);
+        if (!rec || !rec.blob) continue;
+        // Data URL so iOS Safari includes it in the printed PDF
+        const url = await blobToDataURL(rec.blob);
+        parts.push(`<img src="${url}" alt="">`);
+      } catch(e) {}
+    }
+    parts.push('</div>');
+    cell.innerHTML = parts.join('');
   };
-  await setCell('cmpRptBefore-' + itemId, cur.before_photo_id, 'Before');
-  await setCell('cmpRptAfter-'  + itemId, cur.after_photo_id,  'After');
+  await fillCell('cmpRptBefore-' + itemId, inspBeforePhotoIds(cur), 'Before');
+  await fillCell('cmpRptAfter-'  + itemId, inspAfterPhotoIds(cur),  'After');
 }
 
 function renderCompReportFooter(settings) {
