@@ -3618,6 +3618,20 @@ function blobToDataURL(blob) {
   });
 }
 
+// PDF-bound photos go through a second compression pass to keep total PDF
+// size emailable. The PDF only renders thumbs at ~140px tall, so embedding
+// a 1280px source is wasted bytes. ~600px / 0.55 quality = ~25-40KB per
+// photo (down from ~150KB), keeping a 50-photo report under ~5MB.
+async function blobToCompactDataURL(blob) {
+  try {
+    const smaller = await compressImage(blob, 600, 0.55);
+    return await blobToDataURL(smaller);
+  } catch(e) {
+    // If recompression fails for any reason, fall back to the original blob
+    return await blobToDataURL(blob);
+  }
+}
+
 async function bindReportInspPhoto(itemId) {
   const slot = document.getElementById('rptPhoto-' + itemId);
   if (!slot) return;
@@ -3631,8 +3645,9 @@ async function bindReportInspPhoto(itemId) {
     try {
       const rec = await idbGet('photos', photoId);
       if (!rec || !rec.blob) continue;
-      // data URL (not blob) so the photo survives iOS Safari print → PDF
-      const url = await blobToDataURL(rec.blob);
+      // Compact data URL: re-downscale to ~600px before base64. PDF stays
+      // emailable (under most 20-25MB attachment limits).
+      const url = await blobToCompactDataURL(rec.blob);
       parts.push(`<img class="report-photo" src="${url}" alt="Inspection photo">`);
     } catch(e) {}
   }
@@ -4324,8 +4339,9 @@ async function bindCompReportPhotos(itemId) {
       try {
         const rec = await idbGet('photos', photoId);
         if (!rec || !rec.blob) continue;
-        // Data URL so iOS Safari includes it in the printed PDF
-        const url = await blobToDataURL(rec.blob);
+        // Compact data URL: re-downscale to ~600px before base64 so the
+        // completion PDF stays emailable (typically 4-7MB total).
+        const url = await blobToCompactDataURL(rec.blob);
         parts.push(`<img src="${url}" alt="">`);
       } catch(e) {}
     }
