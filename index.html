@@ -1370,6 +1370,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
       <button class="btn secondary small" onclick="qtOpenPricebookModal()">+ Add Service from Pricebook</button>
       <button class="btn ghost small" onclick="qtAddCustomLine()">+ Custom</button>
     </div>
+    <button class="btn ghost small" style="width:100%; margin-bottom:12px; color:var(--ash); font-size:12px;" onclick="qtRebuildFromInspection()">↻ Rebuild from Inspection</button>
 
     <div id="qtLines"></div>
 
@@ -3127,6 +3128,23 @@ function syncQuoteFromInspection(job) {
     });
   }
 
+  // ── Quote stability lock ───────────────────────────────────────────
+  // Once the user has manually curated the quote (removed/added/edited a
+  // line, changed an adder, or generated the PDF), STOP auto-adding and
+  // auto-removing inspection-derived lines. The quote is now the user's
+  // document. We only keep the running total fresh. A deliberate
+  // "Rebuild from Inspection" button is the single escape hatch.
+  if (job.quote.manually_edited) {
+    let lockedTotal = 0;
+    job.quote.line_items.forEach(li => {
+      const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
+      lockedTotal += (+li.qty || 0) * eff;
+    });
+    (job.quote.adders || []).forEach(a => lockedTotal += (+a.amount || 0));
+    job.total = lockedTotal;
+    return;
+  }
+
   const items = job.inspection?.items || {};
 
   // Group flagged items by pricebook_id
@@ -3341,6 +3359,7 @@ function qtResetPrice(lineId) {
   const li = (job.quote.line_items || []).find(x => x.id === lineId);
   if (!li) return;
   li.override_price = null;
+  qtTouch(job);
   renderQuote();
   commitJobChange(job, { immediate: true });
 }
@@ -3370,6 +3389,13 @@ function _qtCommit(job) {
   _qtTextDebounce._timer = setTimeout(() => commitJobChange(job), 400);
 }
 
+// Mark the quote as user-curated. Once set, syncQuoteFromInspection stops
+// auto-adding/removing inspection lines — the quote becomes the user's
+// document and only the "Rebuild from Inspection" button can reset it.
+function qtTouch(job) {
+  if (job && job.quote) job.quote.manually_edited = true;
+}
+
 function qtUpdateQty(lineId, value) {
   const job = APP.currentJob;
   if (!job) return;
@@ -3377,6 +3403,7 @@ function qtUpdateQty(lineId, value) {
   if (!li) return;
   li.qty = (value === '' || value == null) ? 0 : (parseFloat(value) || 0);
   li.qty_edited = true;  // protects from auto-overwrite by inspection sync
+  qtTouch(job);
   // Update only the subtotal + total — full re-render is cheap but loses focus
   const elSub = document.querySelector(`#qtline-${lineId} .subtotal-row .amt`);
   const elLbl = document.querySelector(`#qtline-${lineId} .subtotal-row .lbl`);
@@ -3392,6 +3419,7 @@ function qtUpdatePrice(lineId, value) {
   const li = (job.quote.line_items || []).find(x => x.id === lineId);
   if (!li) return;
   li.override_price = (value === '' || value == null) ? null : (parseFloat(value) || 0);
+  qtTouch(job);
   const elSub = document.querySelector(`#qtline-${lineId} .subtotal-row .amt`);
   const elLbl = document.querySelector(`#qtline-${lineId} .subtotal-row .lbl`);
   if (elSub) elSub.textContent = '$' + fmtMoney(qtLineSubtotal(li));
@@ -3411,24 +3439,13 @@ function qtRemoveLine(lineId) {
   if (!job) return;
   const li = (job.quote.line_items || []).find(x => x.id === lineId);
   if (!li) return;
-  // If from inspection, also clear the inspection mark so it doesn't auto-re-add
-  if (li.src === 'inspection' && li.inspection_item_id) {
-    const state = job.inspection?.items?.[li.inspection_item_id];
-    if (state) {
-      // Don't nuke the mark — user might still want it flagged. Just remove the line.
-      // The next syncQuoteFromInspection call WOULD re-add it, so we suppress by setting a flag.
-      // Simpler: just remove and accept that re-flag re-adds. User shouldn't be removing
-      // inspection lines without unflagging anyway. Show a hint.
-    }
-  }
   job.quote.line_items = (job.quote.line_items || []).filter(x => x.id !== lineId);
+  // Lock the quote: with manually_edited set, syncQuoteFromInspection will
+  // NOT re-add this (or any) inspection line on the next quote-screen visit.
+  qtTouch(job);
   renderQuote();
   commitJobChange(job, { immediate: true });
-  if (li.src === 'inspection') {
-    showToast('Line removed. Tap the inspection mark to clear it from the quote permanently.');
-  } else {
-    showToast('Line removed');
-  }
+  showToast('Line removed');
 }
 
 // ─── Add custom freetext line ──────────────────────────────────────────
@@ -3453,6 +3470,7 @@ function qtAddCustomLine() {
   };
   if (!job.quote.line_items) job.quote.line_items = [];
   job.quote.line_items.push(li);
+  qtTouch(job);
   renderQuote();
   commitJobChange(job, { immediate: true });
   showToast('Custom line added');
@@ -3505,6 +3523,7 @@ function qtAddPbLine(pricebookId) {
   };
   if (!job.quote.line_items) job.quote.line_items = [];
   job.quote.line_items.push(li);
+  qtTouch(job);
   qtClosePbModal();
   renderQuote();
   commitJobChange(job, { immediate: true });
@@ -3518,6 +3537,7 @@ function qtAdderUpdate(adderId, key, value) {
   const a = (job.quote.adders || []).find(x => x.id === adderId);
   if (!a) return;
   a[key] = (key === 'amount') ? ((value === '' || value == null) ? 0 : (parseFloat(value) || 0)) : value;
+  qtTouch(job);
   renderQuoteSummary();
   _qtCommit(job);
 }
@@ -3525,6 +3545,7 @@ function qtRemoveAdder(adderId) {
   const job = APP.currentJob;
   if (!job) return;
   job.quote.adders = (job.quote.adders || []).filter(x => x.id !== adderId);
+  qtTouch(job);
   renderQuote();
   commitJobChange(job, { immediate: true });
 }
@@ -3536,6 +3557,7 @@ function qtAddCustomAdder() {
   const amount = parseFloat(prompt('Amount ($):', '0')) || 0;
   if (!job.quote.adders) job.quote.adders = defaultAdders();
   job.quote.adders.push({ id: 'add_custom_' + Date.now(), label: label.trim(), amount });
+  qtTouch(job);
   renderQuote();
   commitJobChange(job, { immediate: true });
 }
@@ -3567,10 +3589,27 @@ function qtGenerateReport() {
   if (job.status === 'draft' && (job.quote?.line_items || []).length > 0) {
     job.status = 'quoted';
   }
+  // Generating the PDF finalizes the quote — lock it from auto-sync.
+  qtTouch(job);
   job.total = qtComputeTotal();
   commitJobChange(job, { immediate: true });
   renderReport();
   showScreen('screenReport');
+}
+
+// Deliberate escape hatch: rebuild the quote from current inspection marks.
+// Re-adds every flagged inspection item (custom lines + adders are kept).
+function qtRebuildFromInspection() {
+  const job = APP.currentJob;
+  if (!job) return;
+  const ok = confirm('Rebuild the quote from your current inspection marks?\n\nThis re-adds every flagged inspection item. Your custom lines and adders are kept, but any inspection lines you removed will come back.');
+  if (!ok) return;
+  job.quote.manually_edited = false;       // temporarily unlock
+  syncQuoteFromInspection(job);             // full re-sync
+  job.quote.manually_edited = true;         // re-lock immediately
+  renderQuote();
+  commitJobChange(job, { immediate: true });
+  showToast('Quote rebuilt from inspection');
 }
 
 function reportPrint() {
