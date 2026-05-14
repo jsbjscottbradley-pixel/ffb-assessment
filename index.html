@@ -802,9 +802,11 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 
 /* ── Customer-facing Report (print to PDF) ───────────────── */
 .report-actions {
-  display: flex; gap: 10px; margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 12px;
 }
-.report-actions .btn { flex: 1; }
+.report-actions .btn { width: 100%; }
 
 .report-content {
   background: #fff;
@@ -1404,9 +1406,10 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   <!-- ── CUSTOMER REPORT SCREEN (Print-to-PDF) ───────────────── -->
   <div class="screen" id="screenReport">
     <div class="report-actions">
-      <button class="btn secondary small" onclick="goBack()">← Quote</button>
       <button class="btn small" onclick="reportPrint()">🖨 Save / Email</button>
       <button class="btn warn small" onclick="reportMarkSent()">✓ Mark Sent</button>
+      <button class="btn secondary small" onclick="goBack()">← Quote</button>
+      <button class="btn secondary small" onclick="reportGoHome()">🏠 Home</button>
     </div>
     <div class="report-content" id="reportContent"></div>
   </div>
@@ -1446,9 +1449,10 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   <!-- ── COMPLETION REPORT SCREEN (Before/After PDF) ─────────── -->
   <div class="screen" id="screenCompletionReport">
     <div class="report-actions">
-      <button class="btn secondary small" onclick="goBack()">← Back</button>
       <button class="btn small" onclick="reportPrint()">🖨 Save / Email</button>
       <button class="btn warn small" onclick="cmpMarkJobDone()">✓ Mark Done</button>
+      <button class="btn secondary small" onclick="goBack()">← Back</button>
+      <button class="btn secondary small" onclick="reportGoHome()">🏠 Home</button>
     </div>
     <div class="report-content" id="completionReportContent"></div>
   </div>
@@ -3651,6 +3655,14 @@ function reportPrint() {
   // iOS Safari: window.print() triggers the native print preview which
   // offers "Save as PDF" via the share button, plus AirPrint / Mail.
   window.print();
+}
+
+// Plain navigation back to the home dashboard from a report screen.
+// Does NOT change job status — the job keeps whatever status it has
+// (Quoted if you didn't tap Mark Sent, Sent if you did).
+function reportGoHome() {
+  renderHome();
+  showScreen('screenHome');
 }
 
 // Marks the quote as sent to the customer — the funnel stage between
