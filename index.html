@@ -233,6 +233,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .job-card .status { padding: 2px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px; }
 .job-card .status.draft { background: var(--cream-warm); color: var(--ash); }
 .job-card .status.quoted { background: var(--amber-light); color: var(--amber); }
+.job-card .status.sent { background: var(--green-light); color: var(--green-bright); }
 .job-card .status.in_progress { background: #DDF0E0; color: var(--green-bright); }
 .job-card .status.complete { background: var(--green-light); color: var(--green-deep); }
 .job-card .updated { color: var(--ash-light); font-size: 11px; }
@@ -1403,8 +1404,9 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   <!-- ── CUSTOMER REPORT SCREEN (Print-to-PDF) ───────────────── -->
   <div class="screen" id="screenReport">
     <div class="report-actions">
-      <button class="btn secondary" onclick="goBack()">← Quote</button>
-      <button class="btn" onclick="reportPrint()">🖨 Save as PDF / Email</button>
+      <button class="btn secondary small" onclick="goBack()">← Quote</button>
+      <button class="btn small" onclick="reportPrint()">🖨 Save / Email</button>
+      <button class="btn warn small" onclick="reportMarkSent()">✓ Mark Sent</button>
     </div>
     <div class="report-content" id="reportContent"></div>
   </div>
@@ -1992,6 +1994,20 @@ async function launchApp() {
     }
   } catch(e) { err('Hardie rename failed:', e); }
 
+  // One-time status auto-heal: correct any jobs whose status got bumped to
+  // in_progress/complete without real completion work (e.g. by visiting the
+  // completion screen in an older build). Persist the corrected ones.
+  try {
+    for (const j of APP.jobs) {
+      const before = j.status;
+      normalizeJobStatus(j);
+      if (j.status !== before) {
+        try { await idbPut('jobs', j); } catch(e){}
+        try { await idbPut('queue', { id: 'job_' + j.id + '_heal_' + Date.now(), type: 'job_upsert', payload: j, retries: 0, ts: Date.now() }); } catch(e){}
+      }
+    }
+  } catch(e) { err('Status heal failed:', e); }
+
   // Sort jobs by updated_at desc
   APP.jobs.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
 
@@ -2114,7 +2130,7 @@ function renderJobList() {
   list.innerHTML = filtered.map(j => {
     const init = (j.customer_name || '?').trim().charAt(0).toUpperCase() || '?';
     const status = j.status || 'draft';
-    const statusLabel = { draft: 'Draft', quoted: 'Quoted', in_progress: 'In Progress', complete: 'Complete' }[status] || status;
+    const statusLabel = { draft: 'Draft', quoted: 'Quoted', sent: 'Sent', in_progress: 'In Progress', complete: 'Complete' }[status] || status;
     const updated = j.updated_at ? formatRelTime(j.updated_at) : '';
     const addr = [j.property_addr, j.property_city].filter(Boolean).join(', ');
     return `<button class="job-card" onclick="openJob('${j.id}')">
@@ -3637,6 +3653,22 @@ function reportPrint() {
   window.print();
 }
 
+// Marks the quote as sent to the customer — the funnel stage between
+// "quote built" and "work started". Records a timestamp and returns home
+// so the funnel is visible at a glance.
+function reportMarkSent() {
+  const job = APP.currentJob;
+  if (!job) return;
+  job.status = 'sent';
+  if (!job.quote) job.quote = { line_items: [], adders: [] };
+  job.quote.sent_at = new Date().toISOString();
+  qtTouch(job);  // sent quote is final — keep it locked from auto-sync
+  commitJobChange(job, { immediate: true });
+  showToast('Marked as Sent to customer · ' + (job.customer_name || ''));
+  renderHome();
+  showScreen('screenHome');
+}
+
 function renderReport() {
   const job = APP.currentJob;
   if (!job) return;
@@ -4256,7 +4288,7 @@ function cmpToggleDone(itemId) {
   cur.completed_ts = cur.completed ? new Date().toISOString() : null;
   items[itemId] = cur;
   // First real completion action advances the job to "in progress".
-  if (jobHasCompletionWork(job) && (job.status === 'draft' || job.status === 'quoted')) {
+  if (jobHasCompletionWork(job) && (job.status === 'draft' || job.status === 'quoted' || job.status === 'sent')) {
     job.status = 'in_progress';
   }
   commitJobChange(job, { immediate: true });
