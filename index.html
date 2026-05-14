@@ -1254,19 +1254,18 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
             <option>30+ ft</option>
           </select>
         </div>
-        <div><label>Roof Age</label><input type="text" inputmode="decimal" id="i_roof_age" placeholder="e.g. 12, 12+, unknown"></div>
+        <div><label>Roof Age</label><input type="text" id="i_roof_age" placeholder="e.g. 12 yrs, unknown"></div>
       </div>
       <div class="field-row">
-        <div><label>Hydrant Status</label>
+        <div><label>Hydrant Available?</label>
           <select id="i_hydrant">
             <option value="">—</option>
             <option>On property</option>
-            <option>Within 300 ft</option>
-            <option>300-1000 ft</option>
-            <option>1000+ ft / None</option>
+            <option>Available nearby</option>
+            <option>No hydrant</option>
           </select>
         </div>
-        <div><label>Hydrant Distance</label><input type="text" inputmode="decimal" id="i_hydrant_dist" placeholder="e.g. 250 ft, ~500"></div>
+        <div><label>Hydrant Distance</label><input type="text" id="i_hydrant_dist" placeholder="e.g. 250 ft, ~500, n/a"></div>
       </div>
       <div class="field-row three">
         <div><label>Drive Grade</label>
@@ -2933,7 +2932,7 @@ function renderAssessItem(it, state) {
         <textarea class="insp-notes" placeholder="Job-specific notes for the crew" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
         ${showMeasurement ? `
           <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
-          <input class="insp-meas" type="text" inputmode="decimal" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+          <input class="insp-meas" type="text" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
         ` : ''}
       </div>` : ''}
     <div class="insp-photo-row">
@@ -2966,7 +2965,7 @@ function renderRecItem(it, state) {
         <textarea class="insp-notes" placeholder="Specifics for this property" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
         ${it.unit ? `
           <label class="insp-mini-label">Measurement (${escHtml(it.unit)})</label>
-          <input class="insp-meas" type="text" inputmode="decimal" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
+          <input class="insp-meas" type="text" placeholder="e.g. 30, 30+, ~100" value="${escHtml(String(meas))}" oninput="inspMeasurement('${it.id}', this.value)">
         ` : ''}
       </div>` : ''}
     <div class="insp-photo-row">
