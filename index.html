@@ -3241,10 +3241,29 @@ function syncQuoteFromInspection(job) {
 }
 
 // ──────────────────────── Inspection → Quote routing ───────────────────
+// True if any inspection item has actually been marked complete (real
+// signal that field work has started — distinct from just visiting the
+// completion screen).
+function jobHasCompletionWork(job) {
+  const items = job?.inspection?.items || {};
+  return Object.values(items).some(s => s && s.completed === true);
+}
+
+// Auto-heal status: a job can't legitimately be "in_progress" or "complete"
+// if no completion work has been recorded. This corrects jobs whose status
+// got bumped just by navigating to the completion screen.
+function normalizeJobStatus(job) {
+  if (!job) return;
+  if ((job.status === 'in_progress' || job.status === 'complete') && !jobHasCompletionWork(job)) {
+    job.status = (job.quote?.line_items || []).length > 0 ? 'quoted' : 'draft';
+  }
+}
+
 function continueToQuote() {
   const job = APP.currentJob;
   if (!job) return;
   ensureInspectionShape(job);
+  normalizeJobStatus(job);
   syncQuoteFromInspection(job);
   commitJobChange(job, { immediate: true });
   document.getElementById('quoteCust').textContent = job.customer_name || '';
@@ -4027,7 +4046,9 @@ function qtMarkComplete() {
   ensureInspectionShape(job);
   if (!job.completion) job.completion = {};
   if (!job.completion.started_at) job.completion.started_at = new Date().toISOString();
-  if (job.status === 'draft' || job.status === 'quoted') job.status = 'in_progress';
+  // NOTE: navigating to the completion screen does NOT change job status.
+  // Status only advances to 'in_progress' when an item is actually marked
+  // complete (see cmpToggleDone).
   commitJobChange(job, { immediate: true });
   document.getElementById('compCust').textContent = job.customer_name || '';
   document.getElementById('compAddr').textContent = [job.property_addr, job.property_city].filter(Boolean).join(', ');
@@ -4234,6 +4255,10 @@ function cmpToggleDone(itemId) {
   cur.completed = !cur.completed;
   cur.completed_ts = cur.completed ? new Date().toISOString() : null;
   items[itemId] = cur;
+  // First real completion action advances the job to "in progress".
+  if (jobHasCompletionWork(job) && (job.status === 'draft' || job.status === 'quoted')) {
+    job.status = 'in_progress';
+  }
   commitJobChange(job, { immediate: true });
   renderCompletion();
 }
