@@ -1193,6 +1193,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 
   <!-- ── INTAKE SCREEN ──────────────────────────────────── -->
   <div class="screen" id="screenIntake">
+    <div id="intakeResumeBar"></div>
     <div class="card">
       <div class="card-title">Customer Information</div>
       <div class="field"><label>Customer Name *</label><input type="text" id="i_name" placeholder="John Smith"></div>
@@ -2204,8 +2205,40 @@ function openJob(id) {
   showScreen('screenIntake');
 }
 
+// Contextual shortcut bar at the top of the Intake screen. For jobs past
+// the draft stage it offers a one-tap jump to wherever the job actually is
+// in the funnel — so a "Sent" job doesn't require clicking through
+// Inspection → Quote → Mark Complete to reach the completion workflow.
+function renderIntakeResumeBar(job) {
+  const bar = document.getElementById('intakeResumeBar');
+  if (!bar) return;
+  const status = (job && job.status) || 'draft';
+  const card = (title, sub, btnLabel, onclick) =>
+    `<div class="card" style="background:var(--green-light); border-color:var(--green-bright); padding:12px 14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div style="min-width:0;">
+          <div style="font-weight:800; color:var(--green-deep); font-size:13px;">${escHtml(title)}</div>
+          <div style="font-size:11px; color:var(--ash); margin-top:2px;">${escHtml(sub)}</div>
+        </div>
+        <button class="btn warn small" style="width:auto; flex-shrink:0; white-space:nowrap;" onclick="${onclick}">${escHtml(btnLabel)}</button>
+      </div>
+    </div>`;
+  if (status === 'quoted') {
+    bar.innerHTML = card('Quote built', 'Review or send the quote.', '→ Go to Quote', 'continueToQuote()');
+  } else if (status === 'sent') {
+    bar.innerHTML = card('Quote sent to customer', 'Work done? Jump to the completion workflow.', '→ Go to Completion', 'qtMarkComplete()');
+  } else if (status === 'in_progress') {
+    bar.innerHTML = card('Work in progress', 'Continue the completion workflow.', '→ Continue Completion', 'qtMarkComplete()');
+  } else if (status === 'complete') {
+    bar.innerHTML = card('Job complete', 'Review or regenerate the completion report.', '→ Completion', 'qtMarkComplete()');
+  } else {
+    bar.innerHTML = '';
+  }
+}
+
 function loadIntakeForm() {
   const j = APP.currentJob || {};
+  renderIntakeResumeBar(j);
   setVal('i_name', j.customer_name);
   setVal('i_phone', j.customer_phone);
   setVal('i_email', j.customer_email);
