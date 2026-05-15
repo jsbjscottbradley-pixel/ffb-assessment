@@ -514,6 +514,11 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .pcf.pcf-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 .pcf button.na[aria-pressed="true"] { background: var(--cream-warm); color: var(--soot); border-color: var(--ash-light); }
 
+/* 5-button P/C/F/NA/Not-Inspected grid — tighter to fit on a phone */
+.pcf.pcf-5 { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.pcf.pcf-5 button { font-size: 10.5px; padding: 9px 2px; letter-spacing: 0.2px; }
+.pcf button.dni[aria-pressed="true"] { background: #E7E4DC; color: var(--ash); border-color: var(--ash-light); }
+
 /* 2-button Recommend/Skip toggle */
 .pcf.pcf-2 { grid-template-columns: 1fr 1fr; }
 .pcf button.rec[aria-pressed="true"] { background: var(--green-light); color: var(--green-deep); border-color: var(--green-bright); }
@@ -918,6 +923,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .report-item .ic.concern { background: var(--amber-light); color: var(--amber); }
 .report-item .ic.fail    { background: var(--rust-light); color: var(--rust); }
 .report-item .ic.na      { background: var(--cream-warm); color: var(--ash); }
+.report-item .ic.dni     { background: #E7E4DC; color: var(--ash); }
 .report-item .ic.recommend { background: var(--green-light); color: var(--green-deep); }
 .report-item .body { min-width: 0; }
 .report-item .nm   { font-size: 12px; font-weight: 700; color: var(--soot); line-height: 1.3; }
@@ -1540,7 +1546,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-13a';
+const APP_BUILD = 'Build 2026-05-13c';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -2931,25 +2937,26 @@ function renderAssessItem(it, state) {
   const cn = state.contractor_notes || '';
   const meas = (state.measurement != null) ? state.measurement : '';
   const photoCount = inspBeforePhotoIds(state).length;
-  // Show CWMS Rec + Contractor Notes anytime there's a mark except N/A — so
-  // Scott can write notes explaining a Pass too.
-  const showNotesBlock = mark === 'pass' || mark === 'concern' || mark === 'fail';
+  // Show CWMS Rec + Contractor Notes for pass/concern/fail AND "did not
+  // inspect" (so Scott can note WHY it wasn't inspected). N/A stays bare.
+  const showNotesBlock = mark === 'pass' || mark === 'concern' || mark === 'fail' || mark === 'dni';
   // Measurement field only on flagged items with a unit (still need qty
   // for the auto-quote line). Pass items don't generate quote lines.
   const showMeasurement = flagged && !!it.unit;
   const canAddPhoto = photoCount < MAX_PHOTOS_PER_ITEM;
   return `<div class="insp-item ${flagged?'flagged':''}" id="insp-item-${it.id}">
     <div class="it-lbl">${escHtml(it.label)}${it.help ? `<div class="it-help">${escHtml(it.help)}</div>` : ''}</div>
-    <div class="pcf pcf-4">
-      <button type="button" class="p"  aria-pressed="${mark==='pass'}"    onclick="inspMark('${it.id}','pass')">Pass</button>
-      <button type="button" class="c"  aria-pressed="${mark==='concern'}" onclick="inspMark('${it.id}','concern')">Concern</button>
-      <button type="button" class="f"  aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
-      <button type="button" class="na" aria-pressed="${mark==='na'}"      onclick="inspMark('${it.id}','na')">N/A</button>
+    <div class="pcf pcf-5">
+      <button type="button" class="p"   aria-pressed="${mark==='pass'}"    onclick="inspMark('${it.id}','pass')">Pass</button>
+      <button type="button" class="c"   aria-pressed="${mark==='concern'}" onclick="inspMark('${it.id}','concern')">Concern</button>
+      <button type="button" class="f"   aria-pressed="${mark==='fail'}"    onclick="inspMark('${it.id}','fail')">Fail</button>
+      <button type="button" class="na"  aria-pressed="${mark==='na'}"      onclick="inspMark('${it.id}','na')">N/A</button>
+      <button type="button" class="dni" aria-pressed="${mark==='dni'}"     onclick="inspMark('${it.id}','dni')">Not Insp</button>
     </div>
     ${showNotesBlock ? `
       <div class="insp-flagged-block ${failCls}">
-        <label class="insp-mini-label">CWMS Recommendation</label>
-        <textarea class="insp-notes" placeholder="${flagged ? '(auto-populates when flagged)' : 'Why this is meeting standard / any caveats'}" oninput="inspCwmsRec('${it.id}', this.value)">${escHtml(cwmsRec)}</textarea>
+        <label class="insp-mini-label">${mark === 'dni' ? 'Inspector Note' : 'CWMS Recommendation'}</label>
+        <textarea class="insp-notes" placeholder="${flagged ? '(auto-populates when flagged)' : (mark === 'dni' ? 'Why not inspected — customer declined, no access, etc.' : 'Why this is meeting standard / any caveats')}" oninput="inspCwmsRec('${it.id}', this.value)">${escHtml(cwmsRec)}</textarea>
         <label class="insp-mini-label">Contractor Notes</label>
         <textarea class="insp-notes" placeholder="Job-specific notes for the crew" oninput="inspContractorNote('${it.id}', this.value)">${escHtml(cn)}</textarea>
         ${showMeasurement ? `
@@ -3202,13 +3209,32 @@ function syncQuoteFromInspection(job) {
     });
   }
 
+  const items = job.inspection?.items || {};
+
+  // Helper: is ANY inspection item still flagged that triggers this pricebook id?
+  const pricebookStillFlagged = (pbId) => {
+    return Object.keys(items).some(itemId => {
+      const state = items[itemId];
+      if (!state) return false;
+      const meta = INSP_ITEMS_INDEX[itemId];
+      if (!meta || meta.triggers !== pbId) return false;
+      if (meta.type === 'recommendation') return state.mark === 'recommend';
+      return state.mark === 'concern' || state.mark === 'fail';
+    });
+  };
+
   // ── Quote stability lock ───────────────────────────────────────────
   // Once the user has manually curated the quote (removed/added/edited a
-  // line, changed an adder, or generated the PDF), STOP auto-adding and
-  // auto-removing inspection-derived lines. The quote is now the user's
-  // document. We only keep the running total fresh. A deliberate
-  // "Rebuild from Inspection" button is the single escape hatch.
+  // line, changed an adder, or generated the PDF), STOP auto-ADDING new
+  // inspection-derived lines. BUT still remove an inspection-sourced line
+  // when its inspection item gets un-flagged (e.g. Concern → N/A) — that's
+  // a deliberate signal the line shouldn't be in the quote. Custom lines
+  // and adders are never touched. "Rebuild from Inspection" re-adds.
   if (job.quote.manually_edited) {
+    job.quote.line_items = job.quote.line_items.filter(li => {
+      if (li.src !== 'inspection') return true;          // keep custom lines
+      return pricebookStillFlagged(li.pricebook_id);     // drop if un-flagged
+    });
     let lockedTotal = 0;
     job.quote.line_items.forEach(li => {
       const eff = (li.override_price != null && li.override_price !== '') ? +li.override_price : (+li.unit_price || 0);
@@ -3218,8 +3244,6 @@ function syncQuoteFromInspection(job) {
     job.total = lockedTotal;
     return;
   }
-
-  const items = job.inspection?.items || {};
 
   // Group flagged items by pricebook_id
   const groups = {};
@@ -3883,20 +3907,23 @@ function renderReportRiskSummary(job) {
   const sectionsHtml = INSPECTION_CATALOG
     .filter(s => s.id !== 'treatments' && s.id !== 'insurance')
     .map(s => {
+      // N/A items ("not applicable — doesn't exist on this property") are
+      // hidden from the customer report — clutter with no homeowner value.
+      // Pass / Concern / Fail / Not-Inspected all still show.
       const inspectedItems = s.items.filter(it => {
         const state = items[it.id];
-        return state && state.mark;
+        return state && state.mark && state.mark !== 'na';
       });
       if (!inspectedItems.length) return '';
       const passes   = inspectedItems.filter(it => items[it.id].mark === 'pass').length;
       const concerns = inspectedItems.filter(it => items[it.id].mark === 'concern').length;
       const fails    = inspectedItems.filter(it => items[it.id].mark === 'fail').length;
-      const nas      = inspectedItems.filter(it => items[it.id].mark === 'na').length;
+      const dnis     = inspectedItems.filter(it => items[it.id].mark === 'dni').length;
       const stat = [
         passes ? `${passes} pass` : null,
         concerns ? `${concerns} concern` : null,
         fails ? `${fails} fail` : null,
-        nas ? `${nas} N/A` : null,
+        dnis ? `${dnis} not inspected` : null,
       ].filter(Boolean).join(' · ');
 
       return `<div class="report-section">
@@ -3916,6 +3943,7 @@ function renderReportInspItem(item, state) {
     concern: { cls:'concern', txt:'!' },
     fail:    { cls:'fail',    txt:'✗' },
     na:      { cls:'na',      txt:'–' },
+    dni:     { cls:'dni',     txt:'NI' },
   };
   const ic = icMap[mark] || { cls:'', txt:'·' };
   const isFlagged = mark === 'concern' || mark === 'fail';
