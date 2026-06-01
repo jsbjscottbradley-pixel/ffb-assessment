@@ -954,16 +954,16 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .report-item .photo-grid {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 6px;
-  max-width: 480px;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 4px;
+  max-width: 420px;
 }
 .report-item .report-photo {
   width: 100%;
-  max-height: 140px;
+  max-height: 80px;
   object-fit: cover;
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 4px;
   display: block;
 }
 /* Single-photo case: stretch a bit larger */
@@ -1005,12 +1005,12 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 /* Completion REPORT (PDF) — Before/After multi-photo blocks */
 .report-cmp-item .cmp-rpt-multi {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
   gap: 4px;
   margin-top: 4px;
 }
 .report-cmp-item .cmp-rpt-multi img {
-  width: 100%; max-height: 130px;
+  width: 100%; max-height: 90px;
   object-fit: cover;
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -1115,19 +1115,17 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     height: auto !important;
   }
   .report-h1, .report-h2 { color: #1F4D2E !important; }
-  /* Keep the H2 with at least the first item beneath it */
-  .report-h2 { page-break-after: avoid; break-after: avoid; }
-  /* Only avoid breaking inside SMALL atomic blocks (individual items, rows,
-     cert strip). DO NOT add .report-section, .report-ember-card, or
-     .report-disclosure — those are big enough that iOS Safari's print
-     engine silently drops them when it can't fit them on a single page.
-     Letting them flow across pages preserves the content. */
-  /* Only avoid breaking inside truly-atomic small blocks. .report-item
-     was here, but with multi-photo grids an item can be taller than a
-     single page — Safari's print engine silently drops such items rather
-     than splitting them. Letting items break across pages is the safer
-     trade-off (occasional awkward split, never missing content). */
-  .report-quote-row, .report-cert-strip {
+  /* Keep ALL header levels attached to the next item. Without this, a
+     section/category header can get stranded at the bottom of a page with
+     a big white gap before its content jumps to the next page. */
+  .report-h2,
+  .report-section .sec-h,
+  .report-cat-h {
+    page-break-after: avoid; break-after: avoid;
+  }
+  /* Items, quote rows, cert strip — don't split mid-block. Items are now
+     bounded by the 95px photo display size so they always fit on a page. */
+  .report-item, .report-quote-row, .report-cert-strip {
     page-break-inside: avoid; break-inside: avoid;
   }
   /* Reduce orphan/widow lines so paragraphs don't split awkwardly */
@@ -1595,7 +1593,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-13e';
+const APP_BUILD = 'Build 2026-05-13g';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -3947,16 +3945,17 @@ function blobToDataURL(blob) {
   });
 }
 
-// PDF-bound photos go through a second compression pass to keep total PDF
-// size emailable. The PDF only renders thumbs at ~140px tall, so embedding
-// a 1280px source is wasted bytes. ~600px / 0.55 quality = ~25-40KB per
-// photo (down from ~150KB), keeping a 50-photo report under ~5MB.
+// PDF-bound photos go through a second compression pass to reduce in-memory
+// data size during render. iOS Safari's print engine rasterizes images at
+// ~300 DPI based on their DISPLAYED size, so source compression mainly
+// helps memory; PDF size is mostly driven by the CSS dimensions in print.
+// 300px / 0.4 quality = ~8-15KB per photo source — combined with the
+// shrunken display size in @media print, total PDF stays manageable.
 async function blobToCompactDataURL(blob) {
   try {
-    const smaller = await compressImage(blob, 600, 0.55);
+    const smaller = await compressImage(blob, 300, 0.4);
     return await blobToDataURL(smaller);
   } catch(e) {
-    // If recompression fails for any reason, fall back to the original blob
     return await blobToDataURL(blob);
   }
 }
@@ -3969,13 +3968,13 @@ async function bindReportInspPhoto(itemId) {
   if (!cur) return;
   const ids = inspBeforePhotoIds(cur);
   if (!ids.length) return;
+  // All photos render in the PDF — sized small via @media print CSS so
+  // iOS Safari's print engine can fit them comfortably. No cap.
   const parts = [];
   for (const photoId of ids) {
     try {
       const rec = await idbGet('photos', photoId);
       if (!rec || !rec.blob) continue;
-      // Compact data URL: re-downscale to ~600px before base64. PDF stays
-      // emailable (under most 20-25MB attachment limits).
       const url = await blobToCompactDataURL(rec.blob);
       parts.push(`<img class="report-photo" src="${url}" alt="Inspection photo">`);
     } catch(e) {}
