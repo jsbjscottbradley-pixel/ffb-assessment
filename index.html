@@ -1122,7 +1122,12 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
      .report-disclosure — those are big enough that iOS Safari's print
      engine silently drops them when it can't fit them on a single page.
      Letting them flow across pages preserves the content. */
-  .report-item, .report-quote-row, .report-cert-strip {
+  /* Only avoid breaking inside truly-atomic small blocks. .report-item
+     was here, but with multi-photo grids an item can be taller than a
+     single page — Safari's print engine silently drops such items rather
+     than splitting them. Letting items break across pages is the safer
+     trade-off (occasional awkward split, never missing content). */
+  .report-quote-row, .report-cert-strip {
     page-break-inside: avoid; break-inside: avoid;
   }
   /* Reduce orphan/widow lines so paragraphs don't split awkwardly */
@@ -1590,7 +1595,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-13d';
+const APP_BUILD = 'Build 2026-05-13e';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
