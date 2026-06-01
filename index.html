@@ -217,7 +217,27 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   display: flex; gap: 12px; align-items: center;
   text-align: left;
   width: 100%;
+  position: relative;
+  cursor: pointer;
 }
+.job-card-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  color: var(--ash-light);
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 2;
+}
+.job-card-del:active { background: var(--rust-light); color: var(--rust); }
 .job-card:active { background: var(--cream-warm); }
 .job-card .avatar {
   width: 40px; height: 40px; border-radius: 10px;
@@ -1420,6 +1440,30 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
     </div>
   </div>
 
+  <!-- ── DELETE CUSTOMER MODAL (Home screen) ──────────────────── -->
+  <div class="modal-bg" id="delJobModal">
+    <div class="modal">
+      <div class="modal-title" style="color:var(--rust);">Delete this customer?</div>
+      <div id="delJobInfo" style="font-size:13px; color:var(--soot); margin-bottom:12px; padding:10px 12px; background:var(--cream-warm); border-radius:8px; line-height:1.4;">—</div>
+      <div class="muted" style="font-size:11.5px; margin-bottom:12px;">This permanently removes the customer, their assessment, quote, photos, and all associated data. The deletion reason is logged for your records.</div>
+      <label style="display:block; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--ash); margin-bottom:5px;">Reason</label>
+      <select id="delJobReasonSelect" style="margin-bottom:8px;">
+        <option value="">— Select reason —</option>
+        <option>Test / demo customer</option>
+        <option>Never booked the work</option>
+        <option>Duplicate entry</option>
+        <option>Customer cancelled</option>
+        <option>Lost — went with someone else</option>
+        <option>Other (see notes)</option>
+      </select>
+      <textarea id="delJobReasonNote" placeholder="Additional notes (optional)" style="font-size:14px; min-height:54px;"></textarea>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn secondary" style="flex:1;" onclick="homeCancelDelete()">Cancel</button>
+        <button class="btn danger" style="flex:1;" onclick="homeConfirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── CUSTOMER REPORT SCREEN (Print-to-PDF) ───────────────── -->
   <div class="screen" id="screenReport">
     <div class="report-actions">
@@ -1546,7 +1590,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-13c';
+const APP_BUILD = 'Build 2026-05-13d';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -2160,7 +2204,7 @@ function renderJobList() {
     const statusLabel = { draft: 'Draft', quoted: 'Quoted', sent: 'Sent', in_progress: 'In Progress', complete: 'Complete' }[status] || status;
     const updated = j.updated_at ? formatRelTime(j.updated_at) : '';
     const addr = [j.property_addr, j.property_city].filter(Boolean).join(', ');
-    return `<button class="job-card" onclick="openJob('${j.id}')">
+    return `<div class="job-card" role="button" tabindex="0" onclick="openJob('${j.id}')">
       <div class="avatar">${escHtml(init)}</div>
       <div class="info">
         <div class="name">${escHtml(j.customer_name || 'Unnamed Customer')}</div>
@@ -2170,9 +2214,105 @@ function renderJobList() {
           <span class="updated">${updated}</span>
         </div>
       </div>
+      <button type="button" class="job-card-del" onclick="event.stopPropagation(); homeStartDelete('${j.id}'); return false;" aria-label="Delete customer">✕</button>
       <div class="arrow">›</div>
-    </button>`;
+    </div>`;
   }).join('');
+}
+
+// ─── Delete a customer/job from the home screen ─────────────────────────
+let _pendingDeleteJobId = null;
+
+function homeStartDelete(jobId) {
+  const job = APP.jobs.find(j => j.id === jobId);
+  if (!job) return;
+  _pendingDeleteJobId = jobId;
+  const addr = [job.property_addr, job.property_city].filter(Boolean).join(', ');
+  document.getElementById('delJobInfo').innerHTML =
+    `<b>${escHtml(job.customer_name || 'Unnamed Customer')}</b><br>${escHtml(addr || 'No address')}`;
+  document.getElementById('delJobReasonSelect').value = '';
+  document.getElementById('delJobReasonNote').value = '';
+  document.getElementById('delJobModal').classList.add('show');
+}
+
+function homeCancelDelete() {
+  _pendingDeleteJobId = null;
+  document.getElementById('delJobModal').classList.remove('show');
+}
+
+async function homeConfirmDelete() {
+  const jobId = _pendingDeleteJobId;
+  if (!jobId) return;
+  const job = APP.jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const reasonSel = document.getElementById('delJobReasonSelect').value.trim();
+  const reasonNote = document.getElementById('delJobReasonNote').value.trim();
+  const reason = [reasonSel, reasonNote].filter(Boolean).join(' — ');
+
+  setSavePill('syncing', 'Deleting...');
+  try {
+    // Audit log — stored in IDB `settings` store under key 'deletion_log'.
+    // Useful later for pricing/funnel analysis (which jobs got deleted, why).
+    try {
+      const existing = await idbGet('settings', 'deletion_log');
+      const entries = (existing && existing.value) ? existing.value : [];
+      entries.push({
+        job_id:        jobId,
+        customer_name: job.customer_name || '',
+        property_addr: job.property_addr || '',
+        last_status:   job.status || '',
+        reason:        reason || '(no reason)',
+        deleted_at:    new Date().toISOString(),
+      });
+      await idbPut('settings', { key: 'deletion_log', value: entries });
+    } catch(e) { err('deletion_log write failed:', e); }
+
+    // Delete all photos belonging to this job from IDB
+    try {
+      const allPhotos = await idbGetAll('photos');
+      for (const ph of allPhotos) {
+        if (ph && ph.job_id === jobId) {
+          try { await idbDelete('photos', ph.photo_id); } catch(e){}
+        }
+      }
+    } catch(e) {}
+
+    // Remove any pending queue items targeting this job
+    try {
+      const queue = await idbGetAll('queue');
+      for (const q of queue) {
+        if (q && q.payload && q.payload.id === jobId) {
+          try { await idbDelete('queue', q.id); } catch(e){}
+        }
+      }
+    } catch(e) {}
+
+    // Remove from local IDB jobs store
+    try { await idbDelete('jobs', jobId); } catch(e){}
+    // Remove from in-memory state
+    APP.jobs = APP.jobs.filter(j => j.id !== jobId);
+
+    // Cloud delete — direct if online, queued otherwise so it'll fire on next sync
+    if (APP.online) {
+      try { await sbDeleteJob(jobId); }
+      catch(e) {
+        err('Cloud delete failed, queuing:', e);
+        try { await idbPut('queue', { id: 'del_' + jobId + '_' + Date.now(), type: 'job_delete', payload: { id: jobId }, retries: 0, ts: Date.now() }); } catch(e){}
+      }
+    } else {
+      try { await idbPut('queue', { id: 'del_' + jobId + '_' + Date.now(), type: 'job_delete', payload: { id: jobId }, retries: 0, ts: Date.now() }); } catch(e){}
+    }
+
+    _pendingDeleteJobId = null;
+    document.getElementById('delJobModal').classList.remove('show');
+    renderHome();
+    setSavePill('idle', 'Saved');
+    showToast('Deleted: ' + (job.customer_name || 'Customer'));
+  } catch (e) {
+    err('Delete failed:', e);
+    showToast('Delete failed: ' + (e.message || ''));
+    setSavePill('error', 'Delete error');
+  }
 }
 
 function filterJobs(filter) {
