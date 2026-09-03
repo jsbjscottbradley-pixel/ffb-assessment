@@ -1639,7 +1639,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 
     <div class="bottom-bar show">
       <button class="btn secondary" onclick="goBack()">← Intake</button>
-      <button class="btn" onclick="continueToQuote()">Continue to Quote →</button>
+      <button class="btn" id="inspContinueBtn" onclick="inspContinuePressed()">Continue to Quote →</button>
     </div>
   </div>
 
@@ -1845,7 +1845,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14f · WPH v3.3 (portal)';
+const APP_BUILD = 'Build 2026-05-14g · WPH v3.4 (skip-quote)';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -3247,6 +3247,39 @@ function renderInspection() {
   renderInspectionSummary();
   renderInspectionJump();
   renderInspectionSections();
+  renderInspectionContinueBtn();
+}
+
+// The bottom continue button changes based on where we are in the job:
+//   draft / quoted   → "Continue to Quote →" (initial workflow)
+//   sent / in_progress / complete → "→ Finalize Final Inspection"
+// Once the customer has approved the quote, Scott doesn't need to touch the
+// quote screen again — he's back on-site for mitigation verification. Jump
+// straight to the completion / WPH submission workflow.
+function renderInspectionContinueBtn() {
+  const btn = document.getElementById('inspContinueBtn');
+  if (!btn) return;
+  const job = APP.currentJob;
+  const status = job?.status || 'draft';
+  const isPostQuote = (status === 'sent' || status === 'in_progress' || status === 'complete');
+  if (isPostQuote) {
+    btn.textContent = '→ Finalize Final Inspection';
+    btn.classList.remove('secondary');
+    btn.classList.add('warn');
+  } else {
+    btn.textContent = 'Continue to Quote →';
+    btn.classList.remove('warn');
+  }
+}
+
+function inspContinuePressed() {
+  const job = APP.currentJob;
+  const status = job?.status || 'draft';
+  if (status === 'sent' || status === 'in_progress' || status === 'complete') {
+    qtMarkComplete();
+  } else {
+    continueToQuote();
+  }
 }
 
 function inspStats() {
