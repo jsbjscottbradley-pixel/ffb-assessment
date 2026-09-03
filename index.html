@@ -859,6 +859,87 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   font-style: italic;
 }
 
+/* ── WPH Submission Package ─────────────────────────────── */
+.wph-submit-cover {
+  background: linear-gradient(180deg, #fff5f0 0%, #fff 100%);
+  border: 2px solid var(--rust);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 10px 0 14px 0;
+  page-break-inside: avoid;
+}
+.wph-submit-title {
+  font-size: 18px; font-weight: 800; color: var(--rust);
+  letter-spacing: -0.2px; line-height: 1.15;
+}
+.wph-submit-sub {
+  font-size: 11px; color: var(--ash); font-weight: 600;
+  margin-top: 4px;
+}
+.wph-submit-tier-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin: 12px 0 8px 0;
+}
+.wph-submit-tier {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: #fff; border: 1.5px solid var(--line);
+  border-radius: 8px; padding: 8px 10px;
+}
+.wph-submit-tier.ready { border-color: var(--green-bright); background: #f2f8f2; }
+.wph-submit-tier-check { font-size: 20px; line-height: 1; color: var(--green-deep); }
+.wph-submit-tier-lbl { font-size: 11px; font-weight: 800; color: var(--green-deep); letter-spacing: 0.3px; text-transform: uppercase; }
+.wph-submit-tier-meta { font-size: 10.5px; color: var(--ash); margin-top: 2px; }
+.wph-submit-applying {
+  font-size: 12px; color: var(--soot);
+  padding: 8px 10px;
+  background: #fff;
+  border-left: 3px solid var(--green-bright);
+  border-radius: 4px;
+}
+
+.wph-attest {
+  background: #fafafa; border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px;
+  margin: 10px 0 12px 0;
+  font-size: 11px; line-height: 1.45; color: var(--soot);
+  page-break-inside: avoid;
+}
+.wph-attest-title {
+  font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--green-deep); margin-bottom: 6px;
+}
+.wph-attest p { margin: 0 0 8px 0; }
+.wph-attest-sig {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 6px;
+}
+.wph-attest-sig .k { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ash); }
+.wph-attest-sig .sig-line {
+  font-family: 'Brush Script MT', cursive, serif;
+  font-size: 16px; color: var(--soot);
+  border-bottom: 1px solid var(--line); padding: 2px 0;
+  margin-top: 2px;
+}
+
+.wph-checklist {
+  background: #fafafa; border-left: 3px solid var(--green-bright);
+  padding: 8px 12px 8px 14px; margin: 8px 0;
+  border-radius: 4px;
+  font-size: 11px; color: var(--soot); line-height: 1.5;
+  page-break-inside: avoid;
+}
+.wph-checklist ol { padding-left: 18px; margin: 6px 0; }
+.wph-checklist li { margin-bottom: 3px; }
+
+/* Single-photo "as found compliant" pair variant */
+.report-cmp-item .pair.single { grid-template-columns: 1fr; }
+.report-cmp-item.asfound { border-left: 3px solid var(--green-bright); padding-left: 8px; }
+.report-cmp-item.outstanding {
+  border-left: 3px solid #b8342e;
+  padding-left: 8px;
+  background: #fef7f6;
+}
+
 /* ── Customer-facing Report (print to PDF) ───────────────── */
 .report-actions {
   display: grid;
@@ -1636,7 +1717,7 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 
     <div class="alert info" style="margin-bottom:12px;">
       <span class="ic">📷</span>
-      <span><b>For each item below,</b> add an after-photo and (optional) notes about the work performed. Items marked complete will appear on the customer's completion report with before/after photo pairs.</span>
+      <span><b>For each item below,</b> add an after-photo and (optional) notes about the work performed. Completed items generate the <b>WPH Submission Package</b> — side-by-side before/after evidence the homeowner uploads to wildfireprepared.org.</span>
     </div>
 
     <div id="compItems"></div>
@@ -1730,7 +1811,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14b · WPH v2 (report)';
+const APP_BUILD = 'Build 2026-05-14c · WPH v3 (submission)';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -4846,18 +4927,124 @@ function renderCompletionReport() {
 
   wrap.innerHTML = [
     renderReportHeader(),
+    renderCompReportWphCover(job),
     renderCompReportMeta(job),
-    renderCompReportSummary(job),
+    renderCompReportWphAttestation(job, inspector),
     renderCompReportItems(job),
-    renderReportEmberThreat(),
+    renderCompReportWphChecklist(),
     renderReportDisclosure(inspector, settings),
     renderCompReportFooter(settings),
   ].join('');
 
-  // Bind images asynchronously after innerHTML lands
+  // Bind before/after images (items that had work performed)
   cmpFlaggedItems()
     .filter(f => f.state.completed)
     .forEach(f => bindCompReportPhotos(f.item.id));
+  // Bind as-found compliant photos (items that were already compliant)
+  const items = job.inspection?.items || {};
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    if ((it.wph_level === 'base' || it.wph_level === 'plus') &&
+        items[it.id]?.mark === 'pass' &&
+        inspBeforePhotoIds(items[it.id]).length > 0) {
+      bindCompReportAsFoundPhoto(it.id);
+    }
+  }));
+}
+
+async function bindCompReportAsFoundPhoto(itemId) {
+  const slot = document.getElementById('cmpRptAsFound-' + itemId);
+  if (!slot) return;
+  const cur = APP.currentJob?.inspection?.items?.[itemId];
+  if (!cur) return;
+  const ids = inspBeforePhotoIds(cur);
+  const parts = [];
+  for (const photoId of ids) {
+    try {
+      const rec = await idbGet('photos', photoId);
+      if (!rec || !rec.blob) continue;
+      const url = await blobToCompactDataURL(rec.blob);
+      parts.push(`<img src="${url}" alt="As-found compliant">`);
+    } catch(e) {}
+  }
+  slot.innerHTML = parts.join('');
+}
+
+function renderCompReportWphCover(job) {
+  const s = wphStats();
+  const base = s.base, plus = s.plus;
+  const baseDen = Math.max(0, base.total - base.na);
+  const plusDen = Math.max(0, plus.total - plus.na);
+  const baseCompleted = countCompletedInTier('base');
+  const plusCompleted = countCompletedInTier('plus');
+  const baseReady = (base.compliant + baseCompleted) >= baseDen && baseDen > 0;
+  const plusReady = (plus.compliant + plusCompleted) >= plusDen && plusDen > 0;
+  const designationApplying =
+    baseReady && plusReady ? 'Base + Plus' :
+    plusReady ? 'Plus (Enhanced)' :
+    baseReady ? 'Base (Essential)' :
+    'In Progress — see item status below';
+
+  return `<div class="wph-submit-cover">
+    <div class="wph-submit-title">Wildfire Prepared Home™ Submission Package</div>
+    <div class="wph-submit-sub">Photographic evidence &amp; inspector attestation for IBHS evaluator review</div>
+    <div class="wph-submit-tier-row">
+      <div class="wph-submit-tier ${baseReady ? 'ready' : ''}">
+        <div class="wph-submit-tier-check">${baseReady ? '☑' : '☐'}</div>
+        <div>
+          <div class="wph-submit-tier-lbl">Base (Essential) Designation</div>
+          <div class="wph-submit-tier-meta">${base.compliant + baseCompleted} of ${baseDen} required criteria verified · ${baseReady ? 'Ready to submit' : 'Not yet complete'}</div>
+        </div>
+      </div>
+      <div class="wph-submit-tier ${plusReady ? 'ready' : ''}">
+        <div class="wph-submit-tier-check">${plusReady ? '☑' : '☐'}</div>
+        <div>
+          <div class="wph-submit-tier-lbl">Plus (Enhanced) Designation</div>
+          <div class="wph-submit-tier-meta">${plus.compliant + plusCompleted} of ${plusDen} enhanced criteria verified · ${plusReady ? 'Ready to submit' : 'Not yet complete'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="wph-submit-applying"><b>Designation Applying For:</b> ${escHtml(designationApplying)}</div>
+  </div>`;
+}
+
+function countCompletedInTier(tierKey) {
+  const items = APP.currentJob?.inspection?.items || {};
+  let n = 0;
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    if (it.wph_level !== tierKey) return;
+    const state = items[it.id];
+    if (state && state.completed) n++;
+  }));
+  return n;
+}
+
+function renderCompReportWphAttestation(job, inspector) {
+  const completedAt = (job.completion?.completed_at || new Date().toISOString()).slice(0, 10);
+  return `<div class="wph-attest">
+    <div class="wph-attest-title">Inspector Attestation</div>
+    <p>I, <b>${escHtml(inspector)}</b>, a Certified Wildfire Mitigation Specialist (CWMS), attest that on <b>${escHtml(completedAt)}</b> I inspected the property listed above and verified each criterion documented in this package against the <b>IBHS Wildfire Prepared Home Technical Standard (December 2025)</b>. The photographs on the following pages accurately depict the current condition of the property.</p>
+    <div class="wph-attest-sig">
+      <div><span class="k">Inspector Signature</span><div class="sig-line">${escHtml(inspector)} · CWMS</div></div>
+      <div><span class="k">Date</span><div class="sig-line">${escHtml(completedAt)}</div></div>
+    </div>
+  </div>`;
+}
+
+function renderCompReportWphChecklist() {
+  return `<div class="report-h2">Homeowner Submission Checklist</div>
+    <div class="wph-checklist">
+      <p><b>Next steps to submit this package to IBHS:</b></p>
+      <ol>
+        <li>Visit <b>wildfireprepared.org</b> and create an account (or sign in).</li>
+        <li>Start a new designation application for your property address.</li>
+        <li>Select the designation tier indicated on the cover page (Base or Plus).</li>
+        <li>Upload this PDF package when prompted for photo evidence — each item is labeled with its IBHS Technical Standard section number.</li>
+        <li>Complete the online questionnaire; pay the application fee.</li>
+        <li>An IBHS-authorized third-party evaluator will review your submission. If approved, your designation is valid for <b>3 years</b>.</li>
+        <li>Provide the designation certificate to your insurance carrier to inquire about premium discounts.</li>
+      </ol>
+      <p style="margin-top:8px;">Questions? Contact Foothills Fire Block at the number below and we'll help.</p>
+    </div>`;
 }
 
 function renderCompReportMeta(job) {
@@ -4893,33 +5080,58 @@ function renderCompReportSummary(job) {
 }
 
 function renderCompReportItems(job) {
-  const flagged = cmpFlaggedItems().filter(f => f.state.completed);
-  if (!flagged.length) {
-    return `<div class="report-h2">Completed Work</div>
-      <div class="report-section"><div style="font-size:12px; color:var(--ash);">No items marked complete yet.</div></div>`;
+  const items = job.inspection?.items || {};
+
+  const renderTier = (tierKey, tierLabel, tierIcon) => {
+    const sectionsHtml = INSPECTION_CATALOG
+      .filter(s => s.id !== 'treatments' && s.id !== 'insurance')
+      .map(s => {
+        const tierItems = s.items.filter(it => it.wph_level === tierKey);
+        if (!tierItems.length) return '';
+
+        // Two categories worth showing in a submission package:
+        //   1. Non-compliant items that have been remediated → before/after
+        //   2. Items already compliant at inspection → as-found photo
+        const cards = tierItems.map(it => {
+          const state = items[it.id];
+          if (!state || !state.mark) return '';
+          if (state.mark === 'na') return '';
+          const isCompleted = (state.mark === 'concern' || state.mark === 'fail') && state.completed;
+          const isAsFound   = state.mark === 'pass';
+          if (isCompleted) return renderCompReportItem(it, state);
+          if (isAsFound)   return renderCompReportAsFoundItem(it, state);
+          // concern/fail not yet completed OR dni deferred → flag as outstanding
+          if (state.mark === 'concern' || state.mark === 'fail') return renderCompReportOutstandingItem(it, state);
+          return '';
+        }).filter(Boolean).join('');
+        if (!cards) return '';
+
+        return `<div class="report-section">
+          <div class="sec-h"><span>${s.icon} ${escHtml(s.label)}</span></div>
+          ${cards}
+        </div>`;
+      })
+      .filter(Boolean).join('');
+    if (!sectionsHtml) return '';
+    return `<div class="report-tier-h">${tierIcon} ${escHtml(tierLabel)}</div>${sectionsHtml}`;
+  };
+
+  const baseHtml = renderTier('base', 'Base (Essential) Evidence', '🛡️');
+  const plusHtml = renderTier('plus', 'Plus (Enhanced) Evidence', '⭐');
+  if (!baseHtml && !plusHtml) {
+    return `<div class="report-h2">Photo Evidence</div>
+      <div class="report-section"><div style="font-size:12px; color:var(--ash);">No WPH items documented yet.</div></div>`;
   }
-  // Group by section
-  const bySection = {};
-  flagged.forEach(f => {
-    if (!bySection[f.sectionLabel]) bySection[f.sectionLabel] = { icon: f.sectionIcon, items: [] };
-    bySection[f.sectionLabel].items.push(f);
-  });
-  const html = Object.keys(bySection).map(secLabel => {
-    const sec = bySection[secLabel];
-    return `<div class="report-h2">${sec.icon} ${escHtml(secLabel)}</div>
-      <div class="report-section">
-        ${sec.items.map(f => renderCompReportItem(f.item, f.state)).join('')}
-      </div>`;
-  }).join('');
-  return html;
+  return `<div class="report-h2">Photographic Evidence &amp; Compliance Record</div>${baseHtml}${plusHtml}`;
 }
 
 function renderCompReportItem(item, state) {
   const beforeCount = inspBeforePhotoIds(state).length;
   const afterCount  = inspAfterPhotoIds(state).length;
+  const wphTag = item.wph_section ? `<span class="wph-tag">§${escHtml(item.wph_section)}</span>` : '';
   return `<div class="report-cmp-item" id="cmpRpt-${item.id}">
-    <div class="nm">${escHtml(item.label)}</div>
-    ${state.cwms_rec ? `<div class="sub">Recommendation: ${escHtml(state.cwms_rec)}</div>` : ''}
+    <div class="nm">${wphTag}${escHtml(item.label)} <span class="status-tag pass">Remediated → Compliant</span></div>
+    ${state.cwms_rec ? `<div class="sub"><b>Criterion:</b> ${escHtml(state.cwms_rec)}</div>` : ''}
     <div class="pair">
       <div class="cell" id="cmpRptBefore-${item.id}">
         <div class="lbl">Before${beforeCount ? ` (${beforeCount})` : ''}</div>
@@ -4930,7 +5142,31 @@ function renderCompReportItem(item, state) {
         ${afterCount ? '' : '<div class="empty-cell">No photo on file</div>'}
       </div>
     </div>
-    ${state.completion_notes ? `<div class="work-notes">Work performed: ${escHtml(state.completion_notes)}</div>` : ''}
+    ${state.completion_notes ? `<div class="work-notes"><b>Work performed:</b> ${escHtml(state.completion_notes)}</div>` : ''}
+  </div>`;
+}
+
+function renderCompReportAsFoundItem(item, state) {
+  const photoCount = inspBeforePhotoIds(state).length;
+  const wphTag = item.wph_section ? `<span class="wph-tag">§${escHtml(item.wph_section)}</span>` : '';
+  return `<div class="report-cmp-item asfound">
+    <div class="nm">${wphTag}${escHtml(item.label)} <span class="status-tag pass">Compliant (as found)</span></div>
+    ${state.cwms_rec ? `<div class="sub"><b>Verified:</b> ${escHtml(state.cwms_rec)}</div>` : ''}
+    <div class="pair single">
+      <div class="cell" id="cmpRptAsFound-${item.id}">
+        <div class="lbl">Compliance Photo${photoCount > 1 ? ` (${photoCount})` : ''}</div>
+        ${photoCount ? '' : '<div class="empty-cell">No photo on file</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCompReportOutstandingItem(item, state) {
+  const wphTag = item.wph_section ? `<span class="wph-tag">§${escHtml(item.wph_section)}</span>` : '';
+  return `<div class="report-cmp-item outstanding">
+    <div class="nm">${wphTag}${escHtml(item.label)} <span class="status-tag fail">Not yet remediated</span></div>
+    ${state.cwms_rec ? `<div class="sub"><b>Required:</b> ${escHtml(state.cwms_rec)}</div>` : ''}
+    <div class="work-notes"><b>Status:</b> This criterion must be brought into compliance before this designation can be awarded.</div>
   </div>`;
 }
 
