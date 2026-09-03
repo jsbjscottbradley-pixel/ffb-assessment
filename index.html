@@ -896,6 +896,28 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   border-left: 3px solid var(--green-bright);
   border-radius: 4px;
 }
+.wph-submit-cta {
+  display: block;
+  margin: 12px 0 6px 0;
+  padding: 12px 14px;
+  background: var(--rust);
+  color: #fff !important;
+  font-size: 14px; font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+  border: 2px solid #8f2a20;
+}
+.wph-submit-cta-note {
+  font-size: 10px; color: var(--ash);
+  text-align: center; margin-top: 4px;
+  font-style: italic;
+}
+/* Ensure links in the WPH checklist look tappable in the printed PDF */
+.wph-checklist a {
+  color: var(--rust); font-weight: 700; text-decoration: underline;
+}
 
 .wph-attest {
   background: #fafafa; border: 1px solid var(--line);
@@ -934,6 +956,16 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 /* Single-photo "as found compliant" pair variant */
 .report-cmp-item .pair.single { grid-template-columns: 1fr; }
 .report-cmp-item.asfound { border-left: 3px solid var(--green-bright); padding-left: 8px; }
+.report-cmp-item .cell .empty-cell.asfound-none {
+  background: #f2f8f2;
+  color: #2d5a2d;
+  border: 1px dashed var(--green-bright);
+  font-style: italic;
+  padding: 10px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-align: center;
+}
 .report-cmp-item.outstanding {
   border-left: 3px solid #b8342e;
   padding-left: 8px;
@@ -1811,7 +1843,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14c · WPH v3 (submission)';
+const APP_BUILD = 'Build 2026-05-14e · WPH v3.2';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -5004,6 +5036,10 @@ function renderCompReportWphCover(job) {
       </div>
     </div>
     <div class="wph-submit-applying"><b>Designation Applying For:</b> ${escHtml(designationApplying)}</div>
+    <a class="wph-submit-cta" href="https://wildfireprepared.org/get-designated/" target="_blank" rel="noopener">
+      → Start My Application at wildfireprepared.org
+    </a>
+    <div class="wph-submit-cta-note">Tap the button above (or scan the QR / type the URL) to begin. This PDF contains every photo the evaluator needs — see the upload tip on the checklist page.</div>
   </div>`;
 }
 
@@ -5031,19 +5067,29 @@ function renderCompReportWphAttestation(job, inspector) {
 }
 
 function renderCompReportWphChecklist() {
+  const settings = APP.settings || {};
+  const phone   = settings.phone   || '720-432-4665';
+  const email   = settings.email   || 'scott@foothillsfireblock.com';
   return `<div class="report-h2">Homeowner Submission Checklist</div>
     <div class="wph-checklist">
-      <p><b>Next steps to submit this package to IBHS:</b></p>
+      <p><b>How to submit this package to IBHS:</b></p>
       <ol>
-        <li>Visit <b>wildfireprepared.org</b> and create an account (or sign in).</li>
-        <li>Start a new designation application for your property address.</li>
-        <li>Select the designation tier indicated on the cover page (Base or Plus).</li>
-        <li>Upload this PDF package when prompted for photo evidence — each item is labeled with its IBHS Technical Standard section number.</li>
-        <li>Complete the online questionnaire; pay the application fee.</li>
-        <li>An IBHS-authorized third-party evaluator will review your submission. If approved, your designation is valid for <b>3 years</b>.</li>
-        <li>Provide the designation certificate to your insurance carrier to inquire about premium discounts.</li>
+        <li><b>Start the application →</b> <a href="https://wildfireprepared.org/get-designated/" target="_blank" rel="noopener">wildfireprepared.org/get-designated</a> — create an account or sign in.</li>
+        <li>Enter your <b>property address</b> and select the designation tier shown on the cover page.</li>
+        <li>Complete the online questionnaire about your home.</li>
+        <li><b>Upload photos:</b> This PDF contains every photo the IBHS evaluator needs, labeled by IBHS section number (§2.1.1, §2.1.2, …). To upload each one:
+          <ul style="margin:4px 0 4px 0; padding-left:18px;">
+            <li><b>On iPhone/iPad:</b> long-press any photo in this PDF → <b>Save to Photos</b>, then upload from your Photos app.</li>
+            <li><b>On desktop:</b> right-click any photo → <b>Save Image As…</b>, then upload from your computer.</li>
+            <li>Match each saved photo to the IBHS section the WPH portal asks for.</li>
+          </ul>
+        </li>
+        <li><b>Pay the application fee</b> and submit.</li>
+        <li>An <b>IBHS-authorized third-party evaluator</b> reviews your submission. If approved, your designation is valid for <b>3 years</b>.</li>
+        <li>Send the designation certificate to your <b>insurance carrier</b> and ask about premium discounts.</li>
       </ol>
-      <p style="margin-top:8px;">Questions? Contact Foothills Fire Block at the number below and we'll help.</p>
+      <p style="margin-top:8px;"><b>Need help?</b> Call Foothills Fire Block at <a href="tel:${escHtml(phone.replace(/[^0-9+]/g,''))}">${escHtml(phone)}</a> or email <a href="mailto:${escHtml(email)}">${escHtml(email)}</a> and we'll walk you through it.</p>
+      <p style="margin-top:4px;"><b>Learn more:</b> <a href="https://wildfireprepared.org" target="_blank" rel="noopener">wildfireprepared.org</a> · <a href="https://ibhs.org" target="_blank" rel="noopener">ibhs.org</a></p>
     </div>`;
 }
 
@@ -5155,7 +5201,7 @@ function renderCompReportAsFoundItem(item, state) {
     <div class="pair single">
       <div class="cell" id="cmpRptAsFound-${item.id}">
         <div class="lbl">Compliance Photo${photoCount > 1 ? ` (${photoCount})` : ''}</div>
-        ${photoCount ? '' : '<div class="empty-cell">No photo on file</div>'}
+        ${photoCount ? '' : '<div class="empty-cell asfound-none">Compliance photo not required — passed at initial inspection</div>'}
       </div>
     </div>
   </div>`;
