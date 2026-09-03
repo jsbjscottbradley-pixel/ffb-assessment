@@ -1845,7 +1845,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14g · WPH v3.4 (skip-quote)';
+const APP_BUILD = 'Build 2026-05-14h · WPH v3.5 (IBHS-aligned)';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -5107,15 +5107,12 @@ function renderCompReportWphChecklist() {
   const email   = settings.email   || 'scott@foothillsfireblock.com';
   return `<div class="report-h2">Homeowner Submission Checklist</div>
     <div class="wph-checklist">
-      <p><b>How the IBHS designation process works — and how this package helps you at each step:</b></p>
+      <p><b>Foothills Fire Block has already completed your inspection and mitigation work.</b> This package is your evidence file. Here's how to convert it into an IBHS designation:</p>
       <ol>
-        <li><b>Apply online at the Wildfire Prepared Home Portal →</b> <a href="https://wildfireprepared.org/portal" target="_blank" rel="noopener">wildfireprepared.org/portal</a>. Sign in with a Google account or create a new account. Start a home application for your property address.</li>
-        <li><b>Choose your service option:</b>
-          <ul style="margin:4px 0 4px 0; padding-left:18px;">
-            <li><b>Do-It-Yourself (DIY)</b> — the standard path for homeowners who have completed the required mitigation. Pay the <b>$125 non-refundable application fee</b>.</li>
-            <li><b>Full-Service</b> — optional partnership with Madronus if you want mitigation work project-managed for you (extra fees, handled by Madronus).</li>
-          </ul>
-        </li>
+        <li><b>(Optional) Pre-check with the free assessment.</b> If you want to confirm you're ready before paying the fee, take the free yes/no assessment at <a href="https://wildfireprepared.org/free-online-home-assessment/" target="_blank" rel="noopener">wildfireprepared.org/free-online-home-assessment</a>. Every question maps to an item in this report — if it's marked Compliant, the answer is Yes.</li>
+        <li><b>Apply at the Wildfire Prepared Home Portal →</b> <a href="https://wildfireprepared.org/portal" target="_blank" rel="noopener">wildfireprepared.org/portal</a>. Sign in with a Google account or create one. Start a home application for your property address.</li>
+        <li><b>Choose "Standard DIY Service"</b> at the Service Options screen. Pay the <b>$125 non-refundable application fee</b>. (Ignore the Full Service option — the mitigation work is already done.)</li>
+        <li><b>Acknowledge the three attestations:</b> (a) home prep complete, (b) understand next step is photo upload + potential in-person evaluation, (c) fee is non-refundable.</li>
         <li><b>Upload eligibility photos.</b> IBHS wants <b>individual JPEG photos</b> (not a PDF) in specific categories:
           <ul style="margin:4px 0 4px 0; padding-left:18px;">
             <li>All <b>four sides of the home</b></li>
