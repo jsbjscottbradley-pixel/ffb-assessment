@@ -915,7 +915,9 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   font-style: italic;
 }
 /* Ensure links in the WPH checklist look tappable in the printed PDF */
-.wph-checklist a {
+.wph-checklist a,
+.report-disclosure a,
+.report-wph-note a {
   color: var(--rust); font-weight: 700; text-decoration: underline;
 }
 
@@ -1843,7 +1845,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14e · WPH v3.2';
+const APP_BUILD = 'Build 2026-05-14f · WPH v3.3 (portal)';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -4413,7 +4415,7 @@ function renderReportWphSummary(job) {
     </div>
     <div class="report-wph-note">
       <p><b>About this assessment.</b> This report evaluates your home against the <b>IBHS Wildfire Prepared Home Technical Standard (Dec 2025)</b>. Items marked <b>Compliant</b> already meet the standard; items marked <b>Non-Compliant</b> or <b>Verify</b> require mitigation work — see the Estimate section for costs.</p>
-      <p><b>Path to designation.</b> Once all Base criteria are compliant, you can apply for the <b>Wildfire Prepared Home — Base</b> designation at <b>wildfireprepared.org</b>. The designation is valid for 3 years and may qualify your property for insurance premium discounts from participating carriers. The <b>Plus</b> designation adds radiant-heat and flame protection above the Base standard.</p>
+      <p><b>Path to designation.</b> Once all Base criteria are compliant, you can apply for the <b>Wildfire Prepared Home — Base</b> designation at <a href="https://wildfireprepared.org/portal" target="_blank" rel="noopener"><b>wildfireprepared.org</b></a>. The designation is valid for 3 years and may qualify your property for insurance premium discounts from participating carriers. The <b>Plus</b> designation adds radiant-heat and flame protection above the Base standard.</p>
     </div>`;
 }
 
@@ -4643,7 +4645,7 @@ function renderReportDisclosure(inspector, settings) {
     <div class="report-disclosure">
       <p><strong>Inspector:</strong> ${escHtml(inspector || 'Scott Bradley CWMS')}</p>
       <p style="margin-top:6px;">This <strong>Wildfire Prepared Home™ Compliance Assessment</strong> was conducted by a <strong>Certified Wildfire Mitigation Specialist (CWMS)</strong> and evaluates the property against the <strong>IBHS Wildfire Prepared Home Technical Standard, December 2025 version</strong>. The assessment identifies which criteria the property currently meets, which require mitigation, and provides an estimate for the work required to reach WPH designation eligibility.</p>
-      <p style="margin-top:6px;"><strong>Foothills Fire Block prepares homes for WPH designation but does not issue certifications.</strong> The <strong>Insurance Institute for Business &amp; Home Safety (IBHS)</strong> owns the Wildfire Prepared Home™ program and uses independent, IBHS-authorized evaluators to verify compliance and issue the official designation. Once required mitigation work is complete, the homeowner submits an application (with photo documentation) at <strong>wildfireprepared.org</strong>. Designation is valid for 3 years and may qualify the property for insurance premium discounts from participating carriers.</p>
+      <p style="margin-top:6px;"><strong>Foothills Fire Block prepares homes for WPH designation but does not issue certifications.</strong> The <strong>Insurance Institute for Business &amp; Home Safety (IBHS)</strong> owns the Wildfire Prepared Home™ program and uses independent, IBHS-authorized evaluators to verify compliance and issue the official designation. Once required mitigation work is complete, the homeowner submits an application (with eligibility photos) at the <a href="https://wildfireprepared.org/portal" target="_blank" rel="noopener"><strong>Wildfire Prepared Home Portal</strong></a>. IBHS then schedules an in-person visit by a qualified third-party evaluator who verifies materials and collects the final compliance photos. Designation is valid for 3 years and may qualify the property for insurance premium discounts from participating carriers.</p>
       <p style="margin-top:6px;">Pricing shown is an estimate based on conditions observed at time of inspection. Final pricing may vary with site conditions encountered during the work. This document does not guarantee designation approval; approval is at IBHS's discretion.</p>
       <p style="margin-top:6px;">${escHtml(contact)}</p>
     </div>`;
@@ -5036,10 +5038,10 @@ function renderCompReportWphCover(job) {
       </div>
     </div>
     <div class="wph-submit-applying"><b>Designation Applying For:</b> ${escHtml(designationApplying)}</div>
-    <a class="wph-submit-cta" href="https://wildfireprepared.org/get-designated/" target="_blank" rel="noopener">
-      → Start My Application at wildfireprepared.org
+    <a class="wph-submit-cta" href="https://wildfireprepared.org/portal" target="_blank" rel="noopener">
+      → Apply at the Wildfire Prepared Home Portal
     </a>
-    <div class="wph-submit-cta-note">Tap the button above (or scan the QR / type the URL) to begin. This PDF contains every photo the evaluator needs — see the upload tip on the checklist page.</div>
+    <div class="wph-submit-cta-note">Tap the button (opens wildfireprepared.org/portal). $125 application fee. See the checklist page for photo-upload instructions and the full 6-step process.</div>
   </div>`;
 }
 
@@ -5072,23 +5074,35 @@ function renderCompReportWphChecklist() {
   const email   = settings.email   || 'scott@foothillsfireblock.com';
   return `<div class="report-h2">Homeowner Submission Checklist</div>
     <div class="wph-checklist">
-      <p><b>How to submit this package to IBHS:</b></p>
+      <p><b>How the IBHS designation process works — and how this package helps you at each step:</b></p>
       <ol>
-        <li><b>Start the application →</b> <a href="https://wildfireprepared.org/get-designated/" target="_blank" rel="noopener">wildfireprepared.org/get-designated</a> — create an account or sign in.</li>
-        <li>Enter your <b>property address</b> and select the designation tier shown on the cover page.</li>
-        <li>Complete the online questionnaire about your home.</li>
-        <li><b>Upload photos:</b> This PDF contains every photo the IBHS evaluator needs, labeled by IBHS section number (§2.1.1, §2.1.2, …). To upload each one:
+        <li><b>Apply online at the Wildfire Prepared Home Portal →</b> <a href="https://wildfireprepared.org/portal" target="_blank" rel="noopener">wildfireprepared.org/portal</a>. Sign in with a Google account or create a new account. Start a home application for your property address.</li>
+        <li><b>Choose your service option:</b>
           <ul style="margin:4px 0 4px 0; padding-left:18px;">
-            <li><b>On iPhone/iPad:</b> long-press any photo in this PDF → <b>Save to Photos</b>, then upload from your Photos app.</li>
-            <li><b>On desktop:</b> right-click any photo → <b>Save Image As…</b>, then upload from your computer.</li>
-            <li>Match each saved photo to the IBHS section the WPH portal asks for.</li>
+            <li><b>Do-It-Yourself (DIY)</b> — the standard path for homeowners who have completed the required mitigation. Pay the <b>$125 non-refundable application fee</b>.</li>
+            <li><b>Full-Service</b> — optional partnership with Madronus if you want mitigation work project-managed for you (extra fees, handled by Madronus).</li>
           </ul>
         </li>
-        <li><b>Pay the application fee</b> and submit.</li>
-        <li>An <b>IBHS-authorized third-party evaluator</b> reviews your submission. If approved, your designation is valid for <b>3 years</b>.</li>
-        <li>Send the designation certificate to your <b>insurance carrier</b> and ask about premium discounts.</li>
+        <li><b>Upload eligibility photos.</b> IBHS wants <b>individual JPEG photos</b> (not a PDF) in specific categories:
+          <ul style="margin:4px 0 4px 0; padding-left:18px;">
+            <li>All <b>four sides of the home</b></li>
+            <li>The <b>0–5 ft Noncombustible Zone</b> around the entire structure</li>
+            <li>Key features — <b>decks, porches, pergolas, hot tubs, propane tanks</b></li>
+          </ul>
+          <p style="margin:4px 0;"><b>How to pull photos out of this PDF:</b></p>
+          <ul style="margin:4px 0 4px 0; padding-left:18px;">
+            <li><b>iPhone / iPad:</b> long-press any photo → <b>Save to Photos</b> → upload from your Photos app.</li>
+            <li><b>Desktop:</b> right-click any photo → <b>Save Image As…</b> → upload from your computer.</li>
+            <li>Every photo in this package is labeled with its IBHS section (§2.1.1, §2.1.2, …) so you can match it to the portal category the WPH team asks for.</li>
+          </ul>
+        </li>
+        <li><b>Eligibility photo review (2–5 business days).</b> The Wildfire Prepared Audit Team may email you a <b>Change Request</b> asking for updated or additional photos. You have 60 days to respond.</li>
+        <li><b>In-person evaluation.</b> Once eligibility is approved, a qualified <b>IBHS-authorized third-party evaluator</b> schedules a site visit to verify building materials and collect their own verification photos. (You do not submit the final compliance photos yourself — the evaluator does.) In areas without an evaluator, IBHS may direct you to an approved self-inspection app.</li>
+        <li><b>Designation issued.</b> If your home passes, IBHS issues a Wildfire Prepared Home™ designation certificate. Valid for <b>3 years</b>.</li>
+        <li><b>Maintain the designation:</b> annual reviews at the 1-year and 2-year anniversaries (upload updated photos in the portal).</li>
+        <li><b>Insurance:</b> share your designation certificate with your carrier and ask about wildfire-mitigation premium discounts.</li>
       </ol>
-      <p style="margin-top:8px;"><b>Need help?</b> Call Foothills Fire Block at <a href="tel:${escHtml(phone.replace(/[^0-9+]/g,''))}">${escHtml(phone)}</a> or email <a href="mailto:${escHtml(email)}">${escHtml(email)}</a> and we'll walk you through it.</p>
+      <p style="margin-top:8px;"><b>Need help at any step?</b> Call Foothills Fire Block at <a href="tel:${escHtml(phone.replace(/[^0-9+]/g,''))}">${escHtml(phone)}</a> or email <a href="mailto:${escHtml(email)}">${escHtml(email)}</a>. We'll walk you through the portal and answer Change Requests together.</p>
       <p style="margin-top:4px;"><b>Learn more:</b> <a href="https://wildfireprepared.org" target="_blank" rel="noopener">wildfireprepared.org</a> · <a href="https://ibhs.org" target="_blank" rel="noopener">ibhs.org</a></p>
     </div>`;
 }
