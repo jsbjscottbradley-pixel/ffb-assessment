@@ -924,6 +924,92 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
   line-height: 1.25;
 }
 
+/* Wildfire Prepared badge — highlighted in cert strip */
+.report-cert-badge.wph {
+  background: linear-gradient(180deg, #fff5f0 0%, #fff 100%);
+  border-color: var(--rust);
+  border-width: 2px;
+}
+.report-cert-badge.wph .cert-icon { color: var(--rust); font-size: 22px; }
+.report-cert-badge.wph .cert-title { color: var(--rust); }
+
+/* WPH Compliance Summary — Base + Plus progress bars for the customer report */
+.report-wph-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin: 8px 0 12px 0;
+  page-break-inside: avoid;
+}
+.wph-band {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+.wph-band.base { border-color: var(--green-deep); background: linear-gradient(180deg, #f2f8f2 0%, #fff 100%); }
+.wph-band.plus { border-color: #b8860b; background: linear-gradient(180deg, #fdf7e6 0%, #fff 100%); }
+.wph-band-top { display: flex; justify-content: space-between; align-items: baseline; }
+.wph-band-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--green-deep); }
+.wph-band.plus .wph-band-lbl { color: #8a6508; }
+.wph-band-pct { font-size: 22px; font-weight: 800; color: var(--green-deep); }
+.wph-band.plus .wph-band-pct { color: #b8860b; }
+.wph-band-bar {
+  height: 8px; background: #e6ebe6; border-radius: 4px;
+  overflow: hidden; margin: 6px 0 6px 0;
+}
+.wph-band-bar > div {
+  height: 100%; background: var(--green-bright); border-radius: 4px;
+}
+.wph-band.plus .wph-band-bar > div { background: #d4a017; }
+.wph-band-meta { font-size: 10.5px; color: var(--ash); }
+
+.report-wph-note {
+  font-size: 10.5px; color: var(--ash);
+  background: #fffaf5; border: 1px solid #f0e0d0;
+  border-left: 3px solid var(--rust);
+  padding: 8px 10px; border-radius: 6px;
+  margin-bottom: 12px;
+  page-break-inside: avoid;
+}
+.report-wph-note p { margin: 0 0 4px 0; line-height: 1.4; }
+.report-wph-note p:last-child { margin-bottom: 0; }
+
+.report-tier-h {
+  font-size: 13px; font-weight: 800;
+  color: var(--green-deep);
+  margin: 12px 0 6px 0;
+  padding: 6px 10px;
+  background: #f2f8f2;
+  border-left: 4px solid var(--green-bright);
+  border-radius: 4px;
+  page-break-after: avoid;
+}
+
+/* WPH section tag and status pill on report items */
+.wph-tag {
+  display: inline-block;
+  font-size: 9.5px; font-weight: 800;
+  color: var(--rust);
+  background: #fff5f0;
+  border: 1px solid #f0d5c5;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.3px;
+}
+.status-tag {
+  display: inline-block;
+  font-size: 9px; font-weight: 800;
+  padding: 1px 6px; border-radius: 8px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  margin-left: 6px; vertical-align: middle;
+}
+.status-tag.pass    { background:#e6f2e6; color:#2d5a2d; border:1px solid #b8d8b8; }
+.status-tag.concern { background:#fff4d6; color:#7a5200; border:1px solid #e8c878; }
+.status-tag.fail    { background:#fbe6e6; color:#8a1a1a; border:1px solid #e0a8a8; }
+.status-tag.na      { background:#eeeeee; color:#666;    border:1px solid #cccccc; }
+.status-tag.dni     { background:#e6ecf5; color:#2a4570; border:1px solid #a8c0e0; }
+
 /* Category subtotal row in the estimate */
 .report-cat-h {
   font-size: 11px; font-weight: 800; color: var(--green-deep);
@@ -1644,7 +1730,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-14a · WPH v1';
+const APP_BUILD = 'Build 2026-05-14b · WPH v2 (report)';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -4048,6 +4134,7 @@ function renderReport() {
   wrap.innerHTML = [
     renderReportHeader(),
     renderReportMeta(job),
+    renderReportWphSummary(job),
     renderReportParcel(job),
     renderReportRiskSummary(job),
     renderReportRecommended(job),
@@ -4121,25 +4208,25 @@ function renderReportHeader() {
     <img src="${window.LOGO_DATA || ''}" alt="Foothills Fire Block">
     <div>
       <div class="report-h1">Foothills Fire Block</div>
-      <div class="report-subtitle">Wildfire Mitigation Property Assessment &amp; Estimate</div>
-      <div class="report-tagline">Certified · Trained · Trusted</div>
+      <div class="report-subtitle">Wildfire Prepared Home™ Assessment &amp; Estimate</div>
+      <div class="report-tagline">Aligned to IBHS Wildfire Prepared Home Technical Standard · Dec 2025</div>
     </div>
   </div>
   <div class="report-cert-strip">
-    <div class="report-cert-badge">
+    <div class="report-cert-badge wph">
       <div class="cert-icon">🔥</div>
+      <div class="cert-title">Wildfire Prepared</div>
+      <div class="cert-sub">Home™ Aligned<br>Assessment</div>
+    </div>
+    <div class="report-cert-badge">
+      <div class="cert-icon">🏠</div>
       <div class="cert-title">CWMS Certified</div>
       <div class="cert-sub">Certified Wildfire<br>Mitigation Specialist</div>
     </div>
     <div class="report-cert-badge">
       <div class="cert-icon">📋</div>
       <div class="cert-title">NFPA 1144</div>
-      <div class="cert-sub">Standard for Reducing<br>Structure Ignition Hazards</div>
-    </div>
-    <div class="report-cert-badge">
-      <div class="cert-icon">🏠</div>
-      <div class="cert-title">HIZ Certified</div>
-      <div class="cert-sub">Home Ignition<br>Zone Assessment</div>
+      <div class="cert-sub">Reducing Structure<br>Ignition Hazards</div>
     </div>
   </div>`;
 }
@@ -4180,50 +4267,97 @@ function renderReportParcel(job) {
     </div>`;
 }
 
+function renderReportWphSummary(job) {
+  const s = wphStats();
+  const base = s.base, plus = s.plus;
+  const baseDen = Math.max(0, base.total - base.na);
+  const plusDen = Math.max(0, plus.total - plus.na);
+  const basePct = baseDen ? Math.round((base.compliant / baseDen) * 100) : 0;
+  const plusPct = plusDen ? Math.round((plus.compliant / plusDen) * 100) : 0;
+  const baseRem = base.noncompliant + base.pending;
+  const plusRem = plus.noncompliant + plus.pending;
+  const baseStatus = baseRem === 0 && base.compliant > 0 ? 'Ready to submit' : `${baseRem} item${baseRem===1?'':'s'} to address`;
+  const plusStatus = plusRem === 0 && plus.compliant > 0 ? 'Ready to submit' : `${plusRem} item${plusRem===1?'':'s'} to address`;
+
+  return `<div class="report-h2">Wildfire Prepared Home™ Compliance Summary</div>
+    <div class="report-wph-summary">
+      <div class="wph-band base">
+        <div class="wph-band-top">
+          <div class="wph-band-lbl">Base (Essential) Designation</div>
+          <div class="wph-band-pct">${basePct}%</div>
+        </div>
+        <div class="wph-band-bar"><div style="width:${basePct}%"></div></div>
+        <div class="wph-band-meta">${base.compliant} of ${baseDen} required criteria compliant · <b>${escHtml(baseStatus)}</b></div>
+      </div>
+      <div class="wph-band plus">
+        <div class="wph-band-top">
+          <div class="wph-band-lbl">Plus (Enhanced) Designation</div>
+          <div class="wph-band-pct">${plusPct}%</div>
+        </div>
+        <div class="wph-band-bar"><div style="width:${plusPct}%"></div></div>
+        <div class="wph-band-meta">${plus.compliant} of ${plusDen} enhanced criteria compliant · <b>${escHtml(plusStatus)}</b></div>
+      </div>
+    </div>
+    <div class="report-wph-note">
+      <p><b>About this assessment.</b> This report evaluates your home against the <b>IBHS Wildfire Prepared Home Technical Standard (Dec 2025)</b>. Items marked <b>Compliant</b> already meet the standard; items marked <b>Non-Compliant</b> or <b>Verify</b> require mitigation work — see the Estimate section for costs.</p>
+      <p><b>Path to designation.</b> Once all Base criteria are compliant, you can apply for the <b>Wildfire Prepared Home — Base</b> designation at <b>wildfireprepared.org</b>. The designation is valid for 3 years and may qualify your property for insurance premium discounts from participating carriers. The <b>Plus</b> designation adds radiant-heat and flame protection above the Base standard.</p>
+    </div>`;
+}
+
 function renderReportRiskSummary(job) {
   const items = job.inspection?.items || {};
-  const sectionsHtml = INSPECTION_CATALOG
-    .filter(s => s.id !== 'treatments' && s.id !== 'insurance')
-    .map(s => {
-      // N/A items ("not applicable — doesn't exist on this property") are
-      // hidden from the customer report — clutter with no homeowner value.
-      // Pass / Concern / Fail / Not-Inspected all still show.
-      const inspectedItems = s.items.filter(it => {
-        const state = items[it.id];
-        return state && state.mark && state.mark !== 'na';
-      });
-      if (!inspectedItems.length) return '';
-      const passes   = inspectedItems.filter(it => items[it.id].mark === 'pass').length;
-      const concerns = inspectedItems.filter(it => items[it.id].mark === 'concern').length;
-      const fails    = inspectedItems.filter(it => items[it.id].mark === 'fail').length;
-      const dnis     = inspectedItems.filter(it => items[it.id].mark === 'dni').length;
-      const stat = [
-        passes ? `${passes} pass` : null,
-        concerns ? `${concerns} concern` : null,
-        fails ? `${fails} fail` : null,
-        dnis ? `${dnis} not inspected` : null,
-      ].filter(Boolean).join(' · ');
 
-      return `<div class="report-section">
-        <div class="sec-h"><span>${s.icon} ${escHtml(s.label)}</span><span class="stat">${escHtml(stat)}</span></div>
-        ${inspectedItems.map(it => renderReportInspItem(it, items[it.id])).join('')}
-      </div>`;
-    })
-    .filter(Boolean).join('');
-  if (!sectionsHtml) return '';
-  return `<div class="report-h2">Risk Assessment by Section</div>${sectionsHtml}`;
+  const renderTier = (tierKey, tierLabel, tierIcon) => {
+    const sectionsHtml = INSPECTION_CATALOG
+      .filter(s => s.id !== 'treatments' && s.id !== 'insurance')
+      .map(s => {
+        const tierItems = s.items.filter(it => it.wph_level === tierKey);
+        if (!tierItems.length) return '';
+        // Hide N/A from customer report; show compliant/verify/non-compliant/deferred.
+        const inspectedItems = tierItems.filter(it => {
+          const state = items[it.id];
+          return state && state.mark && state.mark !== 'na';
+        });
+        if (!inspectedItems.length) return '';
+        const compliant  = inspectedItems.filter(it => items[it.id].mark === 'pass').length;
+        const verify     = inspectedItems.filter(it => items[it.id].mark === 'concern').length;
+        const noncomp    = inspectedItems.filter(it => items[it.id].mark === 'fail').length;
+        const deferred   = inspectedItems.filter(it => items[it.id].mark === 'dni').length;
+        const stat = [
+          compliant ? `${compliant} compliant` : null,
+          verify    ? `${verify} verify`       : null,
+          noncomp   ? `${noncomp} non-compliant` : null,
+          deferred  ? `${deferred} deferred`   : null,
+        ].filter(Boolean).join(' · ');
+
+        return `<div class="report-section">
+          <div class="sec-h"><span>${s.icon} ${escHtml(s.label)}</span><span class="stat">${escHtml(stat)}</span></div>
+          ${inspectedItems.map(it => renderReportInspItem(it, items[it.id])).join('')}
+        </div>`;
+      })
+      .filter(Boolean).join('');
+    if (!sectionsHtml) return '';
+    return `<div class="report-tier-h">${tierIcon} ${escHtml(tierLabel)}</div>${sectionsHtml}`;
+  };
+
+  const baseHtml = renderTier('base', 'Base (Essential) Criteria', '🛡️');
+  const plusHtml = renderTier('plus', 'Plus (Enhanced) Criteria', '⭐');
+  if (!baseHtml && !plusHtml) return '';
+  return `<div class="report-h2">WPH Criteria Assessment</div>${baseHtml}${plusHtml}`;
 }
 
 function renderReportInspItem(item, state) {
   const mark = state.mark;
   const icMap = {
-    pass:    { cls:'pass',    txt:'✓' },
-    concern: { cls:'concern', txt:'!' },
-    fail:    { cls:'fail',    txt:'✗' },
-    na:      { cls:'na',      txt:'–' },
-    dni:     { cls:'dni',     txt:'NI' },
+    pass:    { cls:'pass',    txt:'✓',  lbl:'Compliant' },
+    concern: { cls:'concern', txt:'!',  lbl:'Verify' },
+    fail:    { cls:'fail',    txt:'✗',  lbl:'Non-Compliant' },
+    na:      { cls:'na',      txt:'–',  lbl:'N/A' },
+    dni:     { cls:'dni',     txt:'DF', lbl:'Deferred' },
   };
-  const ic = icMap[mark] || { cls:'', txt:'·' };
+  const ic = icMap[mark] || { cls:'', txt:'·', lbl:'' };
+  const wphTag = item.wph_section ? `<span class="wph-tag">§${escHtml(item.wph_section)}</span>` : '';
+  const statusTag = ic.lbl ? `<span class="status-tag ${ic.cls}">${escHtml(ic.lbl)}</span>` : '';
   const isFlagged = mark === 'concern' || mark === 'fail';
   // Show CWMS rec text for any item that has it set (Pass items can have it too now).
   const cwmsRec = state.cwms_rec || (isFlagged ? (item.rec || '') : '');
@@ -4234,7 +4368,7 @@ function renderReportInspItem(item, state) {
   return `<div class="report-item">
     <div class="ic ${ic.cls}">${ic.txt}</div>
     <div class="body">
-      <div class="nm">${escHtml(item.label)}</div>
+      <div class="nm">${wphTag}${escHtml(item.label)} ${statusTag}</div>
       ${cwmsRec ? `<div class="rec">${escHtml(cwmsRec)}</div>` : ''}
       ${cn ? `<div class="cn">Inspector notes: ${escHtml(cn)}</div>` : ''}
       ${meas ? `<div class="meas">Measurement: ${escHtml(meas)}</div>` : ''}
@@ -4392,11 +4526,12 @@ function renderReportDisclosure(inspector, settings) {
   const email   = settings.email   || '';
   const website = settings.website || 'foothillsfireblock.com';
   const contact = ['Foothills Fire Block', phone, email, website].filter(Boolean).join(' · ');
-  return `<div class="report-h2">About Your Inspector / Disclosure</div>
+  return `<div class="report-h2">About This Assessment</div>
     <div class="report-disclosure">
       <p><strong>Inspector:</strong> ${escHtml(inspector || 'Scott Bradley CWMS')}</p>
-      <p style="margin-top:6px;">This Wildfire Risk Assessment was conducted by a <strong>Certified Wildfire Mitigation Specialist (CWMS)</strong> based on a visual inspection of the property on the date noted above. Recommendations align with guidance from the Colorado State Forest Service Home Ignition Zone Guide, NFPA 1144, the Insurance Institute for Business &amp; Home Safety (IBHS), and the Wildfire Prepared Home program.</p>
-      <p style="margin-top:6px;">Pricing shown is an estimate based on conditions observed at time of inspection. Final pricing may vary with site conditions encountered during the work. This document does not constitute a guarantee against wildfire loss; it is intended to materially reduce risk through proven mitigation practices.</p>
+      <p style="margin-top:6px;">This <strong>Wildfire Prepared Home™ Compliance Assessment</strong> was conducted by a <strong>Certified Wildfire Mitigation Specialist (CWMS)</strong> and evaluates the property against the <strong>IBHS Wildfire Prepared Home Technical Standard, December 2025 version</strong>. The assessment identifies which criteria the property currently meets, which require mitigation, and provides an estimate for the work required to reach WPH designation eligibility.</p>
+      <p style="margin-top:6px;"><strong>Foothills Fire Block prepares homes for WPH designation but does not issue certifications.</strong> The <strong>Insurance Institute for Business &amp; Home Safety (IBHS)</strong> owns the Wildfire Prepared Home™ program and uses independent, IBHS-authorized evaluators to verify compliance and issue the official designation. Once required mitigation work is complete, the homeowner submits an application (with photo documentation) at <strong>wildfireprepared.org</strong>. Designation is valid for 3 years and may qualify the property for insurance premium discounts from participating carriers.</p>
+      <p style="margin-top:6px;">Pricing shown is an estimate based on conditions observed at time of inspection. Final pricing may vary with site conditions encountered during the work. This document does not guarantee designation approval; approval is at IBHS's discretion.</p>
       <p style="margin-top:6px;">${escHtml(contact)}</p>
     </div>`;
 }
