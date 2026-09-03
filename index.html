@@ -405,6 +405,39 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
 .insp-overall .progress { background: rgba(255,255,255,0.22); margin-top: 10px; height: 6px; border-radius: 3px; overflow: hidden; }
 .insp-overall .progress > div { background: #fff; height: 100%; border-radius: 3px; transition: width 0.25s ease; }
 
+/* WPH compliance summary card — two-tier (Base + Plus) side by side */
+.wph-summary {
+  background: #fff;
+  border-radius: 12px;
+  border: 1.5px solid var(--green-bright);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.wph-summary .wph-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 380px) {
+  .wph-summary .wph-row { grid-template-columns: 1fr; }
+}
+.wph-summary .wph-tier-lbl {
+  font-size: 10px; font-weight: 800; color: var(--green-deep);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.wph-summary .wph-tier-pct { font-size: 15px; font-weight: 800; color: var(--soot); line-height: 1.1; }
+.wph-summary .wph-tier-bar {
+  height: 6px; background: var(--cream-warm); border-radius: 3px;
+  overflow: hidden; margin: 6px 0 4px 0;
+}
+.wph-summary .wph-tier-bar > div {
+  background: var(--green-bright); height: 100%;
+  border-radius: 3px; transition: width 0.25s ease;
+}
+.wph-summary .wph-tier-bar.plus > div { background: var(--gold); }
+.wph-summary .wph-tier-meta {
+  font-size: 10.5px; color: var(--ash); font-weight: 600;
+}
+
 .insp-jump {
   display: flex; gap: 6px; overflow-x: auto;
   padding: 4px 0 12px 0;
@@ -1381,6 +1414,24 @@ label { display: block; font-size: 12px; font-weight: 700; text-transform: upper
       <div class="progress"><div id="inspBar" style="width:0%"></div></div>
     </div>
 
+    <!-- WPH Compliance Summary: two-tier progress card for Base + Plus -->
+    <div class="wph-summary" id="wphSummary">
+      <div class="wph-row">
+        <div class="wph-tier">
+          <div class="wph-tier-lbl">WPH — Base (Essential)</div>
+          <div class="wph-tier-pct"><span id="wphBaseCompliant">0</span> of <span id="wphBaseTotal">0</span> compliant</div>
+          <div class="wph-tier-bar"><div id="wphBaseBar" style="width:0%"></div></div>
+          <div class="wph-tier-meta"><span id="wphBaseNoncompliant">0</span> non-compliant · <span id="wphBaseNa">0</span> N/A</div>
+        </div>
+        <div class="wph-tier">
+          <div class="wph-tier-lbl">WPH — Plus (Enhanced)</div>
+          <div class="wph-tier-pct"><span id="wphPlusCompliant">0</span> of <span id="wphPlusTotal">0</span> compliant</div>
+          <div class="wph-tier-bar plus"><div id="wphPlusBar" style="width:0%"></div></div>
+          <div class="wph-tier-meta"><span id="wphPlusNoncompliant">0</span> non-compliant · <span id="wphPlusNa">0</span> N/A</div>
+        </div>
+      </div>
+    </div>
+
     <div class="insp-jump" id="inspJump"></div>
 
     <div id="inspSections"></div>
@@ -1593,7 +1644,7 @@ window.BADGE_DATA = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX
 // Build stamp — bump this every push. Shows on the splash screen and in
 // Settings → About so you can instantly confirm whether your phone has the
 // latest code or is serving a stale cache.
-const APP_BUILD = 'Build 2026-05-13g';
+const APP_BUILD = 'Build 2026-05-14a · WPH v1';
 
 const SUPABASE_URL = 'https://priqpyqbihorahihtqqp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByaXFweXFiaWhvcmFoaWh0cXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODQ2NzQsImV4cCI6MjA5MDA2MDY3NH0.y4rX77wkNAXZEwPDRrvOaGR-dX3bmWqPup-GdIRuXU8';
@@ -2755,113 +2806,154 @@ window.addEventListener('DOMContentLoaded', () => {
 // CSFS HIZ Guide, NFPA 1144, IBHS, Wildfire Prepared Home.
 // ════════════════════════════════════════════════════════════════════════
 
-// Item types:
-//   'assessment'     — Pass / Concern / Fail / N/A. Default for physical items.
-//   'recommendation' — Recommend / Skip. For optional add-on services.
-//   'education'      — single "Discussed with homeowner" toggle. For homeowner prep.
+// ════════════════════════════════════════════════════════════════════════
+// WPH-ALIGNED INSPECTION CATALOG (mirrors IBHS Wildfire Prepared Home
+// Technical Standard, December 2025 version)
 //
-// Optional fields:
-//   triggers:  pricebook id this item adds to the quote when flagged
+// Every item includes:
+//   wph_section:  IBHS spec section number (e.g. "2.1.1") — powers
+//                 submission-package output and compliance summary
+//   wph_level:    'base' (Essential) or 'plus' (Enhanced)
+//   wph_conditional: optional — item only applies if a feature is present
+//                    (e.g., 'hot_tub_present', 'deck_present')
+//
+// Existing app fields (unchanged behavior):
+//   type:      'assessment' (P/C/F/NA/DNI), 'recommendation' (Recommend/Skip),
+//              or 'education' (checkbox)
+//   triggers:  pricebook id auto-added to quote when marked Fail
 //   unit:      'sqft'|'lf'|'each'|'hr'|'load'|'flat' — drives measurement prompt
-//   rec:       default CWMS recommendation text (auto-populated on first flag)
+//   rec:       default CWMS recommendation text
 //   help:      gray helper text under the item label
+//
+// Mark semantics under WPH:
+//   Pass    = Compliant with WPH criterion
+//   Concern = Partial / verify with photo
+//   Fail    = Non-compliant → auto-quote line for the fix
+//   N/A     = Doesn't apply (e.g., no hot tub, no skylight)
+//   Not Insp= Deferred / to verify later
+// ════════════════════════════════════════════════════════════════════════
 const INSPECTION_CATALOG = [
 
-  // ─── Roof & Eaves ────────────────────────────────────────────
-  { id:'roof', label:'Roof & Eaves', icon:'🏠', items:[
-    { id:'roof_type',         label:'Roof material & class',                  type:'assessment', help:'Class A preferred (asphalt, metal, tile)', rec:'Note current roof class. Recommend Class A roofing on next replacement cycle.' },
-    { id:'roof_condition',    label:'Overall roof condition',                 type:'assessment', help:'Cracks, missing shingles, exposed underlayment', rec:'Repair or replace damaged roofing. Schedule professional roof inspection.' },
-    { id:'roof_debris',       label:'Roof & gutter debris',                   type:'assessment', triggers:'roof_clean', unit:'flat', rec:'Clean roof valleys and gutters; remove pine needles, leaves, and branches.' },
-    { id:'roof_overhang',     label:'Branches overhanging the roof',          type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb back any branches overhanging the roof; min 10 ft horizontal clearance from the structure.' },
-    { id:'roof_gutterguard',  label:'Metal gutter guards',                    type:'assessment', triggers:'roof_gutterguard', unit:'lf', rec:'Install metal gutter guards to prevent ember-trapping debris accumulation.' },
-    { id:'roof_dripedge',     label:'Metal drip edge at eaves',               type:'assessment', triggers:'roof_dripedge', unit:'lf', rec:'Install metal drip edge along eave and rake edges.' },
-    { id:'roof_valley',       label:'Valley flashing',                        type:'assessment', triggers:'roof_valley', unit:'lf', rec:'Install or upgrade roof valley to metal flashing.' },
-    { id:'roof_wallflash',    label:'Roof-to-wall flashing',                  type:'assessment', triggers:'roof_wallflash', unit:'lf', rec:'Install metal flashing where roof meets wall.' },
-    { id:'roof_birdstop',     label:'Tile/metal roof gaps (bird-stop)',       type:'assessment', triggers:'roof_birdstop', unit:'lf', rec:'Seal tile or metal roof openings with bird-stop to block embers.' },
-    { id:'roof_skylight',     label:'Skylights (tempered vs plastic)',        type:'assessment', triggers:'roof_skylight', unit:'each', rec:'Replace plastic skylight with a tempered-glass unit.' },
+  // ═══════════════════════════════════════════════════════════════
+  // BASE (ESSENTIAL) — BUILDING FEATURE REQUIREMENTS
+  // ═══════════════════════════════════════════════════════════════
+
+  // §2.1.1 Roof Covering
+  { id:'roof_cover', label:'2.1.1 · Roof Covering', icon:'🏠', items:[
+    { id:'roof_class_a',      label:'Class A roof covering material',         type:'assessment', wph_section:'2.1.1', wph_level:'base', help:'Asphalt shingles, tile, slate, or metal. NO wood shakes/shingles allowed (disqualifying).', rec:'Roof must be Class A fire-rated. Wood shake/shingle roofs must be replaced.' },
+    { id:'roof_debris',       label:'Roof kept clear of vegetative debris',   type:'assessment', wph_section:'2.1.1', wph_level:'base', triggers:'roof_clean', unit:'flat', rec:'Clean roof valleys, hips, and eave areas; remove pine needles, leaves, and branches.' },
+    { id:'roof_birdstop',     label:'Bird-stop on tile/corrugated metal',     type:'assessment', wph_section:'2.1.1', wph_level:'base', wph_conditional:'tile_or_corrugated', triggers:'roof_birdstop', unit:'lf', help:'Only applies if home has barrel tile or corrugated metal roof', rec:'Install noncombustible bird-stops at the eave ends of barrel tile / corrugated metal roofs to prevent ember entry.' },
   ]},
 
-  // ─── Walls & Openings ───────────────────────────────────────
-  { id:'walls', label:'Walls & Openings', icon:'🧱', items:[
-    { id:'wall_siding',       label:'Siding material & condition',            type:'assessment', help:'Wood, fiber cement, stucco; gaps and rot', rec:'Repair gaps and damaged siding. Recommend fiber cement or noncombustible cladding on next replacement.' },
-    { id:'wall_baseflash',    label:'6" vertical noncombustible base',        type:'assessment', triggers:'zone_vert6', unit:'lf', rec:'Install 6 inch vertical noncombustible material at the foundation/wall base.' },
-    { id:'wall_dryervent',    label:'Dryer vent (ember-resistant)',           type:'assessment', triggers:'vent_dryer', unit:'each', rec:'Replace dryer vent cover with an ember-resistant model.' },
-    { id:'wall_foundvent',    label:'Foundation/crawl vents',                 type:'assessment', triggers:'vent_foundation', unit:'each', rec:'Replace foundation/crawl vents with 1/16 inch ember-resistant mesh.' },
-    { id:'wall_gablevent',    label:'Gable end vents',                        type:'assessment', triggers:'vent_gable', unit:'each', rec:'Upgrade gable vents to ember-resistant mesh.' },
-    { id:'wall_soffitvent',   label:'Soffit vents',                           type:'assessment', triggers:'vent_soffit', unit:'each', rec:'Replace soffit vents with 1/16 inch ember-resistant mesh.' },
-    { id:'wall_othervent',    label:'Other wall vents (misc)',                type:'assessment', triggers:'vent_misc', unit:'each', rec:'Inspect and upgrade remaining wall vents to ember-resistant mesh.' },
-    { id:'wall_windows',      label:'Windows (single/dual/tempered)',         type:'assessment', help:'Tempered or dual-pane recommended in WUI', rec:'Recommend tempered or dual-pane windows on next replacement; close gaps in frames.' },
-    { id:'wall_doors',        label:'Doors & weather seals',                  type:'assessment', help:'Solid-core doors; tight gaskets, no gaps', rec:'Replace damaged weather seals; recommend solid-core doors on next replacement.' },
+  // §2.1.2 Gutters and Downspouts
+  { id:'gutters', label:'2.1.2 · Gutters & Downspouts', icon:'💧', items:[
+    { id:'gutter_material',   label:'Gutters & downspouts noncombustible',    type:'assessment', wph_section:'2.1.2', wph_level:'base', wph_conditional:'gutters_present', help:'Metal or aluminum. Plastic downspout extensions permitted at grade.', rec:'Replace vinyl/plastic gutters and downspouts with metal.' },
+    { id:'gutter_debris',     label:'Gutters kept clear of debris',           type:'assessment', wph_section:'2.1.2', wph_level:'base', wph_conditional:'gutters_present', triggers:'roof_clean', unit:'flat', rec:'Clean gutters and downspouts of all vegetative debris.' },
   ]},
 
-  // ─── Decks & Attachments ────────────────────────────────────
-  { id:'decks', label:'Decks & Attachments', icon:'🪵', items:[
-    { id:'deck_material',     label:'Deck material & footprint',              type:'assessment', help:'Note material (wood/composite/ipe/metal) AND approx total sqft', rec:'Document current deck material and footprint. Recommend noncombustible decking on next replacement.' },
-    { id:'deck_to_wall_flash',label:'Deck-to-wall metal flashing',            type:'assessment', triggers:'deck_flashing', unit:'lf', rec:'Install metal flashing at the deck-to-wall junction (6 inch vertical).' },
-    { id:'deck_under_enclose',label:'Under-deck enclosure',                   type:'assessment', triggers:'deck_mesh', unit:'sqft', rec:'Enclose under-deck with wildfire mesh or fiber cement board to block ember intrusion.' },
-    { id:'deck_wall_cladding',label:'Wall-to-deck fiber cement cladding',     type:'assessment', triggers:'deck_hardie_band', unit:'sqft', rec:'Install fiber cement cladding at the base of the wall above the deck (6-12 inch band).' },
-    { id:'deck_items_below',  label:'Combustibles stored under deck',         type:'assessment', help:'Move firewood, propane, brush out from under deck', rec:'Relocate firewood, propane, and combustible storage out from under the deck.' },
-    { id:'deck_stairs',       label:'Deck stairs & railing',                  type:'assessment', help:'Combustible material continuity / ladder fuel', rec:'Address combustible material continuity at stairs/railing; consider noncombustible upgrade.' },
-    { id:'deck_ladder_fuels', label:'Ladder fuels under or against deck',     type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Clear ladder fuels (small shrubs, debris, accumulated needles) under and immediately adjacent to the deck.' },
+  // §2.1.3 Vents (all types)
+  { id:'vents', label:'2.1.3 · Vents (all locations)', icon:'🌀', items:[
+    { id:'vent_roof',         label:'Roof vents (ridge/off-ridge/through-roof)', type:'assessment', wph_section:'2.1.3', wph_level:'base', triggers:'vent_ridge', unit:'each', help:'1/8" corrosion-resistant mesh OR flame/ember-resistant vents (ASTM E2886)', rec:'Cover roof vents with 1/8" noncombustible mesh, OR install flame/ember-resistant vents.' },
+    { id:'vent_gable',        label:'Attic gable end vents',                  type:'assessment', wph_section:'2.1.3', wph_level:'base', wph_conditional:'gable_vents_present', triggers:'vent_gable', unit:'each', help:'1/8" mesh or ember-resistant vent', rec:'Cover attic gable vents with 1/8" noncombustible mesh.' },
+    { id:'vent_soffit',       label:'Eave / soffit vents',                    type:'assessment', wph_section:'2.1.3', wph_level:'base', wph_conditional:'soffit_vents_present', triggers:'vent_soffit', unit:'each', help:'1/8" mesh or ember-resistant vent', rec:'Cover eave/soffit vents with 1/8" noncombustible mesh.' },
+    { id:'vent_foundation',   label:'Under-home / foundation / crawl vents',  type:'assessment', wph_section:'2.1.3', wph_level:'base', wph_conditional:'foundation_vents_present', triggers:'vent_foundation', unit:'each', help:'1/8" mesh or ember-resistant vent. Frame within 6" of grade must be noncombustible.', rec:'Cover foundation/crawl vents with 1/8" noncombustible mesh. Verify vent frame within 6" of ground is noncombustible.' },
+    { id:'vent_dryer',        label:'Dryer & exhaust vents (functional louver)', type:'assessment', wph_section:'2.1.3', wph_level:'base', triggers:'vent_dryer', unit:'each', help:'Must have functional louver/flap. NO mesh on dryer vents (creates lint hazard).', rec:'Ensure dryer/exhaust vents have working louver or flap. Do NOT install mesh on dryer vents.' },
+    { id:'vent_turbine',      label:'Turbine (whirlybird) vents removed',     type:'assessment', wph_section:'2.1.3', wph_level:'base', wph_conditional:'turbine_vents_present', triggers:'vent_misc', unit:'each', help:'Turbine vents are NOT permitted under WPH.', rec:'Remove turbine (whirlybird) vents and replace with an approved ember-resistant vent type.' },
   ]},
 
-  // ─── Zone 0 (0-5 ft Immediate) ──────────────────────────────
-  { id:'zone0', label:'Zone 0 — 0-5 ft (Immediate)', icon:'🪨', items:[
-    { id:'z0_combustibles',   label:'Combustible material within 0-5 ft',     type:'assessment', triggers:'zone_mulch_remove', unit:'sqft', help:'Mulch, plants, ground covers — anything that can burn within 5 ft of structure', rec:'Remove all combustible material (mulch, plants, debris) within 5 ft of structure.' },
-    { id:'z0_gravel',         label:'Recommend noncombustible surface (gravel/stone)?', type:'recommendation', triggers:'zone_gravel', unit:'sqft', rec:'Install noncombustible ground surface (gravel/stone) within 5 ft of structure where bare ground or grass currently exists.' },
-    { id:'z0_vert6',          label:'6" vertical noncombustible at foundation', type:'assessment', triggers:'zone_vert6', unit:'lf', rec:'Install 6 inch vertical noncombustible band at the foundation.' },
-    { id:'z0_junipers',       label:'Junipers within 0-5 ft (highly flammable)', type:'assessment', triggers:'tree_remove_std', unit:'each', help:'Junipers in the immediate zone are the single most dangerous landscape plant', rec:'Remove junipers within 0-5 ft of structure — they are extremely flammable and a primary ignition point during ember storms.' },
-    { id:'z0_trees_close',    label:'Trees within 10 ft of structure',        type:'assessment', triggers:'tree_remove_std', unit:'each', rec:'Remove trees within 10 ft of structure, OR limb up and ensure crown is well clear of the structure.' },
-    { id:'z0_overhang',       label:'Branches overhanging the structure',     type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb back any branches overhanging the structure; min 10 ft horizontal clearance.' },
-    { id:'z0_ladder_fuels',   label:'Ladder fuels in Zone 0',                 type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Remove ladder fuels (small woody shrubs, dead branches, accumulated needle debris) from the immediate zone.' },
-    { id:'z0_fence',          label:'Fence within 10 ft of structure',        type:'assessment', triggers:'zone_fence_nc', unit:'lf', help:'Note material (wood/vinyl/metal/masonry) AND height. Wood fence within 10 ft acts as a wick.', rec:'Replace combustible fence section within 10 ft of structure with noncombustible material (steel mesh, masonry, hardiboard panel).' },
+  // §2.1.4 6-inch Vertical Noncombustible Wall Covering Clearance
+  { id:'wall_base', label:'2.1.4 · 6" Wall Base Noncombustible', icon:'🧱', items:[
+    { id:'wall_base_grade',   label:'6" NC wall covering at grade & above decks', type:'assessment', wph_section:'2.1.4', wph_level:'base', triggers:'zone_vert6', unit:'lf', help:'Fiber-cement, brick/stone veneer, stucco, metal flashing, or exposed concrete foundation. Also applies above any deck/patio surface and at deck posts.', rec:'Install min 6" noncombustible material at wall base at grade and above deck/patio surfaces. Deck posts included.' },
   ]},
 
-  // ─── Zone 1 (5-30 ft Intermediate) ──────────────────────────
-  { id:'zone1', label:'Zone 1 — 5-30 ft (Intermediate)', icon:'🌳', items:[
-    { id:'z1_limbing',        label:'Tree limbing in Zone 1',                 type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb trees up 0-10 ft from ground, OR up to 1/3 of tree height for smaller trees. Removes ladder fuels.' },
-    { id:'z1_pine_needles',   label:'Pine needles & duff layer',              type:'assessment', triggers:'debris_haul', unit:'load', rec:'Rake and remove pine needles and duff layer in Zone 1.' },
-    { id:'z1_shrubs',         label:'Shrub spacing & condition',              type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Thin shrubs to maintain horizontal separation; remove dead material.' },
-    { id:'z1_grass',          label:'Grass height (≤6 inches)',               type:'assessment', help:'Mow to ≤6 inches within 30 ft', rec:'Mow grass to ≤6 inches within Zone 1; maintain through fire season.' },
-    { id:'z1_surface_fuels',  label:'Surface fuels & deadfall',               type:'assessment', triggers:'debris_haul', unit:'load', rec:'Remove deadfall and accumulated surface fuels.' },
-    { id:'z1_ladder_fuels',   label:'Ladder fuels in Zone 1',                 type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Remove ladder fuels — clear vegetation under tree canopies and between shrub layers.' },
+  // §2.1.5-6 Attached & Detached Decks / Patios / Overhead Structures
+  { id:'decks', label:'2.1.5 · Decks, Patios, Overhead', icon:'🪵', items:[
+    { id:'deck_ncz_around',   label:'Deck has own 0-5 ft NCZ around it',      type:'assessment', wph_section:'2.1.5.1', wph_level:'base', wph_conditional:'combustible_deck_present', triggers:'zone_gravel', unit:'sqft', help:'Measured 5 ft from outermost posts (or from home if deck is fully noncombustible)', rec:'Establish 5 ft noncombustible zone around the deck perimeter measured from outermost posts.' },
+    { id:'deck_top_ncz',      label:'Top of deck within 5 ft: no combustibles', type:'assessment', wph_section:'2.1.5.2', wph_level:'base', wph_conditional:'deck_present', help:'No combustible furniture, planter boxes, storage within 5 ft of home', rec:'Remove all combustible items from top of deck within 5 ft of the home (furniture, storage, planters).' },
+    { id:'deck_top_debris',   label:'Top of deck: clear of debris & vines',   type:'assessment', wph_section:'2.1.5.2', wph_level:'base', wph_conditional:'deck_present', triggers:'roof_clean', unit:'flat', help:'No leaves, needles, planter boxes, climbing vines, or woody vegetation on walking surface', rec:'Clear deck surface of vegetative debris, planter boxes, and climbing vines.' },
+    { id:'deck_furniture',    label:'Deck furniture: noncombustible frame',   type:'assessment', wph_section:'2.1.5.2', wph_level:'base', wph_conditional:'combustible_deck_present', help:'Cast iron, aluminum, or metal frames. Cushions permitted if movable indoors.', rec:'Replace combustible-framed furniture on deck with noncombustible-framed (metal/aluminum/cast iron).' },
+    { id:'deck_overhead_roof', label:'Overhead structure roof (Class A or ≤15% slats)', type:'assessment', wph_section:'2.1.5.3', wph_level:'base', wph_conditional:'overhead_structure_present', help:'Solid overhead roof: Class A. Pergola slats: no more than 15% coverage.', rec:'Solid overhead structure roof must be Class A. Pergolas reduced to ≤15% combustible slat coverage.' },
+    { id:'deck_overhead_setback', label:'Combustible overhead 10 ft from home', type:'assessment', wph_section:'2.1.5.3', wph_level:'base', wph_conditional:'detached_overhead_present', help:'Detached combustible overhead structures (pergolas/gazebos on deck) must be 10 ft from all exterior walls', rec:'Relocate detached combustible overhead structures at least 10 ft from all exterior walls.' },
+    { id:'deck_posts_6nc',    label:'Combustible posts: 6" NC at base',       type:'assessment', wph_section:'2.1.5.3', wph_level:'base', wph_conditional:'combustible_posts_present', triggers:'zone_vert6', unit:'lf', rec:'Install 6" noncombustible material (fiber-cement, metal flashing, stucco, masonry veneer) at base of combustible deck/pergola posts.' },
+    { id:'deck_hottub',       label:'Hot tubs: 10 ft from home, NC surface',  type:'assessment', wph_section:'2.1.5.3', wph_level:'base', wph_conditional:'hot_tub_present', help:'10 ft from home & other large combustibles. Not under combustible overhead. NC deck material extending 2 ft around if on combustible deck.', rec:'Relocate hot tub to at least 10 ft from home. Not permitted under combustible overhead. Add 2 ft NC pad around if on combustible deck.' },
+    { id:'deck_kitchen',      label:'Outdoor kitchens/bars: NC surfaces',     type:'assessment', wph_section:'2.1.5.3', wph_level:'base', wph_conditional:'outdoor_kitchen_present', triggers:'deck_hardie_band', unit:'sqft', help:'All horizontal exterior surfaces NC. If combustible cabinet, 6" NC vertical. If attached to combustible siding, 6" NC backsplash above.', rec:'Rebuild outdoor kitchen countertops in noncombustible material. Add 6" noncombustible cladding at exposed vertical surfaces and above wall.' },
+    { id:'deck_under_veg',    label:'Under-deck: vegetation removed to soil', type:'assessment', wph_section:'2.1.5.4', wph_level:'base', wph_conditional:'elevated_deck_present', triggers:'zone_mulch_remove', unit:'sqft', rec:'Remove all vegetation and combustible groundcover under elevated deck down to bare mineral soil or noncombustible hardscape.' },
+    { id:'deck_under_storage', label:'Under-deck: no stored items',           type:'assessment', wph_section:'2.1.5.4', wph_level:'base', wph_conditional:'elevated_deck_present', rec:'Remove all stored items (firewood, tools, equipment) from under elevated deck.' },
+    { id:'deck_under_6nc',    label:'Under-deck: 6" NC at posts/walls/stairs', type:'assessment', wph_section:'2.1.5.4', wph_level:'base', wph_conditional:'elevated_deck_present', triggers:'zone_vert6', unit:'lf', rec:'Install 6" noncombustible material at base of all posts, supporting walls, and stairs under elevated deck.' },
+    { id:'deck_under_mesh',   label:'Deck ≤4 ft high: 1/8" mesh perimeter enclosure', type:'assessment', wph_section:'2.1.5.4', wph_level:'base', wph_conditional:'low_deck_present', triggers:'deck_mesh', unit:'sqft', help:'Deck with walking surface 4 ft or less above ground — perimeter must be enclosed with 1/8" corrosion-resistant metal mesh on outside of any lattice', rec:'Enclose deck perimeter with 1/8" corrosion-resistant metal mesh from walking surface to ground.' },
+    { id:'deck_lattice',      label:'Combustible lattice: bottom 6" NC',      type:'assessment', wph_section:'2.1.5.4', wph_level:'base', wph_conditional:'lattice_present', triggers:'deck_mesh', unit:'lf', rec:'Remove bottom 6" of combustible lattice and replace with noncombustible material, OR replace all lattice with NC alternative.' },
   ]},
 
-  // ─── Zone 2 & 3 (30-100+ ft Extended) ───────────────────────
-  { id:'zone23', label:'Zone 2 & 3 — 30-100+ ft (Extended)', icon:'⛰️', items:[
-    { id:'z23_topography',    label:'Slope / topography / aspect',            type:'assessment', help:'Steeper slopes and S/W aspects = higher risk', rec:'Document slope and aspect — drives Zone 2 spacing requirements and crown separation targets.' },
-    { id:'z23_conifer_spacing', label:'Conifer crown spacing',                type:'assessment', triggers:'tree_remove_std', unit:'each', rec:'Thin conifers for 10-20 ft crown separation in Zone 2.' },
-    { id:'z23_aspens',        label:'Aspens (fire-resilient)',                type:'assessment', help:'Aspens are fire-resistant; preserve where possible', rec:'Preserve aspen stands — they are fire-resilient and act as natural fuel breaks.' },
-    { id:'z23_oak_islands',   label:'Oak islands / hardwood groups',          type:'assessment', help:'Maintain as separated islands', rec:'Maintain oak/hardwood groups as separated islands; thin understory between groups.' },
-    { id:'z23_low_limbing',   label:'Low limbing in Zone 2/3',                type:'assessment', triggers:'tree_limb', unit:'each', rec:'Limb conifers in Zone 2/3 up 0-10 ft, or up to 1/3 of tree height for smaller trees.' },
-    { id:'z23_ladder_fuels',  label:'Ladder fuels in Zone 2/3',               type:'assessment', triggers:'brush_clear', unit:'hr', rec:'Reduce ladder fuels — small understory trees, brush, branches that bridge ground fire to canopy.' },
+  // ═══════════════════════════════════════════════════════════════
+  // BASE (ESSENTIAL) — DEFENSIBLE SPACE REQUIREMENTS
+  // ═══════════════════════════════════════════════════════════════
+
+  // §2.2.1 0-5 Foot Noncombustible Zone
+  { id:'zone0', label:'2.2.1 · 0-5 ft Noncombustible Zone', icon:'🪨', items:[
+    { id:'z0_vegetation',     label:'All vegetation removed to bare soil',    type:'assessment', wph_section:'2.2.1', wph_level:'base', triggers:'zone_mulch_remove', unit:'sqft', help:'Grass, weeds, flowers, succulents, cacti, plants, shrubs, bushes, debris — no exceptions, even if fire-resistant or irrigated.', rec:'Remove ALL vegetation within 5 ft of home to bare mineral soil. No exceptions — not even succulents or "fire-resistant" plants.' },
+    { id:'z0_trees',          label:'Trees, limbs, overhanging branches removed', type:'assessment', wph_section:'2.2.1', wph_level:'base', triggers:'tree_remove_std', unit:'each', help:'Includes any branches that overhang the 0-5 zone from trees rooted outside it', rec:'Remove all trees, limbs, and branches within 5 ft of home. Includes overhanging branches from outside trees.' },
+    { id:'z0_groundcover',    label:'Only noncombustible groundcover in 0-5 ft', type:'assessment', wph_section:'2.2.1', wph_level:'base', triggers:'zone_gravel', unit:'sqft', help:'Gravel, pavers, river rock, DG, steppingstones, concrete. NO mulch, NO artificial turf, NO exposed weed cloth.', rec:'Replace combustible groundcover (mulch, artificial turf) with noncombustible hardscape (gravel, pavers, DG, concrete) within 5 ft.' },
+    { id:'z0_fence_at_home',  label:'Fencing/retaining walls: noncombustible only', type:'assessment', wph_section:'2.2.1', wph_level:'base', triggers:'zone_fence_nc', unit:'lf', help:'Metal (aluminum/steel/chain link/iron) or concrete only. Vinyl and composite NOT permitted.', rec:'Replace combustible fencing (wood, vinyl) and retaining walls within 5 ft of home with metal or concrete. Includes posts and gates.' },
+    { id:'z0_parked_items',   label:'No vehicles/equipment parked within 5 ft', type:'assessment', wph_section:'2.2.1', wph_level:'base', help:'Cars, motorcycles, boats, RVs, ATVs, golf carts — none within 5 ft', rec:'Ensure no vehicles, motorcycles, trailers, RVs, ATVs, or similar equipment are parked within 5 ft of home.' },
+    { id:'z0_combustible_items', label:'Combustible items removed from 0-5 ft', type:'assessment', wph_section:'2.2.1', wph_level:'base', help:'Firewood, wood furniture, dividers, rain barrels, wood planters, playsets, saunas, sheds. Movable items must go 30 ft during Red Flag.', rec:'Remove all combustible items (firewood, wood furniture, dividers, wood planters, storage) from within 5 ft of home.' },
   ]},
 
-  // ─── Outbuildings & Property ────────────────────────────────
-  { id:'outbuild', label:'Outbuildings & Property', icon:'🚐', items:[
-    { id:'ob_shed',           label:'Sheds / detached structures',            type:'assessment', help:'Apply same Zone 0/1 treatment as main structure', rec:'Apply same Zone 0/1 mitigation around any detached structure (shed, barn, well house).' },
-    { id:'ob_firewood',       label:'Firewood storage location',              type:'assessment', help:'Relocate firewood beyond 30 ft from any structure', rec:'Relocate firewood beyond 30 ft from any structure during fire season.' },
-    { id:'ob_propane',        label:'Propane tank clearance',                 type:'assessment', help:'10 ft of bare mineral soil around tank', rec:'Maintain 10 ft of bare mineral soil around propane tank.' },
-    { id:'ob_vehicles',       label:'Vehicles & trailers',                    type:'assessment', help:'Park 30+ ft from structures during fire weather', rec:'Park vehicles 30+ ft from structures during red-flag fire weather.' },
-    { id:'ob_address_marker', label:'Reflective address marker',              type:'assessment', triggers:'misc_address', unit:'each', rec:'Install reflective noncombustible address marker visible from main road for fire apparatus.' },
-    { id:'ob_driveway',       label:'Driveway access for fire apparatus',     type:'assessment', help:'12 ft min width, 14 ft vertical clearance, turnaround at end', rec:'Address driveway clearances: 12 ft horizontal, 14 ft vertical, turnaround at end. Limb back encroaching trees.' },
+  // §2.2.2 5-30 Foot Defensible Space Zone
+  { id:'zone1', label:'2.2.2 · 5-30 ft Defensible Space', icon:'🌳', items:[
+    { id:'z1_tree_vert',      label:'Tree vertical clearance (6 ft or 1/3 height)', type:'assessment', wph_section:'2.2.2.1', wph_level:'base', triggers:'tree_limb', unit:'each', help:'Prune lowest branches to 6 ft above ground, or 1/3 tree height if tree under 18 ft tall', rec:'Limb tree branches to at least 6 ft above ground (or 1/3 tree height for trees under 18 ft).' },
+    { id:'z1_tree_horiz',     label:'Tree hedges 10 ft from home & from each other', type:'assessment', wph_section:'2.2.2.1', wph_level:'base', triggers:'tree_remove_std', unit:'each', help:'Continuous tree hedges/rows: 10 ft from home walls AND 10 ft horizontal spacing between rows', rec:'Space tree hedges/rows minimum 10 ft from home walls and 10 ft horizontally between rows.' },
+    { id:'z1_chimney',        label:'10 ft clearance around chimney/stovepipe', type:'assessment', wph_section:'2.2.2.1', wph_level:'base', wph_conditional:'chimney_present', triggers:'tree_limb', unit:'each', rec:'Limb back all branches to 10 ft clearance around chimney and stovepipe outlets.' },
+    { id:'z1_shrub_spacing',  label:'Shrub spacing (2x height rule)',         type:'assessment', wph_section:'2.2.2.1', wph_level:'base', triggers:'brush_clear', unit:'hr', help:'Groups ≤10 ft diameter treated as one shrub. Spacing between = 2x tallest plant height, max 10 ft. Hedges 10 ft from home.', rec:'Thin shrubs to maintain 2x tallest plant height in horizontal spacing (max 10 ft). Cluster groups to ≤10 ft diameter.' },
+    { id:'z1_grass',          label:'Grass ≤4 inches height',                 type:'assessment', wph_section:'2.2.2.1', wph_level:'base', help:'Annual grasses to less than 4". On slopes: 18" continuous groundcover permitted for erosion control.', rec:'Mow all grass to under 4 inches. On erosion-prone slopes, continuous groundcover ≤18 inches is permitted.' },
+    { id:'z1_dead_veg',       label:'Dead/dying vegetation removed',          type:'assessment', wph_section:'2.2.2.1', wph_level:'base', triggers:'debris_haul', unit:'load', help:'Grass, weeds, plants, shrubs, trees, logs, stumps, branches, leaves, pine needles', rec:'Routinely remove all dead and dying vegetation from the 5-30 ft zone.' },
+    { id:'z1_woodpile',       label:'Wood pile ≥30 ft from home',             type:'assessment', wph_section:'2.2.2.1', wph_level:'base', wph_conditional:'woodpile_present', help:'Or stored in an approved accessory structure. Fire-retardant tarps NOT permitted.', rec:'Relocate wood pile at least 30 ft from home, or store in an approved accessory structure.' },
+    { id:'z1_lpg_tank',       label:'LPG/fuel tanks: 30 ft OR 10 ft w/clearance', type:'assessment', wph_section:'2.2.2.2', wph_level:'base', wph_conditional:'lpg_tank_present', help:'Option 1: 30+ ft from home. Option 2: 10+ ft with 10 ft bare mineral soil around tank + 10-20 ft reduced fuels.', rec:'Relocate LPG/fuel tanks to 30+ ft from home, OR to 10+ ft with 10 ft noncombustible clearance and 10-20 ft reduced fuels.' },
+    { id:'z1_water_tank',     label:'Combustible water tanks: 5 ft from home', type:'assessment', wph_section:'2.2.2.2', wph_level:'base', wph_conditional:'water_tank_present', help:'5+ ft from home & other combustibles. Own 0-5 NCZ. Not under combustible overhead.', rec:'Relocate combustible water storage tanks to 5+ ft from home with own 0-5 NCZ. Not permitted under combustible overhead.' },
   ]},
 
-  // ─── Treatment Recommendations (sprays + retardants) ────────
-  { id:'treatments', label:'Treatment Recommendations', icon:'💧', items:[
-    { id:'tr_veg_spray',      label:'Vegetation fire retardant treatment',    type:'recommendation', triggers:'spray_veg', unit:'sqft', rec:'Apply vegetation fire retardant to grass, brush, and ground vegetation in defensible space. Lasts through one fire season.' },
-    { id:'tr_struct_spray',   label:'Structural fire retardant treatment',    type:'recommendation', triggers:'spray_struct', unit:'sqft', rec:'Apply structural fire retardant to combustible siding, deck surfaces, and exposed exterior wood.' },
-    { id:'tr_combo_spray',    label:'Combined fire retardant system',         type:'recommendation', triggers:'spray_combo', unit:'sqft', rec:'Combined system: structural retardant on the building envelope + vegetation retardant on adjacent fuels. Best protection for high-risk parcels.' },
-    { id:'tr_fence_spray',    label:'Wood fence retardant treatment',         type:'recommendation', triggers:'spray_fence', unit:'lf', rec:'Apply fire retardant to wood fence sections — fences act as wicks during ember storms.' },
+  // §2.2.3 Detached ADUs and Accessory Structures within 30 ft
+  { id:'accessory', label:'2.2.3 · Detached Structures ≥15 sqft in 30 ft', icon:'🏚️', items:[
+    { id:'acc_setback',       label:'Structures 10 ft from home & attachments', type:'assessment', wph_section:'2.2.3', wph_level:'base', wph_conditional:'accessory_structures_present', help:'Sheds, garages, greenhouses, playsets, gazebos, pergolas, ADUs ≥15 sqft', rec:'Relocate detached structures to at least 10 ft from home and attachments.' },
+    { id:'acc_same_reqs',     label:'Structures meet same WPH requirements as home', type:'assessment', wph_section:'2.2.3', wph_level:'base', wph_conditional:'accessory_structures_present', help:'Roof covering, gutters, vents, 6" NC wall clearance, decks, own 0-5 NCZ', rec:'Bring detached structures into same WPH compliance as home (roof, gutters, vents, 6" NC base, 0-5 NCZ).' },
+    { id:'acc_between_10ft',  label:'10 ft between structures, NCZ no overlap', type:'assessment', wph_section:'2.2.3', wph_level:'base', wph_conditional:'multiple_structures', rec:'Space multiple detached structures 10 ft apart. NCZ around each may not overlap with home or other structures.' },
+    { id:'acc_max_3',         label:'Max 3 detached structures within 30 ft', type:'assessment', wph_section:'2.2.3', wph_level:'base', wph_conditional:'accessory_structures_present', rec:'Limit total detached structures (ADUs, sheds, pergolas, etc.) to 3 within 30 ft of home.' },
   ]},
 
-  // ─── Insurance & Emergency Prep (homeowner education) ──────
-  { id:'insurance', label:'Insurance & Emergency Prep', icon:'🚨', items:[
-    { id:'ins_inventory',     label:'Home inventory (photos / video)',        type:'education', help:'Document contents room-by-room for insurance claims' },
-    { id:'ins_evac_plan',     label:'Evacuation plan & routes',               type:'education', help:'Multiple routes, meet-up location, go-bag prepared' },
-    { id:'ins_communication', label:'Family communication plan',              type:'education', help:'Out-of-area contact, text vs voice during outage' },
-    { id:'ins_pets',          label:'Pet & livestock plan',                   type:'education', help:'Carriers, large-animal trailers, evac timing' },
-    { id:'ins_codered',       label:'CodeRED / county alerts registered',     type:'education', help:'jeffco.us/CodeRED, douglas.co.us, etc.' },
+  // ═══════════════════════════════════════════════════════════════
+  // PLUS (ENHANCED) — BUILDING FEATURE REQUIREMENTS
+  // ═══════════════════════════════════════════════════════════════
+
+  { id:'plus_building', label:'3.1 · Plus (Enhanced) — Building', icon:'⭐', items:[
+    { id:'plus_gutter_covers', label:'3.1.1 · Noncombustible gutter covers',  type:'assessment', wph_section:'3.1.1', wph_level:'plus', wph_conditional:'gutters_present', triggers:'roof_gutterguard', unit:'lf', help:'In addition to noncombustible gutters (Base), install NC gutter guards to prevent debris', rec:'Install noncombustible gutter guards to prevent debris buildup.' },
+    { id:'plus_eaves',        label:'3.1.2 · Eaves enclosed with noncombustible', type:'assessment', wph_section:'3.1.2', wph_level:'plus', triggers:'deck_hardie_band', unit:'sqft', help:'Fiber-cement, stucco, or metal — inclusive of outlookers, fascia, decorative features', rec:'Enclose exposed underside of eaves with noncombustible material (fiber-cement, stucco, or metal).' },
+    { id:'plus_vent_material', label:'3.1.3 · Dryer/exhaust vents: NC material', type:'assessment', wph_section:'3.1.3', wph_level:'plus', triggers:'vent_dryer', unit:'each', help:'In addition to functional louver (Base), vent body must be noncombustible metal.', rec:'Upgrade dryer/exhaust vents to noncombustible (metal) construction.' },
+    { id:'plus_siding',       label:'3.1.4 · All exterior walls noncombustible', type:'assessment', wph_section:'3.1.4', wph_level:'plus', help:'Brick, concrete, fiber-cement, masonry veneer, metal, stucco. NO vinyl, wood, engineered wood — even if treated.', rec:'Replace all exterior wall covering with noncombustible material (fiber-cement, brick, stucco, metal, masonry).' },
+    { id:'plus_shutters',     label:'3.1.4 · Shutters noncombustible',        type:'assessment', wph_section:'3.1.4', wph_level:'plus', wph_conditional:'shutters_present', help:'All shutters (decorative or operable) must have all exposed surfaces noncombustible', rec:'Replace combustible shutters with noncombustible construction.' },
+    { id:'plus_windows',      label:'3.1.5 · Windows: 2 tempered panes or glass block', type:'assessment', wph_section:'3.1.5', wph_level:'plus', help:'Multipane with 2+ tempered panes, OR 20-min fire-rated glass, OR glass block. Etching visible on tempered.', rec:'Replace exterior windows with multipane (2+ tempered panes), fire-rated glass, or glass block.' },
+    { id:'plus_skylights',    label:'3.1.5 · Skylights: tempered outer + laminated inner', type:'assessment', wph_section:'3.1.5', wph_level:'plus', wph_conditional:'skylights_present', triggers:'roof_skylight', unit:'each', help:'Multipane. Operable skylights protected with 1/8" NC mesh.', rec:'Replace plastic dome skylights with flat multipane (tempered outer + laminated inner). Operable skylights get 1/8" mesh.' },
+    { id:'plus_doors',        label:'3.1.6 · Exterior doors: NC or 1¾" solid-core', type:'assessment', wph_section:'3.1.6', wph_level:'plus', help:'Noncombustible OR solid-core wood ≥1¾" thick. NC threshold required. Glass in doors: 2 tempered panes.', rec:'Replace exterior doors with noncombustible or solid-core 1¾"+ construction. Ensure noncombustible threshold. Glass panels: multipane tempered.' },
+    { id:'plus_underfloor',   label:'3.1.7 · Underfloor & bay windows enclosed w/NC', type:'assessment', wph_section:'3.1.7', wph_level:'plus', wph_conditional:'underfloor_present', help:'Excluding decks. Cover exposed underside OR enclose to ground w/ NC wall covering.', rec:'Cover underfloor areas and building projections (bay windows, homes on piers) with noncombustible material or enclose to ground.' },
+    { id:'plus_deck_material', label:'3.1.8 · Deck: fully NC OR retrofit',    type:'assessment', wph_section:'3.1.8', wph_level:'plus', wph_conditional:'deck_present', triggers:'deck_mesh', unit:'sqft', help:'Option 1: Fully NC deck (posts, joists, railings, walking surface). Option 2: NC walking surface + NC railings within 5 ft + 6" NC deck posts + NC stair upgrades.', rec:'Either build/rebuild deck fully noncombustible, OR retrofit with NC walking surface, NC railings within 5 ft of home, 6" NC deck posts, and NC stairs.' },
+  ]},
+
+  // ═══════════════════════════════════════════════════════════════
+  // PLUS (ENHANCED) — DEFENSIBLE SPACE REQUIREMENTS
+  // ═══════════════════════════════════════════════════════════════
+
+  { id:'plus_defspace', label:'3.2 · Plus (Enhanced) — Defensible Space', icon:'⭐', items:[
+    { id:'plus_parallel_fence', label:'3.2.1 · No back-to-back combustible fences <5 ft apart', type:'assessment', wph_section:'3.2.1', wph_level:'plus', wph_conditional:'parallel_fences_present', triggers:'zone_fence_nc', unit:'lf', help:'Parallel combustible fences less than 5 ft apart are not permitted. May require neighbor/HOA coordination.', rec:'Remove one of the parallel combustible fences within 5 ft of each other, OR replace with noncombustible material.' },
+    { id:'plus_no_structs',   label:'3.2.2 · All detached structures ≥30 ft from home', type:'assessment', wph_section:'3.2.2', wph_level:'plus', wph_conditional:'accessory_structures_present', help:'Plus tightens Base (10 ft) to 30 ft. All ADUs, sheds, pergolas, playsets ≥15 sqft must be 30+ ft from home.', rec:'Relocate all detached structures (sheds, pergolas, playsets, garages, ADUs) to at least 30 ft from home.' },
+  ]},
+
+  // ═══════════════════════════════════════════════════════════════
+  // TREATMENT RECOMMENDATIONS (not required for WPH, offered as add-ons)
+  // ═══════════════════════════════════════════════════════════════
+
+  { id:'treatments', label:'Add-On · Retardant Treatments', icon:'💧', items:[
+    { id:'tr_veg_spray',      label:'Vegetation fire retardant treatment',    type:'recommendation', wph_section:'add-on', wph_level:'addon', triggers:'spray_veg', unit:'sqft', rec:'Apply vegetation fire retardant to grass, brush, and ground vegetation in defensible space. Lasts through one fire season.' },
+    { id:'tr_struct_spray',   label:'Structural fire retardant treatment',    type:'recommendation', wph_section:'add-on', wph_level:'addon', triggers:'spray_struct', unit:'sqft', rec:'Apply structural fire retardant to combustible siding, deck surfaces, and exposed exterior wood.' },
+    { id:'tr_combo_spray',    label:'Combined fire retardant system',         type:'recommendation', wph_section:'add-on', wph_level:'addon', triggers:'spray_combo', unit:'sqft', rec:'Combined system: structural retardant on the building envelope + vegetation retardant on adjacent fuels. Best protection for high-risk parcels.' },
+    { id:'tr_fence_spray',    label:'Wood fence retardant treatment',         type:'recommendation', wph_section:'add-on', wph_level:'addon', triggers:'spray_fence', unit:'lf', rec:'Apply fire retardant to wood fence sections — fences act as wicks during ember storms.' },
   ]},
 ];
 
@@ -2968,6 +3060,30 @@ function inspStats() {
   return { total, done, issues };
 }
 
+// WPH-specific stats: counts Base + Plus compliance across the catalog.
+// "Compliant" = Pass mark. "Non-compliant" = Fail (Concern is treated as
+// pending — verify with photo before designation submission). N/A items
+// are counted separately as "excluded from designation." "Add-on" items
+// (retardant treatments) are ignored — they're upsell, not WPH criteria.
+function wphStats() {
+  const items = APP.currentJob?.inspection?.items || {};
+  const base = { total: 0, compliant: 0, noncompliant: 0, na: 0, deferred: 0, pending: 0 };
+  const plus = { total: 0, compliant: 0, noncompliant: 0, na: 0, deferred: 0, pending: 0 };
+  INSPECTION_CATALOG.forEach(s => s.items.forEach(it => {
+    if (it.wph_level !== 'base' && it.wph_level !== 'plus') return;   // skip add-on / education
+    const bucket = it.wph_level === 'base' ? base : plus;
+    bucket.total++;
+    const state = items[it.id];
+    if (!state || !state.mark) return; // untouched
+    if      (state.mark === 'pass')    bucket.compliant++;
+    else if (state.mark === 'fail')    bucket.noncompliant++;
+    else if (state.mark === 'concern') bucket.pending++;
+    else if (state.mark === 'na')      bucket.na++;
+    else if (state.mark === 'dni')     bucket.deferred++;
+  }));
+  return { base, plus };
+}
+
 function inspSectionStats(sectionId) {
   const section = INSPECTION_CATALOG.find(s => s.id === sectionId);
   if (!section) return { total:0, done:0, issues:0 };
@@ -2991,6 +3107,24 @@ function renderInspectionSummary() {
   set('inspIssues', issues);
   const bar = document.getElementById('inspBar');
   if (bar) bar.style.width = pct + '%';
+
+  // WPH two-tier compliance summary
+  const { base, plus } = wphStats();
+  set('wphBaseCompliant', base.compliant);
+  set('wphBaseTotal', base.total);
+  set('wphBaseNoncompliant', base.noncompliant);
+  set('wphBaseNa', base.na);
+  set('wphPlusCompliant', plus.compliant);
+  set('wphPlusTotal', plus.total);
+  set('wphPlusNoncompliant', plus.noncompliant);
+  set('wphPlusNa', plus.na);
+  const baseBar = document.getElementById('wphBaseBar');
+  const plusBar = document.getElementById('wphPlusBar');
+  // Base: %compliant among items that COULD be compliant (excludes N/A)
+  const baseDen = base.total - base.na;
+  const plusDen = plus.total - plus.na;
+  if (baseBar) baseBar.style.width = (baseDen ? Math.round(base.compliant / baseDen * 100) : 0) + '%';
+  if (plusBar) plusBar.style.width = (plusDen ? Math.round(plus.compliant / plusDen * 100) : 0) + '%';
 }
 
 function renderInspectionJump() {
